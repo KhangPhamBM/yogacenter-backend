@@ -21,8 +21,4 @@
     <ProjectReference Include="..\YogaCenter.BackEnd.Service\YogaCenter.BackEnd.Service.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Controllers\" />
-  </ItemGroup>
-
 </Project>
