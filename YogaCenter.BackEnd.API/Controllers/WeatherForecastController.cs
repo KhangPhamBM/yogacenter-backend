@@ -41,5 +41,23 @@ namespace YogaCenter.BackEnd.API.Controllers
             if(two == 1) return (double)(4 * Math.Pow(3, three - 1));
             return 4 * Math.Pow(3, three);
         }
+
+        [Route("FiboTesing")]
+        [HttpGet]
+        public int GetFibo(int num)
+        {
+            if (num == 1 || num == 2) return 1;
+            int i = 3;
+            int one = 1, second = 1;
+            int curr = 0;
+            while(i <= num)
+            {
+                curr = one + second;
+                one = second;
+                second = curr;
+                i++;
+            }
+            return curr;
+        }
     }
 }
