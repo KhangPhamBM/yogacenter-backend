@@ -11,22 +11,20 @@ namespace YogaCenter.BackEnd.Service.Implementations
 {
     public class CourseService : ICourseService
     {
-        private readonly ICourseRepository _courseRepository;
         private readonly IUnitOfWork _unitOfWork;
 
-        public CourseService(ICourseRepository courseRepository, IUnitOfWork unitOfWork)
+        public CourseService(IUnitOfWork unitOfWork)
         {
-            _courseRepository = courseRepository;
             _unitOfWork = unitOfWork;
         }
 
-        public Task CreateCourse( Course course)
+        public Task CreateCourse(Course course)
         {
-            _courseRepository.Insert(course);
+            _unitOfWork.GetRepository<Course>().Insert(course);
             _unitOfWork.SaveChange();
             return Task.CompletedTask;
         }
 
-       
+
     }
 }
