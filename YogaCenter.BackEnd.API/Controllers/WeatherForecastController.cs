@@ -29,5 +29,17 @@ namespace YogaCenter.BackEnd.API.Controllers
             })
             .ToArray();
         }
+        [Route("CalculatingLargestMultipleOfSum")]
+        [HttpGet]
+        public double GetMultiplication(int sum)
+        {
+            if (sum <= 1) return sum;
+            if (sum <= 3) return sum - 1;
+            int three = sum / 3;
+            int two = sum % 3;
+            if (two == 0) return (double)(Math.Pow(3, three));
+            if(two == 1) return (double)(4 * Math.Pow(3, three - 1));
+            return 4 * Math.Pow(3, three);
+        }
     }
 }
