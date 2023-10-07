@@ -1,5 +1,10 @@
 using Microsoft.EntityFrameworkCore;
+using YogaCenter.BackEnd.DAL.Contracts;
 using YogaCenter.BackEnd.DAL.Data;
+using YogaCenter.BackEnd.DAL.Implementations;
+using YogaCenter.BackEnd.DAL.Models;
+using YogaCenter.BackEnd.Service.Contracts;
+using YogaCenter.BackEnd.Service.Implementations;
 
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 
@@ -20,6 +25,13 @@ builder.Services.AddDbContext<YogaCenterContext>(option =>
 {
     option.UseSqlServer(builder.Configuration.GetValue<string>("ConnectionStrings:DB"));
 });
+builder.Services.AddScoped<ICourseService, CourseService>();
+builder.Services.AddScoped<ICourseRepository, CourseRepository>();
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+
+
+
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();

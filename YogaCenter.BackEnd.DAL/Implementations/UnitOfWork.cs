@@ -25,7 +25,7 @@ namespace YogaCenter.BackEnd.DAL.Implementations
             {
                 if (disposing)
                 {
-                    _context.Dispose();
+                    _db.Dispose();
                 }
                 disposed = true;
             }
