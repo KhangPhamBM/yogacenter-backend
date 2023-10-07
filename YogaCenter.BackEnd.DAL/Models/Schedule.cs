@@ -19,6 +19,10 @@ namespace YogaCenter.BackEnd.DAL.Models
         [ForeignKey("TimeFrameId"), Column(Order = 2)]
         public TimeFrame? TimeFrame { get; set; }
 
+        public int? RoomId { get; set; }
+        [ForeignKey("RoomId"),Column(Order =3)]
+        public Room? Room { get; set; } 
+
         public DateTime Date { get; set; }
     }
 }
