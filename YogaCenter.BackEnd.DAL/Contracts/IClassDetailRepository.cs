@@ -9,5 +9,6 @@ namespace YogaCenter.BackEnd.DAL.Contracts
 {
     public interface IClassDetailRepository: IRepository<ClassDetail>
     {
+        Task<ClassDetail> GetByClassIdAndUserId(ClassDetail classDetail);
     }
 }

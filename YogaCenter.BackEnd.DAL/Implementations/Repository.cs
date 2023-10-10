@@ -10,7 +10,7 @@ using YogaCenter.BackEnd.DAL.Data;
 
 namespace YogaCenter.BackEnd.DAL.Implementations
 {
-    public class Repository<T> :IRepository<T>  where T : class
+    public class Repository<T> : IRepository<T> where T : class
     {
         private readonly YogaCenterContext _context;
         private readonly DbSet<T> _dbSet;
@@ -26,35 +26,34 @@ namespace YogaCenter.BackEnd.DAL.Implementations
             return _dbSet.AsNoTracking();
         }
 
-        public T GetById(object id)
+        public async Task<T> GetById(object id)
         {
-            return _dbSet.Find(id);
+            return await _dbSet.FindAsync(id);
         }
 
-        public void Insert(T entity)
+        public async Task Insert(T entity)
         {
-            _dbSet.Add(entity);
+            await _dbSet.AddAsync(entity);
         }
 
-        public void Update(T entity)
+        public Task Update(T entity)
         {
-            _dbSet.Attach(entity);
-            _context.Entry(entity).State = EntityState.Modified;
+            _dbSet.Update(entity);
+            return Task.CompletedTask;
         }
 
-        public void Delete(object id)
+        public Task DeleteById(object id)
         {
             T entityToDelete = _dbSet.Find(id);
-            Delete(entityToDelete);
+            if (entityToDelete != null)
+            {
+                _dbSet.Remove(entityToDelete);
+
+            }
+            return Task.CompletedTask;
+
         }
 
-        public void Delete(T entity)
-        {
-            if (_context.Entry(entity).State == EntityState.Detached)
-            {
-                _dbSet.Attach(entity);
-            }
-            _dbSet.Remove(entity);
-        }
+      
     }
 }

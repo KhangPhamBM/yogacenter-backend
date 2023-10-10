@@ -6,10 +6,9 @@ using System.Threading.Tasks;
 
 namespace YogaCenter.BackEnd.Common.Dto
 {
-    public class ResponeDto
+    public class LoginRequestDto
     {
-        public object Data { get; set; }
-        public bool isSuccess { get; set; } = true;
-        public string Message { get; set; } = "";
+        public string Email { get; set; }
+        public string Password { get; set; }
     }
 }
