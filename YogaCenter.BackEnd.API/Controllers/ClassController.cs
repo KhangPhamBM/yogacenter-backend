@@ -54,24 +54,7 @@ namespace YogaCenter.BackEnd.API.Controllers
             }
             return _responeDto;
         }
-        [HttpPut("change-status-isDeleted-Class")]
-        public async Task<ResponeDto> ChangeStatusIsDeletedOfClass(ClassDto classDto, bool isDeleted)
-        {
-            try
-            {
-                await _classService.ChangeStatusIsDeletedOfClass(classDto, isDeleted);
-                _responeDto.Data = true;
-
-            }
-            catch (Exception ex)
-            {
-
-                _responeDto.isSuccess = false;
-                _responeDto.Message = ex.Message;
-
-            }
-            return _responeDto;
-        }
+      
 
 
     }

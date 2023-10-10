@@ -23,5 +23,10 @@ namespace YogaCenter.BackEnd.DAL.Implementations
         {
             return await _context.ClassDetails.SingleOrDefaultAsync(c => c.UserId == classDetail.UserId && c.ClassId == classDetail.ClassId);
         }
+
+        public async Task<ClassDetail> GetClassDetailByUserId(string UserId)
+        {
+            return await _context.ClassDetails.FirstOrDefaultAsync(c => c.UserId == UserId);
+        }
     }
 }

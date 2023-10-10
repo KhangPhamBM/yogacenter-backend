@@ -59,23 +59,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
             }
         }
 
-        public async Task ChangeStatusIsDeletedOfClass(ClassDto classDto, bool isDeleted)
-        {
-            var classDb = await _unitOfWork.GetRepository<Class>().GetById(classDto.ClassId);
-            if (classDb != null)
-            {
-                if (isDeleted)
-                {
-                    classDb.IsDeleted = true;
-                }
-                else
-                {
-                    classDb.IsDeleted = false;
-                }
-                _unitOfWork.SaveChange();
-            }
-
-        }
+     
 
     }
 }

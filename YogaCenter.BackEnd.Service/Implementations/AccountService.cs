@@ -32,6 +32,8 @@ namespace YogaCenter.BackEnd.Service.Implementations
             if (user != null)
             {
                 await _accountRepository.AssignRole(user.Id, signUpRequest.RoleName);
+                _unitOfWork.SaveChange();
+
             }
         }
         public Task UpdateAccount(ApplicationUser applicationUser)

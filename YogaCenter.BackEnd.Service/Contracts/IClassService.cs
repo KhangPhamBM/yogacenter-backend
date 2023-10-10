@@ -13,7 +13,6 @@ namespace YogaCenter.BackEnd.Service.Contracts
         Task RegisterClass(ClassDetailDto detail);
         Task AddClass(ClassDto classDto);
         Task UpdateClass(ClassDto classDto);
-        Task ChangeStatusIsDeletedOfClass(ClassDto classDto, bool isDeleted);
 
     }
 }

@@ -11,7 +11,6 @@ namespace YogaCenter.BackEnd.DAL.Implementations
 {
     public class UnitOfWork : IUnitOfWork
     {
-        private bool disposed = false;
         private readonly YogaCenterContext _db;
 
         public UnitOfWork(YogaCenterContext db)
@@ -19,23 +18,7 @@ namespace YogaCenter.BackEnd.DAL.Implementations
             _db = db;
         }
 
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!disposed)
-            {
-                if (disposing)
-                {
-                    _db.Dispose();
-                }
-                disposed = true;
-            }
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
+        
 
         public IRepository<TEntity> GetRepository<TEntity>() where TEntity : class
         {
