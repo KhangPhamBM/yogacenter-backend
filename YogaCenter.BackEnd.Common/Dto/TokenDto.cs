@@ -6,10 +6,9 @@ using System.Threading.Tasks;
 
 namespace YogaCenter.BackEnd.Common.Dto
 {
-    public class ResponeDto
+    public class TokenDto
     {
-        public object Data { get; set; }
-        public bool isSuccess { get; set; } = true;
-        public string Message { get; set; } = "";
+        public string Token { get; set; }
+        public string RefreshToken { get; set; }
     }
 }

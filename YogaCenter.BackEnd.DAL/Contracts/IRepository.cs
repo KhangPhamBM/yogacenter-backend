@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -10,10 +11,9 @@ namespace YogaCenter.BackEnd.DAL.Contracts
     public interface IRepository<T> where T : class
     {
         IQueryable<T> GetAll();
-        T GetById(object id);
-        void Insert(T entity);
-        void Update(T entity);
-        void Delete(object id);
-        void Delete(T entity);
+         Task<T> GetById(object id);
+        Task Insert(T entity);
+        Task Update(T entity);
+        Task DeleteById(object id);
     }
 }

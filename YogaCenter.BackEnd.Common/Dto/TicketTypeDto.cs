@@ -1,15 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace YogaCenter.BackEnd.Common.Dto
 {
-    public class ResponeDto
+    public class TicketTypeDto
     {
-        public object Data { get; set; }
-        public bool isSuccess { get; set; } = true;
-        public string Message { get; set; } = "";
+        public int TicketTypeId { get; set; }
+        public string? TicketName { get; set; }
     }
 }
