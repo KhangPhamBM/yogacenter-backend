@@ -50,7 +50,6 @@ namespace YogaCenter.BackEnd.Service.Implementations
         public Task<ApplicationUser> GetAccountByUserId(string id)
         {
           return _unitOfWork.GetRepository<ApplicationUser>().GetById(id);
-           
         }
     }
 }
