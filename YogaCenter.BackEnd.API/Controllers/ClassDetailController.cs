@@ -1,30 +1,29 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using YogaCenter.BackEnd.Common.Dto;
-using YogaCenter.BackEnd.DAL.Models;
 using YogaCenter.BackEnd.Service.Contracts;
+using YogaCenter.BackEnd.Service.Implementations;
 
 namespace YogaCenter.BackEnd.API.Controllers
 {
-    [Route("class")]
+    [Route("class-detail")]
     [ApiController]
-    public class ClassController : ControllerBase
+    public class ClassDetailController : ControllerBase
     {
-        public readonly IClassService _classService;
         public ResponeDto _responeDto;
-        public ClassController(IClassService classService)
+        public IClassDetailService _classDetail;
+
+        public ClassDetailController(IClassDetailService classDetail)
         {
-            _classService = classService;
+            _classDetail = classDetail;
             _responeDto = new ResponeDto();
         }
-
-       
-        [HttpPut("update-class")]
-        public async Task<ResponeDto> UpdateClass(ClassDto classDto)
+        [HttpPost("register-class")]
+        public async Task<ResponeDto> RegisterClass(ClassDetailDto classDto)
         {
             try
             {
-                await _classService.UpdateClass(classDto);
+                await _classDetail.RegisterClass(classDto);
                 _responeDto.Data = true;
 
             }
@@ -37,8 +36,5 @@ namespace YogaCenter.BackEnd.API.Controllers
             }
             return _responeDto;
         }
-      
-
-
     }
 }

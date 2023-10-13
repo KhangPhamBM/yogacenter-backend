@@ -32,11 +32,46 @@ builder.Services.AddSingleton(mapper);
 
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
-builder.Services.AddScoped<ICourseService, CourseService>();
-builder.Services.AddScoped<ICourseRepository, CourseRepository>();
+
 
 builder.Services.AddScoped<IAccountRepository, AccountRepository>();
 builder.Services.AddScoped<IAccountService, AccountService>();
+
+builder.Services.AddScoped<IAttendanceRepository, AttendanceRepository>();
+builder.Services.AddScoped<IAttendanceService, AttendanceService>();
+
+builder.Services.AddScoped<IClassDetailRepository, ClassDetailRepository>();
+builder.Services.AddScoped<IClassDetailService, ClassDetailService>();
+
+builder.Services.AddScoped<IClassRepository, ClassRepository>();
+builder.Services.AddScoped<IClassService, ClassService>();
+
+builder.Services.AddScoped<ICourseRepository, CourseRepository>();
+builder.Services.AddScoped<ICourseService, CourseService>();
+
+builder.Services.AddScoped<IPaymentResponeRepository, PaymentResponeRepository>();
+builder.Services.AddScoped<IPaymentResponeService, PaymentResponeService>();
+
+builder.Services.AddScoped<IRoomRepository, RoomRepository>();
+builder.Services.AddScoped<IRoomService, RoomService>();
+
+builder.Services.AddScoped<IScheduleRepository, ScheduleRepository>();
+builder.Services.AddScoped<IScheduleService, ScheduleService>();
+
+builder.Services.AddScoped<ISubcriptionRepository, SubcriptionRepository>();
+builder.Services.AddScoped<ISubcriptionService, SubcriptionService>();
+
+builder.Services.AddScoped<ITicketRepository, TicketRepository>();
+builder.Services.AddScoped<ITicketService, TicketService>();
+
+builder.Services.AddScoped<ITicketStatusRepository, TicketStatusRepository>();
+builder.Services.AddScoped<ITicketStatusService, TicketStatusService>();
+
+builder.Services.AddScoped<ITicketTypeRepository, TicketTypeRepository>();
+builder.Services.AddScoped<ITicketTypeService, TicketTypeService>();
+
+builder.Services.AddScoped<ITimeFrameRepository, TimeFrameRepository>();
+builder.Services.AddScoped<ITimeFrameService, TimeFrameService>();
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
