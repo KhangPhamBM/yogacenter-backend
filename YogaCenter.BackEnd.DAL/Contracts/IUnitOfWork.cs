@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace YogaCenter.BackEnd.DAL.Contracts
 {
-    public interface IUnitOfWork : IDisposable
+    public interface IUnitOfWork 
     {
         IRepository<TEntity> GetRepository<TEntity>() where TEntity : class;
 

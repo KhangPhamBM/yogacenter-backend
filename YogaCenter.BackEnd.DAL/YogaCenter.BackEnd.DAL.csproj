@@ -32,4 +32,9 @@
 		<PackageReference Include="System.Text.Json" Version="6.0.8" />
 	</ItemGroup>
 
+
+	<ItemGroup>
+	  <ProjectReference Include="..\YogaCenter.BackEnd.Common\YogaCenter.BackEnd.Common.csproj" />
+	</ItemGroup>
+
 </Project>

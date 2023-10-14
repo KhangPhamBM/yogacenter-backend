@@ -9,7 +9,7 @@ namespace YogaCenter.BackEnd.Common.Dto
     public class ResponeDto
     {
         public object Data { get; set; }
-        public int StatusCode { get; set; } = 200;
+        public bool isSuccess { get; set; } = true;
         public string Message { get; set; } = "";
     }
 }

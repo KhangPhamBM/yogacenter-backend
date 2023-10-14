@@ -4,10 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace YogaCenter.BackEnd.Common.Dto
+namespace YogaCenter.BackEnd.Service.Contracts
 {
-    internal class test
+    public interface IPaymentResponeService
     {
-        public int Id { get; set; }
     }
 }

@@ -9,7 +9,7 @@ using YogaCenter.BackEnd.DAL.Models;
 
 namespace YogaCenter.BackEnd.DAL.Implementations
 {
-    public class AttendanceRepository : Repository<Attendance>
+    public class AttendanceRepository : Repository<Attendance>, IAttendanceRepository
     {
         public AttendanceRepository(YogaCenterContext context) : base(context)
         {
