@@ -8,18 +8,20 @@ using System.Threading.Tasks;
 
 namespace YogaCenter.BackEnd.DAL.Models
 {
-    public class Subcription
+    public class Subscription
     {
         [Key]
-        public string SubcriptionId { get; set; }
-        public DateTime? SubcriptionDate { get; set; }
+        public string SubscriptionId { get; set; }
+        public DateTime? SubscriptionDate { get; set; }
         public double? Total { get; set; }
+        public string? UserId { get; set; }
+        [ForeignKey("UserId"), Column(Order = 3)]
         public int? ClassId { get; set; }
         [ForeignKey("ClassId"), Column(Order = 1)]
         public Class? Class { get; set; }
-        public int SubcriptionStatusId { get; set; }
-        [ForeignKey("SubcriptionStatusId"), Column(Order = 2)]
-        public SubcriptionStatus? SubcriptionStatus { get; set; }
+        public int SubscriptionStatusId { get; set; }
+        [ForeignKey("SubscriptionStatusId"), Column(Order = 2)]
+        public SubscriptionStatus? SubscriptionStatus { get; set; }
 
 
     }

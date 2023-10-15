@@ -10,6 +10,7 @@ using YogaCenter.BackEnd.DAL.Data;
 using YogaCenter.BackEnd.DAL.Implementations;
 using YogaCenter.BackEnd.DAL.Mapping;
 using YogaCenter.BackEnd.DAL.Models;
+using YogaCenter.BackEnd.Service.Util;
 using YogaCenter.BackEnd.Service.Contracts;
 using YogaCenter.BackEnd.Service.Implementations;
 
@@ -58,8 +59,8 @@ builder.Services.AddScoped<IRoomService, RoomService>();
 builder.Services.AddScoped<IScheduleRepository, ScheduleRepository>();
 builder.Services.AddScoped<IScheduleService, ScheduleService>();
 
-builder.Services.AddScoped<ISubcriptionRepository, SubcriptionRepository>();
-builder.Services.AddScoped<ISubcriptionService, SubcriptionService>();
+builder.Services.AddScoped<ISubscriptionRepository, SubscriptionRepository>();
+builder.Services.AddScoped<ISubscriptionService, SubscriptionService>();
 
 builder.Services.AddScoped<ITicketRepository, TicketRepository>();
 builder.Services.AddScoped<ITicketService, TicketService>();
@@ -74,7 +75,6 @@ builder.Services.AddScoped<ITimeFrameRepository, TimeFrameRepository>();
 builder.Services.AddScoped<ITimeFrameService, TimeFrameService>();
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-
 
 
 

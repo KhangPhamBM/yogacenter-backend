@@ -7,10 +7,9 @@ using YogaCenter.BackEnd.Common.Dto;
 
 namespace YogaCenter.BackEnd.Service.Contracts
 {
-    public interface ISubcriptionService
+    public interface ISubscriptionService
     {
-        Task CreateSubcription(SubcriptionDto subcription);
-        Task UpdateSubcription(SubcriptionDto subcription);
-
+        Task CreateSubscription(SubscriptionDto Subscription);
+        Task UpdateSubscription(SubscriptionDto Subscription);
     }
 }

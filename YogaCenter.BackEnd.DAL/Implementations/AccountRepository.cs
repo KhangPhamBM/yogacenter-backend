@@ -48,7 +48,6 @@ namespace YogaCenter.BackEnd.DAL.Implementations
             if (!result.Succeeded)
             {
                 return null;
-
             }
             else
             {
@@ -61,17 +60,12 @@ namespace YogaCenter.BackEnd.DAL.Implementations
                         user.RefreshTokenExpiryTime = DateTime.Now.AddDays(1);
                         user.RefreshToken = GenerateRefreshToken();
                         await _db.SaveChangesAsync();
-
                     }
                     _tokenDto.Token = token;
                     _tokenDto.RefreshToken = user.RefreshToken;
                 }
             }
-
-
-
             return _tokenDto;
-
         }
 
         private async Task<string> GenerateAccessToken(LoginRequestDto loginRequest)
@@ -84,12 +78,11 @@ namespace YogaCenter.BackEnd.DAL.Implementations
                 if (roles != null)
                 {
                     var claims = new List<Claim>
-                      {
+                    {
                        new Claim (ClaimTypes.Email, loginRequest.Email),
                        new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                        new Claim("AccountId", user.Id)
-
-                      };
+                    };
                     claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
 
 
@@ -116,10 +109,10 @@ namespace YogaCenter.BackEnd.DAL.Implementations
                 var roles = await _userManager.GetRolesAsync(user);
                 var claims = new List<Claim>
             {
-           new Claim (ClaimTypes.Email, user.Email),
-           new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-           new Claim("AccountId", user.Id)
-           };
+            new Claim (ClaimTypes.Email, user.Email),
+            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+            new Claim("AccountId", user.Id)
+               };
                 claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
                 var authenKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:Key"]));
                 var token = new JwtSecurityToken
@@ -142,11 +135,8 @@ namespace YogaCenter.BackEnd.DAL.Implementations
                 else
                 {
                     _tokenDto.RefreshToken = refreshToken;
-
                 }
-
             }
-
             return _tokenDto;
 
         }
@@ -157,6 +147,7 @@ namespace YogaCenter.BackEnd.DAL.Implementations
             rng.GetBytes(randomNumber);
             return Convert.ToBase64String(randomNumber);
         }
+
         public async Task<ApplicationUser>  SignUp(SignUpRequestDto dto)
         {
             var user = new ApplicationUser
@@ -180,7 +171,6 @@ namespace YogaCenter.BackEnd.DAL.Implementations
             if (roleDb == null)
             {
                 await _roleManager.CreateAsync(new IdentityRole(roleName));
-
             }
             if (user != null)
             {

@@ -9,5 +9,6 @@ namespace YogaCenter.BackEnd.DAL.Contracts
 {
     public interface IAttendanceRepository:IRepository<Attendance>
     {
+        
     }
 }

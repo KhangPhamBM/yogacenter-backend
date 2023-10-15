@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 
 namespace YogaCenter.BackEnd.Common.Dto
 {
-    public class SubcriptionStatusDto
+    public class SubscriptionStatusDto
     {
-        public int SubcriptionStatusId { get; set; }
-        public string? SubcriptionStatusName { get; set;}
+        public int SubscriptionStatusId { get; set; }
+        public string? SubscriptionStatusName { get; set;}
     }
 }

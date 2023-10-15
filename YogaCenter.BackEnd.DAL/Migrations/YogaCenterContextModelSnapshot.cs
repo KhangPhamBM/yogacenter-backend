@@ -356,7 +356,7 @@ namespace YogaCenter.BackEnd.DAL.Migrations
                     b.Property<int?>("PaymentTypeId")
                         .HasColumnType("int");
 
-                    b.Property<string>("SubcriptionId")
+                    b.Property<string>("SubscriptionId")
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<bool?>("Success")
@@ -366,7 +366,7 @@ namespace YogaCenter.BackEnd.DAL.Migrations
 
                     b.HasIndex("PaymentTypeId");
 
-                    b.HasIndex("SubcriptionId");
+                    b.HasIndex("SubscriptionId");
 
                     b.ToTable("PaymentRespones");
                 });
@@ -435,46 +435,50 @@ namespace YogaCenter.BackEnd.DAL.Migrations
                     b.ToTable("Schedules");
                 });
 
-            modelBuilder.Entity("YogaCenter.BackEnd.DAL.Models.Subcription", b =>
+            modelBuilder.Entity("YogaCenter.BackEnd.DAL.Models.Subscription", b =>
                 {
-                    b.Property<string>("SubcriptionId")
+                    b.Property<string>("SubscriptionId")
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<int?>("ClassId")
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasColumnOrder(3);
 
-                    b.Property<DateTime?>("SubcriptionDate")
+                    b.Property<DateTime?>("SubscriptionDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("SubcriptionStatusId")
+                    b.Property<int>("SubscriptionStatusId")
                         .HasColumnType("int");
 
                     b.Property<double?>("Total")
                         .HasColumnType("float");
 
-                    b.HasKey("SubcriptionId");
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("SubscriptionId");
 
                     b.HasIndex("ClassId");
 
-                    b.HasIndex("SubcriptionStatusId");
+                    b.HasIndex("SubscriptionStatusId");
 
-                    b.ToTable("Subcriptions");
+                    b.ToTable("Subscriptions");
                 });
 
-            modelBuilder.Entity("YogaCenter.BackEnd.DAL.Models.SubcriptionStatus", b =>
+            modelBuilder.Entity("YogaCenter.BackEnd.DAL.Models.SubscriptionStatus", b =>
                 {
-                    b.Property<int>("SubcriptionStatusId")
+                    b.Property<int>("SubscriptionStatusId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("SubcriptionStatusId"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("SubscriptionStatusId"), 1L, 1);
 
-                    b.Property<string>("SubcriptionStatusName")
+                    b.Property<string>("SubscriptionStatusName")
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("SubcriptionStatusId");
+                    b.HasKey("SubscriptionStatusId");
 
-                    b.ToTable("SubcriptionStatuses");
+                    b.ToTable("SubscriptionStatuses");
                 });
 
             modelBuilder.Entity("YogaCenter.BackEnd.DAL.Models.Ticket", b =>
@@ -656,13 +660,13 @@ namespace YogaCenter.BackEnd.DAL.Migrations
                         .WithMany()
                         .HasForeignKey("PaymentTypeId");
 
-                    b.HasOne("YogaCenter.BackEnd.DAL.Models.Subcription", "Subcription")
+                    b.HasOne("YogaCenter.BackEnd.DAL.Models.Subscription", "Subscription")
                         .WithMany()
-                        .HasForeignKey("SubcriptionId");
+                        .HasForeignKey("SubscriptionId");
 
                     b.Navigation("PaymentType");
 
-                    b.Navigation("Subcription");
+                    b.Navigation("Subscription");
                 });
 
             modelBuilder.Entity("YogaCenter.BackEnd.DAL.Models.Schedule", b =>
@@ -686,21 +690,21 @@ namespace YogaCenter.BackEnd.DAL.Migrations
                     b.Navigation("TimeFrame");
                 });
 
-            modelBuilder.Entity("YogaCenter.BackEnd.DAL.Models.Subcription", b =>
+            modelBuilder.Entity("YogaCenter.BackEnd.DAL.Models.Subscription", b =>
                 {
                     b.HasOne("YogaCenter.BackEnd.DAL.Models.Class", "Class")
                         .WithMany()
                         .HasForeignKey("ClassId");
 
-                    b.HasOne("YogaCenter.BackEnd.DAL.Models.SubcriptionStatus", "SubcriptionStatus")
+                    b.HasOne("YogaCenter.BackEnd.DAL.Models.SubscriptionStatus", "SubscriptionStatus")
                         .WithMany()
-                        .HasForeignKey("SubcriptionStatusId")
+                        .HasForeignKey("SubscriptionStatusId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Class");
 
-                    b.Navigation("SubcriptionStatus");
+                    b.Navigation("SubscriptionStatus");
                 });
 
             modelBuilder.Entity("YogaCenter.BackEnd.DAL.Models.Ticket", b =>

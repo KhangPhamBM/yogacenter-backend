@@ -22,8 +22,8 @@ namespace YogaCenter.BackEnd.DAL.Data
         public DbSet<PaymentRespone> PaymentRespones { get; set; }
         public DbSet<PaymentType> PaymentTypes { get; set; }
         public DbSet<Schedule> Schedules { get; set; }
-        public DbSet<Subcription> Subcriptions { get; set; }
-        public DbSet<SubcriptionStatus> SubcriptionStatuses { get; set; }
+        public DbSet<Subscription> Subscriptions { get; set; }
+        public DbSet<SubscriptionStatus> SubscriptionStatuses { get; set; }
         public DbSet<Ticket> Tickets { get; set; }
         public DbSet<TicketStatus> TicketStatuses { get; set; }
         public DbSet<TicketType> TicketTypes { get; set; }

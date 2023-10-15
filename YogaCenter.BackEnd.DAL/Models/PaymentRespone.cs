@@ -12,10 +12,10 @@ namespace YogaCenter.BackEnd.DAL.Models
     {
         [Key]
         public string PaymentResponseId { get; set; } = null!;
-        public string? SubcriptionId { get; set; } = null!;
-        [ForeignKey("SubcriptionId"), Column(Order = 1)]
+        public string? SubscriptionId { get; set; } = null!;
+        [ForeignKey("SubscriptionId"), Column(Order = 1)]
 
-        public Subcription? Subcription { get; set; } = null!;
+        public Subscription? Subscription { get; set; } = null!;
 
         public string? Amount { get; set; }
         public string? OrderInfo { get; set; }
