@@ -32,5 +32,25 @@ namespace YogaCenter.BackEnd.Service.Implementations
             }
             _unitOfWork.SaveChange();
         }
+
+        public Task<IEnumerable<Attendance>> GetAttendancesByClassId(int classId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IEnumerable<Attendance>> GetAttendancesByScheduleId(int scheduleId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IEnumerable<Attendance>> GetAttendancesByUserId(string userId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task UpdateAttend(IEnumerable<AttendanceDto> attendances)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
