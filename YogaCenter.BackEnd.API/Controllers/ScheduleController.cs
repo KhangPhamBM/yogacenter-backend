@@ -11,15 +11,15 @@ namespace YogaCenter.BackEnd.API.Controllers
     public class ScheduleController : ControllerBase
     {
         private readonly IScheduleService _scheduleService;
-        private readonly ResponeDto _responeDto;
+        private readonly AppActionResult _responeDto;
 
         public ScheduleController(IScheduleService scheduleService)
         {
             _scheduleService = scheduleService;
-            _responeDto = new ResponeDto();
+            _responeDto = new AppActionResult();
         }
         [HttpGet("get-schedule-by-classId/{classId}")]
-        public async Task<ResponeDto> GetScheduleByClassId(int classId)
+        public async Task<AppActionResult> GetScheduleByClassId(int classId)
         {
             try
             {
@@ -28,14 +28,13 @@ namespace YogaCenter.BackEnd.API.Controllers
             }
             catch (Exception ex)
             {
-                _responeDto.Message = ex.Message;
                 _responeDto.isSuccess = false;
 
             }
             return _responeDto;
         }
         [HttpPost("register-schedule-for-class")]
-        public async Task<ResponeDto> RegisterSchedulesForClass(IEnumerable<ScheduleDto> scheduleListDto, int classId)
+        public async Task<AppActionResult> RegisterSchedulesForClass(IEnumerable<ScheduleDto> scheduleListDto, int classId)
         {
             try
             {
@@ -45,7 +44,6 @@ namespace YogaCenter.BackEnd.API.Controllers
             }
             catch (Exception ex)
             {
-                _responeDto.Message = ex.Message;
                 _responeDto.isSuccess = false;
 
             }
@@ -53,7 +51,7 @@ namespace YogaCenter.BackEnd.API.Controllers
         }
         [HttpGet("get-schedule-by-userId/{userId}")]
 
-        public async Task<ResponeDto> GetSchedulesByUserId(string UserId)
+        public async Task<AppActionResult> GetSchedulesByUserId(string UserId)
         {
 
             try
@@ -64,7 +62,6 @@ namespace YogaCenter.BackEnd.API.Controllers
             }
             catch (Exception ex)
             {
-                _responeDto.Message = ex.Message;
                 _responeDto.isSuccess = false;
 
             }

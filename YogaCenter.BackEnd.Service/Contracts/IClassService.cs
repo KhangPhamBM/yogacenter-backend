@@ -10,8 +10,8 @@ namespace YogaCenter.BackEnd.Service.Contracts
 {
     public interface IClassService
     {
-        Task AddClass(ClassDto classDto);
-        Task UpdateClass(ClassDto classDto);
+        Task<AppActionResult> AddClass(ClassDto classDto);
+        Task<AppActionResult> UpdateClass(ClassDto classDto);
 
     }
 }

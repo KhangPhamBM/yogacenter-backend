@@ -12,22 +12,22 @@ namespace YogaCenter.BackEnd.DAL.Implementations
 {
     public class AttendanceRepository : Repository<Attendance>, IAttendanceRepository
     {
-        private readonly YogaCenterContext _context;
-        public AttendanceRepository(YogaCenterContext context) : base(context)
+        private readonly IUnitOfWork _unitOfWork;
+        public AttendanceRepository(YogaCenterContext context, IUnitOfWork unitOfWork) : base(context)
         {
-            _context = context;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<Dictionary<int, IEnumerable<Attendance>>> GetAttendancesByClassId(int classId)
         {
-            var scheduleList = _context.Schedules.Where(s => s.ClassId == classId).ToList();
+            var scheduleList = await _unitOfWork.GetRepository<Class>().GetListByExpression(s => s.ClassId == classId);
             if (scheduleList.Any())
             {
                 var attandenceList = new Dictionary<int, IEnumerable<Attendance>>();
                 foreach (var schedule in scheduleList)
                 {
-                    var attendanceOfEachSchedule = _context.Attendances.Where(a => a.ScheduleId == schedule.ScheduleId).ToList();
-                    attandenceList.Add((int)schedule.ScheduleId, attendanceOfEachSchedule);
+                    //var attendanceOfEachSchedule = await _unitOfWork.GetRepository<Attendance>().GetListByExpression(a => a.ScheduleId == schedule.ScheduleId;
+                    //attandenceList.Add((int)schedule.ScheduleId, attendanceOfEachSchedule);
                 }
                 return attandenceList;
             }
@@ -36,18 +36,18 @@ namespace YogaCenter.BackEnd.DAL.Implementations
 
         public async Task<IEnumerable<Attendance>> GetAttendancesByScheduleId(int scheduleId)
         {
-            return await _context.Attendances.Where(a => a.ScheduleId == scheduleId).ToListAsync();
+            return await _unitOfWork.GetRepository<Attendance>().GetListByExpression(a => a.ScheduleId == scheduleId);
         }
 
         public async Task<Dictionary<int, IEnumerable<Attendance>>> GetAttendancesByUserId(string userId)
         {
-           var classDetails = _context.ClassDetails.Where(cd => cd.UserId == userId).ToList();
+           var classDetails = await _unitOfWork.GetRepository<ClassDetail>().GetListByExpression(cd => cd.UserId == userId);
            if(classDetails.Any()) {
                 var attandenceList = new Dictionary<int, IEnumerable<Attendance>>();
                 foreach (var classDetail in classDetails)
                 {
-                    var attendanceOfEachClass = _context.Attendances.Where(a => a.ClassDetailId == a.ClassDetailId).ToList();
-                    attandenceList.Add((int)classDetail.ClassId, attendanceOfEachClass);
+                    var attendanceOfEachClass = _unitOfWork.GetRepository<Attendance>().GetListByExpression(a => a.ClassDetailId == a.ClassDetailId);
+                //    attandenceList.Add((int)classDetail.ClassId, attendanceOfEachClass);
                 }
                 return attandenceList;
            }

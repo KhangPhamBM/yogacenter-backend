@@ -117,6 +117,16 @@ namespace YogaCenter.BackEnd.DAL.Util
 
 
         }
+
+
+        public class ResponeMessage
+        {
+            public static string CREATE_SUCCESS = "CREATE_SUCCESS";
+            public static string UPDATE_SUCCESS = "UPDATE_SUCCESS";
+            public static string DELETE_SUCCESS = "DELETE_SUCCESS";
+            public static string FAILED = "FAILED";
+
+        }
     }
 
 }

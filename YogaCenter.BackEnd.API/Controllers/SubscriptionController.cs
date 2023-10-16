@@ -1,31 +1,32 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using YogaCenter.BackEnd.Common.Dto;
-using YogaCenter.BackEnd.DAL.Models;
 using YogaCenter.BackEnd.Service.Contracts;
 
 namespace YogaCenter.BackEnd.API.Controllers
 {
-    [Route("course")]
+    [Route("subscription")]
     [ApiController]
-    public class CourseController : ControllerBase
+    public class SubscriptionController : ControllerBase
     {
-        private readonly ICourseService _courseService;
+        private readonly ISubscriptionService _subscriptionService;
         private readonly AppActionResult _responeDto;
 
-        public CourseController(ICourseService courseService)
+        public SubscriptionController(ISubscriptionService subscriptionService)
         {
-            _courseService = courseService;
+            _subscriptionService = subscriptionService;
             _responeDto = new AppActionResult();
         }
 
-        [HttpPost("create-course")]
-        public AppActionResult CreateCourse(CourseDto course)
+        [HttpPost("create-subscription")]
+        public async Task<AppActionResult> Create(SubscriptionRequest request)
         {
             try
             {
-                _courseService.CreateCourse(course);
-                _responeDto.Data = true;
+
+                _responeDto.Data = await _subscriptionService.CreateSubscription(request, HttpContext);
+
+
             }
             catch (Exception ex)
             {
@@ -33,8 +34,5 @@ namespace YogaCenter.BackEnd.API.Controllers
             }
             return _responeDto;
         }
-
-
-
     }
 }

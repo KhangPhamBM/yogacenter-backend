@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace YogaCenter.BackEnd.Common.Dto
 {
-    public class ResponeDto
+    public class AppActionResult
     {
         public object Data { get; set; }
         public bool isSuccess { get; set; } = true;
-        public string Message { get; set; } = "";
+        public List<string?> Message { get; set; } = new List<string?>();
     }
 }

@@ -11,15 +11,15 @@ namespace YogaCenter.BackEnd.API.Controllers
     public class AccountController : ControllerBase
     {
         private readonly IAccountService _accountService;
-        private readonly ResponeDto _responeDto;
+        private readonly AppActionResult _responeDto;
         public AccountController(IAccountService accountService)
         {
             _accountService = accountService;
-            _responeDto = new ResponeDto();
+            _responeDto = new AppActionResult();
         }
 
         [HttpPost("create-account")]
-        public async Task<ResponeDto> SignUp(SignUpRequestDto request)
+        public async Task<AppActionResult> SignUp(SignUpRequestDto request)
         {
             try
             {
@@ -29,13 +29,12 @@ namespace YogaCenter.BackEnd.API.Controllers
             catch (Exception ex)
             {
                 _responeDto.isSuccess = false;
-                _responeDto.Message = ex.Message;
             }
             return _responeDto;
         }
 
         [HttpPost("login")]
-        public async Task<ResponeDto> Login(LoginRequestDto request)
+        public async Task<AppActionResult> Login(LoginRequestDto request)
         {
             try
             {
@@ -44,13 +43,12 @@ namespace YogaCenter.BackEnd.API.Controllers
             catch (Exception ex)
             {
                 _responeDto.isSuccess = false;
-                _responeDto.Message = ex.Message;
             }
             return _responeDto;
         }
 
         [HttpPut("update-account")]
-        public async Task<ResponeDto> UpdateAccount(ApplicationUser request)
+        public async Task<AppActionResult> UpdateAccount(ApplicationUser request)
         {
             try
             {
@@ -60,12 +58,11 @@ namespace YogaCenter.BackEnd.API.Controllers
             catch (Exception ex)
             {
                 _responeDto.isSuccess = false;
-                _responeDto.Message = ex.Message;
             }
             return _responeDto;
         }
         [HttpPost("get-account-by-id/{id}")]
-        public ResponeDto UpdateAccount(string id)
+        public AppActionResult UpdateAccount(string id)
         {
             try
             {
@@ -75,7 +72,6 @@ namespace YogaCenter.BackEnd.API.Controllers
             catch (Exception ex)
             {
                 _responeDto.isSuccess = false;
-                _responeDto.Message = ex.Message;
             }
             return _responeDto;
         }

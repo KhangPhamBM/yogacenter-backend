@@ -9,7 +9,7 @@ namespace YogaCenter.BackEnd.Service.Contracts
 {
     public interface IRoomService
     {
-        Task CreateRoom(RoomDto room);
-        Task UpdateRoom(RoomDto room);
+        Task<AppActionResult> CreateRoom(RoomDto room);
+        Task<AppActionResult> UpdateRoom(RoomDto room);
     }
 }
