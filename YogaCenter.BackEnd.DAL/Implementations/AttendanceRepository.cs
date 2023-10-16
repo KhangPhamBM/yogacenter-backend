@@ -15,8 +15,24 @@ namespace YogaCenter.BackEnd.DAL.Implementations
     public class AttendanceRepository : Repository<Attendance>, IAttendanceRepository
     {
         private readonly YogaCenterContext _context;
-        public AttendanceRepository(YogaCenterContext context, IMapper mapper) : base(context)
+        public AttendanceRepository(YogaCenterContext context) : base(context)
         {
+            _context = context;
+        }
+
+        public async Task<Dictionary<int, IEnumerable<Attendance>>> GetAttendancesByClassId(int classId)
+        {
+            var scheduleList = _context.Schedules.Where(s => s.ClassId == classId).ToList();
+            var attendances = new Dictionary<int, IEnumerable<Attendance>>();
+            if(attendances.Any())
+            {
+                foreach (var schedule in scheduleList)
+                {
+                    var attendance = _context.Attendances.Where(a => a.ScheduleId == schedule.ScheduleId).ToList();
+                    attendances.Add((int)schedule.ClassId, attendance);
+                }
+            }
+            return attendances;
         }
     }
 }

@@ -11,7 +11,7 @@ namespace YogaCenter.BackEnd.DAL.Contracts
     public interface IAttendanceRepository:IRepository<Attendance>
     {
         //Task<IEnumerable<Attendance>> GetAttendancesByScheduleId(int scheduleId);
-        //Task<IEnumerable<ClassAttendanceDto>> GetAttendancesByClassId(int classId);
+        Task<Dictionary<int, IEnumerable<Attendance>>> GetAttendancesByClassId(int classId);
         //Task<Dictionary<int, IEnumerable<Attendance>>> GetAttendancesByUserId(string userId);
     }
 }

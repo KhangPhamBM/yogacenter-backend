@@ -12,6 +12,8 @@ namespace YogaCenter.BackEnd.Service.Contracts
     {
         Task CreateCourse(CourseDto course);
         Task UpdateCourse(CourseDto course);
-
+        Task<Course> GetCourseById(int id);
+        Task<IEnumerable<Course>> GetAll();
+        Task DeleteCourse(int id);
     }
 }
