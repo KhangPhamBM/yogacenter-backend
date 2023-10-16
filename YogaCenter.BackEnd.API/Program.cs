@@ -10,7 +10,6 @@ using YogaCenter.BackEnd.DAL.Data;
 using YogaCenter.BackEnd.DAL.Implementations;
 using YogaCenter.BackEnd.DAL.Mapping;
 using YogaCenter.BackEnd.DAL.Models;
-using YogaCenter.BackEnd.Service.Util;
 using YogaCenter.BackEnd.Service.Contracts;
 using YogaCenter.BackEnd.Service.Implementations;
 
