@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using YogaCenter.BackEnd.Common.Dto;
 using YogaCenter.BackEnd.DAL.Contracts;
+using YogaCenter.BackEnd.DAL.Implementations;
 using YogaCenter.BackEnd.DAL.Models;
 using YogaCenter.BackEnd.DAL.Util;
 using YogaCenter.BackEnd.Service.Contracts;
@@ -34,13 +35,13 @@ namespace YogaCenter.BackEnd.Service.Implementations
             try
             {
                 bool isValid = true;
-                if (Subscription.PaymentChoice != SD.PaymentType.VNPAY && Subscription.PaymentChoice != SD.PaymentType.MOMO)
+                if (Subscription.PaymentChoice != SD.PaymentType.VNPAY && Subscription.PaymentChoice != SD.PaymentType.MOMO && Subscription.PaymentChoice != 3)
                 {
-                    _result.Message.Add("The API support Momo and VNPAY with PaymentChoice (1): VNPAY (2): MoMo");
+                    _result.Message.Add("The API only support for VNPAY (1) and Momo (2) or add subcription with no payment (3)");
                     isValid = false;
                 }
 
-                if (_unitOfWork.GetRepository<Class>().GetById(Subscription.Subscription.ClassId).Result == null)
+                if (await _unitOfWork.GetRepository<Class>().GetById(Subscription.Subscription.ClassId) == null)
                 {
 
                     _result.Message.Add("The class not found");
@@ -49,7 +50,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 else
                 {
                     if (DateTime.Now < _unitOfWork.GetRepository<Class>()
-                    .GetById(Subscription.Subscription.ClassId)?.Result.EndDate
+                    .GetById(Subscription.Subscription.ClassId).Result.EndDate
                     &&
                     await _unitOfWork.GetRepository<ClassDetail>()
                     .GetByExpression(c => c.UserId == Subscription.Subscription.UserId && c.ClassId == Subscription.Subscription.ClassId) != null)
@@ -58,30 +59,37 @@ namespace YogaCenter.BackEnd.Service.Implementations
                         isValid = false;
                     }
                 }
-                if (_unitOfWork.GetRepository<ApplicationUser>().GetById(Subscription.Subscription.UserId).Result == null)
+                if (await _unitOfWork.GetRepository<ApplicationUser>().GetById(Subscription.Subscription.UserId) == null)
                 {
 
                     _result.Message.Add("The user not found");
                     isValid = false;
                 }
-                if (_unitOfWork.GetRepository<SubscriptionStatus>().GetById(Subscription.Subscription.SubscriptionStatusId).Result == null)
+                if (await _unitOfWork.GetRepository<SubscriptionStatus>().GetById(Subscription.Subscription.SubscriptionStatusId) == null)
                 {
 
                     _result.Message.Add("The subscription status not found");
                     isValid = false;
                 }
-               
+
                 if (isValid)
                 {
+                    Subscription.Subscription.SubscriptionId = Guid.NewGuid().ToString();
+                    var classDb = await _unitOfWork.GetRepository<Class>().GetById(Subscription.Subscription.ClassId);
+                    var course = await _unitOfWork.GetRepository<Course>().GetById(classDb.CourseId);
+                    double total = 0;
+                    total = (double)(course.Price * (100 - course.Discount) / 100);
+                    Subscription.Subscription.Total = total ;
+
                     var subscription = await _unitOfWork.GetRepository<Subscription>().Insert(_mapper.Map<Subscription>(Subscription.Subscription));
+                    _unitOfWork.SaveChange();
+
                     switch (Subscription.PaymentChoice)
                     {
                         case 1:
                             try
                             {
-                                _result.Data = _paymentService.CreatePaymentUrlVNPay(_mapper.Map<SubscriptionDto>(subscription), context);
-                                _unitOfWork.SaveChange();
-                                _result.Message.Add(SD.ResponeMessage.CREATE_SUCCESS);
+                                _result.Data = await _paymentService.CreatePaymentUrlVNPay(_mapper.Map<SubscriptionDto>(subscription), context);
 
                             }
                             catch (Exception ex)
@@ -92,7 +100,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                         case 2:
                             try
                             {
-                                _result.Data = _paymentService.CreatePaymentUrlMomo(_mapper.Map<SubscriptionDto>(subscription));
+                                _result.Data = await _paymentService.CreatePaymentUrlMomo(_mapper.Map<SubscriptionDto>(subscription));
 
                             }
                             catch (Exception ex)
@@ -122,6 +130,105 @@ namespace YogaCenter.BackEnd.Service.Implementations
             return _result;
 
         }
+
+        public async Task<AppActionResult> GetPaymentUrl(SubscriptionRequest Subscription, HttpContext context)
+        {
+            try
+            {
+                bool isValid = true;
+                if (Subscription.PaymentChoice != SD.PaymentType.VNPAY && Subscription.PaymentChoice != SD.PaymentType.MOMO && Subscription.PaymentChoice != 3)
+                {
+                    _result.Message.Add("The API only support for VNPAY (1) and Momo (2) or add subcription with no payment (3)");
+                    isValid = false;
+                }
+
+                if (await _unitOfWork.GetRepository<Class>().GetById(Subscription.Subscription.ClassId) == null)
+                {
+
+                    _result.Message.Add("The class not found");
+                    isValid = false;
+                }
+                else
+                {
+                    if (DateTime.Now < _unitOfWork.GetRepository<Class>()
+                    .GetById(Subscription.Subscription.ClassId).Result.EndDate
+                    &&
+                    await _unitOfWork.GetRepository<ClassDetail>()
+                    .GetByExpression(c => c.UserId == Subscription.Subscription.UserId && c.ClassId == Subscription.Subscription.ClassId) != null)
+                    {
+                        _result.Message.Add("This action was blocked because the trainee is studying a class which hasn't ended ");
+                        isValid = false;
+                    }
+                }
+                if (await _unitOfWork.GetRepository<ApplicationUser>().GetById(Subscription.Subscription.UserId) == null)
+                {
+
+                    _result.Message.Add("The user not found");
+                    isValid = false;
+                }
+                if (await _unitOfWork.GetRepository<SubscriptionStatus>().GetById(Subscription.Subscription.SubscriptionStatusId) == null)
+                {
+
+                    _result.Message.Add("The subscription status not found");
+                    isValid = false;
+                }
+                if (await _unitOfWork.GetRepository<Subscription>().GetById(Subscription.Subscription.SubscriptionId) == null)
+                {
+
+                    _result.Message.Add($"The subscription with id {Subscription.Subscription.SubscriptionId} not found. Please create subscription");
+                    isValid = false;
+                }
+
+                if (isValid)
+                {
+                    var subscription = await _unitOfWork.GetRepository<Subscription>().GetById(Subscription.Subscription.SubscriptionId);
+
+                    switch (Subscription.PaymentChoice)
+                    {
+                        case 1:
+                            try
+                            {
+                                _result.Data = await _paymentService.CreatePaymentUrlVNPay(_mapper.Map<SubscriptionDto>(subscription), context);
+
+                            }
+                            catch (Exception ex)
+                            {
+                                _result.Message.Add($"{ex.Message}");
+                            }
+                            break;
+                        case 2:
+                            try
+                            {
+                                _result.Data = await _paymentService.CreatePaymentUrlMomo(_mapper.Map<SubscriptionDto>(subscription));
+
+                            }
+                            catch (Exception ex)
+                            {
+                                _result.Message.Add($"{ex.Message}");
+                            }
+                            break;
+
+                        default:
+                            _result.Data = "";
+                            break;
+                    }
+                }
+                else
+                {
+                    _result.isSuccess = false;
+
+                }
+            }
+            catch (Exception ex)
+            {
+
+                _result.isSuccess = false;
+                _result.Message.Add(ex.Message);
+            }
+
+            return _result;
+        }
+
 
         //public async Task CreateSubscription(SubscriptionDto Subscription)
         //{

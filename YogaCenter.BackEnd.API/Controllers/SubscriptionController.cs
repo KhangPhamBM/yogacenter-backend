@@ -19,10 +19,19 @@ namespace YogaCenter.BackEnd.API.Controllers
         }
 
         [HttpPost("create-subscription")]
-        public async Task<AppActionResult> Create(SubscriptionRequest request)
+        public async Task<AppActionResult> CreateSubscription(SubscriptionRequest request)
         {
             return await _subscriptionService.CreateSubscription(request, HttpContext);
 
         }
+
+        [HttpPost("get-payment-url")]
+        public async Task<AppActionResult> GetPaymentUrl(SubscriptionRequest request)
+        {
+            return await _subscriptionService.GetPaymentUrl(request, HttpContext);
+
+        }
+
+
     }
 }
