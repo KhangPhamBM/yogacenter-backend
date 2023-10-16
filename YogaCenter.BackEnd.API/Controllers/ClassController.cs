@@ -22,19 +22,7 @@ namespace YogaCenter.BackEnd.API.Controllers
         [HttpPut("update-class")]
         public async Task<AppActionResult> UpdateClass(ClassDto classDto)
         {
-            try
-            {
-                await _classService.UpdateClass(classDto);
-                _responeDto.Data = true;
-
-            }
-            catch (Exception ex)
-            {
-
-                _responeDto.isSuccess = false;
-
-            }
-            return _responeDto;
+           return await _classService.UpdateClass(classDto);
         }
       
 

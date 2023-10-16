@@ -21,19 +21,7 @@ namespace YogaCenter.BackEnd.API.Controllers
         [HttpPost("register-class")]
         public async Task<AppActionResult> RegisterClass(ClassDetailDto classDto)
         {
-            try
-            {
-                await _classDetail.RegisterClass(classDto);
-                _responeDto.Data = true;
-
-            }
-            catch (Exception ex)
-            {
-
-                _responeDto.isSuccess = false;
-
-            }
-            return _responeDto;
+           return await _classDetail.RegisterClass(classDto); 
         }
     }
 }

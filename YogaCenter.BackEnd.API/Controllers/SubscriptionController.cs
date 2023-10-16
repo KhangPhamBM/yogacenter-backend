@@ -21,18 +21,8 @@ namespace YogaCenter.BackEnd.API.Controllers
         [HttpPost("create-subscription")]
         public async Task<AppActionResult> Create(SubscriptionRequest request)
         {
-            try
-            {
+            return await _subscriptionService.CreateSubscription(request, HttpContext);
 
-                _responeDto.Data = await _subscriptionService.CreateSubscription(request, HttpContext);
-
-
-            }
-            catch (Exception ex)
-            {
-                _responeDto.isSuccess = false;
-            }
-            return _responeDto;
         }
     }
 }

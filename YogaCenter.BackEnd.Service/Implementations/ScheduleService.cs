@@ -36,70 +36,86 @@ namespace YogaCenter.BackEnd.Service.Implementations
         }
         public async Task<AppActionResult> RegisterSchedulesForClass(IEnumerable<ScheduleDto> scheduleListDto, int classId)
         {
-            bool isValid = true;
-            if (await _unitOfWork.GetRepository<Class>().GetById(classId) == null)
-            {
-                isValid = false;
-                _result.Message.Add($"The class with {classId} not found");
-            }
-            foreach (ScheduleDto scheduleDto in scheduleListDto)
+            try
             {
 
-                if (scheduleDto.ClassId != classId)
+                bool isValid = true;
+                if (await _unitOfWork.GetRepository<Class>().GetById(classId) == null)
                 {
                     isValid = false;
-                    _result.Message.Add($"The classId Of Schedule {scheduleDto.ClassId} must same {classId} ");
-
+                    _result.Message.Add($"The class with {classId} not found");
                 }
-
-                var check = await _unitOfWork.GetRepository<Schedule>()
-                    .GetByExpression(s => s.Date == scheduleDto.Date &&
-                    s.TimeFrameId == scheduleDto.TimeFrameId &&
-                    s.ClassId == scheduleDto.ClassId &&
-                    s.RoomId == scheduleDto.RoomId
-                    );
-                if (check != null)
-                {
-                    isValid = false;
-                    _result.Message.Add($"The schedule is exist ");
-
-
-                }
-            }
-            if (isValid)
-            {
                 foreach (ScheduleDto scheduleDto in scheduleListDto)
                 {
-                    await _unitOfWork.GetRepository<Schedule>().Insert(_mapper.Map<Schedule>(scheduleDto));
-                    _unitOfWork.SaveChange();
 
+                    if (scheduleDto.ClassId != classId)
+                    {
+                        isValid = false;
+                        _result.Message.Add($"The classId Of Schedule {scheduleDto.ClassId} must same {classId} ");
+
+                    }
+
+                    var check = await _unitOfWork.GetRepository<Schedule>()
+                        .GetByExpression(s => s.Date == scheduleDto.Date &&
+                        s.TimeFrameId == scheduleDto.TimeFrameId &&
+                        s.ClassId == scheduleDto.ClassId &&
+                        s.RoomId == scheduleDto.RoomId
+                        );
+                    if (check != null)
+                    {
+                        isValid = false;
+                        _result.Message.Add($"The schedule is exist ");
+
+
+                    }
                 }
-                _result.Message.Add(SD.ResponeMessage.CREATE_SUCCESS);
+                if (isValid)
+                {
+                    foreach (ScheduleDto scheduleDto in scheduleListDto)
+                    {
+                        await _unitOfWork.GetRepository<Schedule>().Insert(_mapper.Map<Schedule>(scheduleDto));
+                        _unitOfWork.SaveChange();
+
+                    }
+                    _result.Message.Add(SD.ResponeMessage.CREATE_SUCCESS);
+                }
+                else
+                {
+                    _result.isSuccess = false;
+                }
             }
-            else
+            catch (Exception ex)
             {
                 _result.isSuccess = false;
+                _result.Message.Add(ex.Message);
             }
             return _result;
         }
 
         public async Task<AppActionResult> GetSchedulesByUserId(string UserId)
         {
-            bool isValid = true;
-            var classDetail = await _unitOfWork.GetRepository<ClassDetail>().GetByExpression(s => s.UserId == UserId);
-            if (classDetail == null)
-            {
-                isValid = false;
-                _result.Message.Add($"The user with Id {UserId} not found");
-            }
-            if (isValid)
-            {
-                _result.Data = await _unitOfWork.GetRepository<Schedule>().GetListByExpression(c => c.ClassId == classDetail.ClassId);
+            try {
+                bool isValid = true;
+                var classDetail = await _unitOfWork.GetRepository<ClassDetail>().GetByExpression(s => s.UserId == UserId);
+                if (classDetail == null)
+                {
+                    isValid = false;
+                    _result.Message.Add($"The user with Id {UserId} not found");
+                }
+                if (isValid)
+                {
+                    _result.Data = await _unitOfWork.GetRepository<Schedule>().GetListByExpression(c => c.ClassId == classDetail.ClassId);
 
+                }
+                else
+                {
+                    _result.isSuccess = false;
+                }
             }
-            else
-            {
+            catch(Exception ex) {
+
                 _result.isSuccess = false;
+                _result.Message.Add(ex.Message);
             }
             return _result;
         }

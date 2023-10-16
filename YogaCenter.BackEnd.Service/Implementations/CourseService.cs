@@ -26,45 +26,62 @@ namespace YogaCenter.BackEnd.Service.Implementations
 
         public async Task<AppActionResult> CreateCourse(CourseDto course)
         {
-            bool isValid = true;
-            if (await _unitOfWork.GetRepository<Course>().GetByExpression(c => c.CourseName == course.CourseName) !=null)
+            try
             {
-                _result.Message.Add("The course is existed");
-                isValid = false;
-            }
+                bool isValid = true;
+                if (await _unitOfWork.GetRepository<Course>().GetByExpression(c => c.CourseName == course.CourseName) != null)
+                {
+                    _result.Message.Add("The course is existed");
+                    isValid = false;
+                }
 
-            if (isValid)
-            {
-                await _unitOfWork.GetRepository<Course>().Insert(_mapper.Map<Course>(course));
-                _unitOfWork.SaveChange();
-                _result.Message.Add(SD.ResponeMessage.CREATE_SUCCESS);
+                if (isValid)
+                {
+                    await _unitOfWork.GetRepository<Course>().Insert(_mapper.Map<Course>(course));
+                    _unitOfWork.SaveChange();
+                    _result.Message.Add(SD.ResponeMessage.CREATE_SUCCESS);
+                }
+                else
+                {
+                    _result.isSuccess = false;
+                }
             }
-            else
+            catch (Exception ex)
             {
                 _result.isSuccess = false;
+                _result.Message.Add(ex.Message);
             }
-           return _result;
+            return _result;
         }
 
         public async Task<AppActionResult> UpdateCourse(CourseDto course)
         {
-            bool isValid = true;
-            if (await _unitOfWork.GetRepository<Course>().GetById(course.CourseId) == null)
+            try
             {
-                _result.Message.Add($"The course with id {course.CourseId} not found");
-                isValid = false;
-            }
+                bool isValid = true;
+                if (await _unitOfWork.GetRepository<Course>().GetById(course.CourseId) == null)
+                {
+                    _result.Message.Add($"The course with id {course.CourseId} not found");
+                    isValid = false;
+                }
 
-            if (isValid)
-            {
-                await _unitOfWork.GetRepository<Course>().Update(_mapper.Map<Course>(course));
-                _unitOfWork.SaveChange();
-                _result.Message.Add(SD.ResponeMessage.UPDATE_SUCCESS);
+                if (isValid)
+                {
+                    await _unitOfWork.GetRepository<Course>().Update(_mapper.Map<Course>(course));
+                    _unitOfWork.SaveChange();
+                    _result.Message.Add(SD.ResponeMessage.UPDATE_SUCCESS);
+                }
+                else
+                {
+                    _result.isSuccess = false;
+                }
             }
-            else
+            catch (Exception ex)
             {
                 _result.isSuccess = false;
+                _result.Message.Add(ex.Message);
             }
+
             return _result;
         }
 

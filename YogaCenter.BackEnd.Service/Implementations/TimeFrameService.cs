@@ -46,45 +46,61 @@ namespace YogaCenter.BackEnd.Service.Implementations
 
         public async Task<AppActionResult> CreateTimeFrame(TimeFrameDto timeFrameDto)
         {
-            bool isValid = true;
-            if (await _unitOfWork.GetRepository<TimeFrame>().GetByExpression(t => t.TimeFrameName == timeFrameDto.TimeFrameName) != null)
+            try
             {
-                isValid = false;
-                _result.Message.Add($"The timeframe with name {timeFrameDto.TimeFrameName} is existed");
+
+                bool isValid = true;
+                if (await _unitOfWork.GetRepository<TimeFrame>().GetByExpression(t => t.TimeFrameName == timeFrameDto.TimeFrameName) != null)
+                {
+                    isValid = false;
+                    _result.Message.Add($"The timeframe with name {timeFrameDto.TimeFrameName} is existed");
+                }
+                if (isValid)
+                {
+                    await _unitOfWork.GetRepository<TimeFrame>().Insert(_mapper.Map<TimeFrame>(timeFrameDto));
+                    _unitOfWork.SaveChange();
+                    _result.Message.Add(SD.ResponeMessage.CREATE_SUCCESS);
+                }
+                else
+                {
+                    _result.isSuccess = false;
+                }
             }
-            if (isValid)
-            {
-                await _unitOfWork.GetRepository<TimeFrame>().Insert(_mapper.Map<TimeFrame>(timeFrameDto));
-                _unitOfWork.SaveChange();
-                _result.Message.Add(SD.ResponeMessage.CREATE_SUCCESS);
-            }
-            else
+            catch (Exception ex)
             {
                 _result.isSuccess = false;
+                _result.Message.Add(ex.Message);
             }
             return _result;
         }
 
         public async Task<AppActionResult> UpdateTimeFrame(TimeFrameDto timeFrameDto)
         {
-            bool isValid = true;
-            if (await _unitOfWork.GetRepository<TimeFrame>().GetById(timeFrameDto.TimeFrameId) == null)
+            try
             {
-                isValid = false;
-                _result.Message.Add($"The timeframe with id {timeFrameDto.TimeFrameId} not found");
+                bool isValid = true;
+                if (await _unitOfWork.GetRepository<TimeFrame>().GetById(timeFrameDto.TimeFrameId) == null)
+                {
+                    isValid = false;
+                    _result.Message.Add($"The timeframe with id {timeFrameDto.TimeFrameId} not found");
+                }
+                if (isValid)
+                {
+                    await _unitOfWork.GetRepository<TimeFrame>().Update(_mapper.Map<TimeFrame>(timeFrameDto));
+                    _unitOfWork.SaveChange();
+                    _result.Message.Add(SD.ResponeMessage.UPDATE_SUCCESS);
+                }
+                else
+                {
+                    _result.isSuccess = false;
+                }
             }
-            if (isValid)
-            {
-                await _unitOfWork.GetRepository<TimeFrame>().Update(_mapper.Map<TimeFrame>(timeFrameDto));
-                _unitOfWork.SaveChange();
-                _result.Message.Add(SD.ResponeMessage.UPDATE_SUCCESS);
-            }
-            else
-            {
+            catch (Exception ex) {
                 _result.isSuccess = false;
+                _result.Message.Add(ex.Message);
             }
             return _result;
-          
+
         }
     }
 }

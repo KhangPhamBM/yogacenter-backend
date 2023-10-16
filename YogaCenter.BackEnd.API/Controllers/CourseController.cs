@@ -20,18 +20,9 @@ namespace YogaCenter.BackEnd.API.Controllers
         }
 
         [HttpPost("create-course")]
-        public AppActionResult CreateCourse(CourseDto course)
+        public async Task<AppActionResult> CreateCourse(CourseDto course)
         {
-            try
-            {
-                _courseService.CreateCourse(course);
-                _responeDto.Data = true;
-            }
-            catch (Exception ex)
-            {
-                _responeDto.isSuccess = false;
-            }
-            return _responeDto;
+           return await _courseService.CreateCourse(course);  
         }
 
 

@@ -21,51 +21,21 @@ namespace YogaCenter.BackEnd.API.Controllers
         [HttpGet("get-schedule-by-classId/{classId}")]
         public async Task<AppActionResult> GetScheduleByClassId(int classId)
         {
-            try
-            {
-
-                _responeDto.Data = await _scheduleService.GetScheduleByClassId(classId);
-            }
-            catch (Exception ex)
-            {
-                _responeDto.isSuccess = false;
-
-            }
-            return _responeDto;
+           return await _scheduleService.GetScheduleByClassId(classId);    
         }
         [HttpPost("register-schedule-for-class")]
         public async Task<AppActionResult> RegisterSchedulesForClass(IEnumerable<ScheduleDto> scheduleListDto, int classId)
         {
-            try
-            {
+            return await _scheduleService.RegisterSchedulesForClass(scheduleListDto, classId);
 
-                await _scheduleService.RegisterSchedulesForClass(scheduleListDto, classId);
-                _responeDto.Data = true;
-            }
-            catch (Exception ex)
-            {
-                _responeDto.isSuccess = false;
-
-            }
-            return _responeDto;
         }
         [HttpGet("get-schedule-by-userId/{userId}")]
 
         public async Task<AppActionResult> GetSchedulesByUserId(string UserId)
         {
 
-            try
-            {
+            return await _scheduleService.GetSchedulesByUserId(UserId);
 
-                _responeDto.Data = await _scheduleService.GetSchedulesByUserId(UserId);
-
-            }
-            catch (Exception ex)
-            {
-                _responeDto.isSuccess = false;
-
-            }
-            return _responeDto;
         }
     }
 }

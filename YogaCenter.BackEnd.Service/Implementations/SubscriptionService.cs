@@ -31,79 +31,88 @@ namespace YogaCenter.BackEnd.Service.Implementations
 
         public async Task<AppActionResult> CreateSubscription(SubscriptionRequest Subscription, HttpContext context)
         {
-            bool isValid = true;
-            if (Subscription.PaymentChoice != SD.PaymentType.VNPAY && Subscription.PaymentChoice != SD.PaymentType.MOMO)
+            try
             {
-                _result.Message.Add("The API support Momo and VNPAY with PaymentChoice (1): VNPAY (2): MoMo");
-                isValid = false;
-            }
-
-            if (_unitOfWork.GetRepository<Class>().GetById(Subscription.Subscription.ClassId).Result == null)
-            {
-
-                _result.Message.Add("The class not found");
-                isValid = false;
-            }
-            if (_unitOfWork.GetRepository<ApplicationUser>().GetById(Subscription.Subscription.UserId).Result == null)
-            {
-
-                _result.Message.Add("The user not found");
-                isValid = false;
-            }
-            if (_unitOfWork.GetRepository<SubscriptionStatus>().GetById(Subscription.Subscription.SubscriptionStatusId).Result == null)
-            {
-
-                _result.Message.Add("The subscription status not found");
-                isValid = false;
-            }
-            if(DateTime.Now <   _unitOfWork.GetRepository<Class>()
-                .GetById(Subscription.Subscription.ClassId).Result.EndDate                
-                && 
-                await _unitOfWork.GetRepository<ClassDetail>()
-                .GetByExpression(c => c.UserId == Subscription.Subscription.UserId && c.ClassId == Subscription.Subscription.ClassId) != null )
-            {
-                _result.Message.Add("The subscription status not found");
-                isValid = false;
-            }
-            if (isValid)
-            {
-                var subscription = await _unitOfWork.GetRepository<Subscription>().Insert(_mapper.Map<Subscription>(Subscription.Subscription));
-                switch (Subscription.PaymentChoice)
+                bool isValid = true;
+                if (Subscription.PaymentChoice != SD.PaymentType.VNPAY && Subscription.PaymentChoice != SD.PaymentType.MOMO)
                 {
-                    case 1:
-                        try
-                        {
-                            _result.Data = _paymentService.CreatePaymentUrlVNPay(_mapper.Map<SubscriptionDto>(subscription), context);
-                            _unitOfWork.SaveChange();
-                            _result.Message.Add(SD.ResponeMessage.CREATE_SUCCESS);
+                    _result.Message.Add("The API support Momo and VNPAY with PaymentChoice (1): VNPAY (2): MoMo");
+                    isValid = false;
+                }
 
-                        }
-                        catch (Exception ex)
-                        {
-                            _result.Message.Add($"{ex.Message}");
-                        }
-                        break;
-                    case 2:
-                        try
-                        {
-                            _result.Data = _paymentService.CreatePaymentUrlMomo(_mapper.Map<SubscriptionDto>(subscription));
+                if (_unitOfWork.GetRepository<Class>().GetById(Subscription.Subscription.ClassId).Result == null)
+                {
 
-                        }
-                        catch (Exception ex)
-                        {
-                            _result.Message.Add($"{ex.Message}");
-                        }
-                        break;
+                    _result.Message.Add("The class not found");
+                    isValid = false;
+                }
+                if (_unitOfWork.GetRepository<ApplicationUser>().GetById(Subscription.Subscription.UserId).Result == null)
+                {
 
-                    default:
-                        _result.Data = "";
-                        break;
+                    _result.Message.Add("The user not found");
+                    isValid = false;
+                }
+                if (_unitOfWork.GetRepository<SubscriptionStatus>().GetById(Subscription.Subscription.SubscriptionStatusId).Result == null)
+                {
+
+                    _result.Message.Add("The subscription status not found");
+                    isValid = false;
+                }
+                if (DateTime.Now < _unitOfWork.GetRepository<Class>()
+                    .GetById(Subscription.Subscription.ClassId).Result.EndDate
+                    &&
+                    await _unitOfWork.GetRepository<ClassDetail>()
+                    .GetByExpression(c => c.UserId == Subscription.Subscription.UserId && c.ClassId == Subscription.Subscription.ClassId) != null)
+                {
+                    _result.Message.Add("The subscription status not found");
+                    isValid = false;
+                }
+                if (isValid)
+                {
+                    var subscription = await _unitOfWork.GetRepository<Subscription>().Insert(_mapper.Map<Subscription>(Subscription.Subscription));
+                    switch (Subscription.PaymentChoice)
+                    {
+                        case 1:
+                            try
+                            {
+                                _result.Data = _paymentService.CreatePaymentUrlVNPay(_mapper.Map<SubscriptionDto>(subscription), context);
+                                _unitOfWork.SaveChange();
+                                _result.Message.Add(SD.ResponeMessage.CREATE_SUCCESS);
+
+                            }
+                            catch (Exception ex)
+                            {
+                                _result.Message.Add($"{ex.Message}");
+                            }
+                            break;
+                        case 2:
+                            try
+                            {
+                                _result.Data = _paymentService.CreatePaymentUrlMomo(_mapper.Map<SubscriptionDto>(subscription));
+
+                            }
+                            catch (Exception ex)
+                            {
+                                _result.Message.Add($"{ex.Message}");
+                            }
+                            break;
+
+                        default:
+                            _result.Data = "";
+                            break;
+                    }
+                }
+                else
+                {
+                    _result.isSuccess = false;
+
                 }
             }
-            else
+            catch (Exception ex)
             {
+
                 _result.isSuccess = false;
-                
+                _result.Message.Add(ex.Message);
             }
 
             return _result;
@@ -141,21 +150,28 @@ namespace YogaCenter.BackEnd.Service.Implementations
 
         public async Task<AppActionResult> UpdateSubscription(SubscriptionDto Subscription)
         {
-            bool isValid = true;
-            if(_unitOfWork.GetRepository<Subscription>().GetById(Subscription.SubscriptionId) != null)
-            {
-                isValid = false;
-                _result.Message.Add($"The subscription with id {Subscription.SubscriptionId} not found");
+            try {
+
+                bool isValid = true;
+                if (_unitOfWork.GetRepository<Subscription>().GetById(Subscription.SubscriptionId) != null)
+                {
+                    isValid = false;
+                    _result.Message.Add($"The subscription with id {Subscription.SubscriptionId} not found");
+                }
+                if (isValid)
+                {
+                    await _unitOfWork.GetRepository<Subscription>().Update(_mapper.Map<Subscription>(Subscription));
+                    _unitOfWork.SaveChange();
+                    _result.Message.Add(SD.ResponeMessage.UPDATE_SUCCESS);
+                }
+                else
+                {
+                    _result.isSuccess = false;
+                }
             }
-            if (isValid)
-            {
-                await _unitOfWork.GetRepository<Subscription>().Update(_mapper.Map<Subscription>(Subscription));
-                _unitOfWork.SaveChange();
-                _result.Message.Add(SD.ResponeMessage.UPDATE_SUCCESS);
-            }
-            else
-            {
-                _result.isSuccess=false;
+            catch(Exception ex) {
+                _result.isSuccess = false;
+                _result.Message.Add(ex.Message);
             }
             return _result;
         }

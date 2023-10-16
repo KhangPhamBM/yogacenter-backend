@@ -29,38 +29,47 @@ namespace YogaCenter.BackEnd.Service.Implementations
 
         public async Task<AppActionResult> RegisterClass(ClassDetailDto detail)
         {
-            bool isValid = true;
-            if (_unitOfWork.GetRepository<Class>().GetById(detail.ClassId) == null)
-            {
-                isValid = false;
-                _result.Message.Add($"The class with id {detail.ClassDetailId} not found");
-            }
-            if (_unitOfWork.GetRepository<ApplicationUser>().GetById(detail.UserId) == null)
-            {
-                isValid = false;
-                _result.Message.Add($"The user with id {detail.ClassDetailId} not found");
-            }
-            if (_unitOfWork.GetRepository<ClassDetail>().GetByExpression(c => c.UserId == detail.UserId && c.ClassId == detail.ClassId) != null)
-            {
-                isValid = false;
-                _result.Message.Add($"The trainee has been registed in this class");
-            }
-
-            if (isValid)
+            try
             {
 
-                await _unitOfWork.GetRepository<ClassDetail>().Insert(_mapper.Map<ClassDetail>(detail));
-                _unitOfWork.SaveChange();
+                bool isValid = true;
+                if (_unitOfWork.GetRepository<Class>().GetById(detail.ClassId) == null)
+                {
+                    isValid = false;
+                    _result.Message.Add($"The class with id {detail.ClassDetailId} not found");
+                }
+                if (_unitOfWork.GetRepository<ApplicationUser>().GetById(detail.UserId) == null)
+                {
+                    isValid = false;
+                    _result.Message.Add($"The user with id {detail.ClassDetailId} not found");
+                }
+                if (_unitOfWork.GetRepository<ClassDetail>().GetByExpression(c => c.UserId == detail.UserId && c.ClassId == detail.ClassId) != null)
+                {
+                    isValid = false;
+                    _result.Message.Add($"The trainee has been registed in this class");
+                }
 
-                _result.Message.Add(SD.ResponeMessage.CREATE_SUCCESS);
+                if (isValid)
+                {
 
+                    await _unitOfWork.GetRepository<ClassDetail>().Insert(_mapper.Map<ClassDetail>(detail));
+                    _unitOfWork.SaveChange();
+
+                    _result.Message.Add(SD.ResponeMessage.CREATE_SUCCESS);
+
+
+                }
+                else
+                {
+                    _result.isSuccess = false;
+                }
 
             }
-            else
+            catch (Exception ex)
             {
                 _result.isSuccess = false;
+                _result.Message.Add(ex.Message);
             }
-
             return _result;
         }
     }
