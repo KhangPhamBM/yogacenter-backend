@@ -46,6 +46,18 @@ namespace YogaCenter.BackEnd.Service.Implementations
                     _result.Message.Add("The class not found");
                     isValid = false;
                 }
+                else
+                {
+                    if (DateTime.Now < _unitOfWork.GetRepository<Class>()
+                    .GetById(Subscription.Subscription.ClassId)?.Result.EndDate
+                    &&
+                    await _unitOfWork.GetRepository<ClassDetail>()
+                    .GetByExpression(c => c.UserId == Subscription.Subscription.UserId && c.ClassId == Subscription.Subscription.ClassId) != null)
+                    {
+                        _result.Message.Add("This action was blocked because the trainee is studying a class which hasn't ended ");
+                        isValid = false;
+                    }
+                }
                 if (_unitOfWork.GetRepository<ApplicationUser>().GetById(Subscription.Subscription.UserId).Result == null)
                 {
 
@@ -58,15 +70,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                     _result.Message.Add("The subscription status not found");
                     isValid = false;
                 }
-                if (DateTime.Now < _unitOfWork.GetRepository<Class>()
-                    .GetById(Subscription.Subscription.ClassId).Result.EndDate
-                    &&
-                    await _unitOfWork.GetRepository<ClassDetail>()
-                    .GetByExpression(c => c.UserId == Subscription.Subscription.UserId && c.ClassId == Subscription.Subscription.ClassId) != null)
-                {
-                    _result.Message.Add("The subscription status not found");
-                    isValid = false;
-                }
+               
                 if (isValid)
                 {
                     var subscription = await _unitOfWork.GetRepository<Subscription>().Insert(_mapper.Map<Subscription>(Subscription.Subscription));
@@ -150,7 +154,8 @@ namespace YogaCenter.BackEnd.Service.Implementations
 
         public async Task<AppActionResult> UpdateSubscription(SubscriptionDto Subscription)
         {
-            try {
+            try
+            {
 
                 bool isValid = true;
                 if (_unitOfWork.GetRepository<Subscription>().GetById(Subscription.SubscriptionId) != null)
@@ -169,7 +174,8 @@ namespace YogaCenter.BackEnd.Service.Implementations
                     _result.isSuccess = false;
                 }
             }
-            catch(Exception ex) {
+            catch (Exception ex)
+            {
                 _result.isSuccess = false;
                 _result.Message.Add(ex.Message);
             }
