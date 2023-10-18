@@ -9,8 +9,8 @@ namespace YogaCenter.BackEnd.Service.Contracts
 {
     public interface ITicketTypeService
     {
-        Task CreateTicketType(TicketTypeDto ticketType);
-        Task UpdateTicketType(TicketTypeDto ticketType);
+        Task<AppActionResult> CreateTicketType(TicketTypeDto ticketType);
+        Task<AppActionResult> UpdateTicketType(TicketTypeDto ticketType);
 
     }
 }

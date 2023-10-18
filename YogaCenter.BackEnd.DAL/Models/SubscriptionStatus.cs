@@ -7,10 +7,10 @@ using System.Threading.Tasks;
 
 namespace YogaCenter.BackEnd.DAL.Models
 {
-    public class SubcriptionStatus
+    public class SubscriptionStatus
     {
         [Key]
-        public int SubcriptionStatusId { get; set; }
-        public string? SubcriptionStatusName { get; set;}
+        public int SubscriptionStatusId { get; set; }
+        public string? SubscriptionStatusName { get; set;}
     }
 }

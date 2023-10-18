@@ -10,8 +10,9 @@ namespace YogaCenter.BackEnd.Service.Contracts
 {
     public interface ICourseService
     {
-        Task CreateCourse(CourseDto course);
-        Task UpdateCourse(CourseDto course);
+        Task<AppActionResult> CreateCourse(CourseDto course);
+        Task<AppActionResult> UpdateCourse(CourseDto course);
+        Task<AppActionResult> GetCourseById(int courseId);
 
     }
 }

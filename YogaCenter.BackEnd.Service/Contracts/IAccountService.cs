@@ -10,10 +10,11 @@ namespace YogaCenter.BackEnd.Service.Contracts
 {
     public interface IAccountService
     {
-        Task<TokenDto> Login(LoginRequestDto loginRequest);
-        Task SignUp(SignUpRequestDto signUpRequest);
-        Task UpdateAccount(ApplicationUser applicationUser);
-       Task<ApplicationUser> GetAccountByUserId(string id);
+        Task<AppActionResult> Login(LoginRequestDto loginRequest);
+        Task<AppActionResult> CreateAccount(SignUpRequestDto signUpRequest);
+        Task<AppActionResult> UpdateAccount(ApplicationUser applicationUser);
+        Task<AppActionResult> GetAccountByUserId(string id);
+        Task<AppActionResult> GetAllAccount();
 
 
     }

@@ -7,7 +7,7 @@ using YogaCenter.BackEnd.DAL.Models;
 
 namespace YogaCenter.BackEnd.DAL.Contracts
 {
-    public interface ISubcriptionRepository: IRepository<Subcription>
+    public interface ISubscriptionStatusRepository: IRepository<SubscriptionStatus>
     {
     }
 }

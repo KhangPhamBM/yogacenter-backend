@@ -11,30 +11,29 @@ namespace YogaCenter.BackEnd.API.Controllers
     public class CourseController : ControllerBase
     {
         private readonly ICourseService _courseService;
-        private readonly ResponeDto _responeDto;
+        private readonly AppActionResult _responeDto;
 
         public CourseController(ICourseService courseService)
         {
             _courseService = courseService;
-            _responeDto = new ResponeDto();
+            _responeDto = new AppActionResult();
         }
 
         [HttpPost("create-course")]
-        public ResponeDto CreateCourse(CourseDto course)
+        public async Task<AppActionResult> CreateCourse(CourseDto course)
         {
-            try
-            {
-                _courseService.CreateCourse(course);
-                _responeDto.Data = true;
-            }
-            catch (Exception ex)
-            {
-                _responeDto.Message = ex.Message;
-                _responeDto.isSuccess = false;
-            }
-            return _responeDto;
+           return await _courseService.CreateCourse(course);  
         }
-
+        [HttpPut("update-course")]
+        public async Task<AppActionResult> UpdateCourse(CourseDto course)
+        {
+            return await _courseService.UpdateCourse(course);
+        }
+        [HttpPost("get-course-by-id/{id:int}")]
+        public async Task<AppActionResult> GetCourseById(int id)
+        {
+            return await _courseService.GetCourseById(id);
+        }
 
 
     }

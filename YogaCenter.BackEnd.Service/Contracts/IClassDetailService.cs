@@ -9,7 +9,8 @@ namespace YogaCenter.BackEnd.Service.Contracts
 {
     public interface IClassDetailService
     {
-        Task RegisterClass(ClassDetailDto detail);
+        Task<AppActionResult> RegisterClass(ClassDetailDto detail);
+        Task<AppActionResult> GetClassDetailByUserId(string userId);    
 
     }
 }

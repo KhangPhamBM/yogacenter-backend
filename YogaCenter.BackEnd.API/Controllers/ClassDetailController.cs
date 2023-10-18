@@ -10,31 +10,18 @@ namespace YogaCenter.BackEnd.API.Controllers
     [ApiController]
     public class ClassDetailController : ControllerBase
     {
-        public ResponeDto _responeDto;
+        public AppActionResult _responeDto;
         public IClassDetailService _classDetail;
 
         public ClassDetailController(IClassDetailService classDetail)
         {
             _classDetail = classDetail;
-            _responeDto = new ResponeDto();
+            _responeDto = new AppActionResult();
         }
         [HttpPost("register-class")]
-        public async Task<ResponeDto> RegisterClass(ClassDetailDto classDto)
+        public async Task<AppActionResult> RegisterClass(ClassDetailDto classDto)
         {
-            try
-            {
-                await _classDetail.RegisterClass(classDto);
-                _responeDto.Data = true;
-
-            }
-            catch (Exception ex)
-            {
-
-                _responeDto.isSuccess = false;
-                _responeDto.Message = ex.Message;
-
-            }
-            return _responeDto;
+           return await _classDetail.RegisterClass(classDto); 
         }
     }
 }

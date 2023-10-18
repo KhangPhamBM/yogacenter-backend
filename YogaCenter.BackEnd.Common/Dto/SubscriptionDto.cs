@@ -8,13 +8,14 @@ using System.Threading.Tasks;
 
 namespace YogaCenter.BackEnd.Common.Dto
 {
-    public class SubcriptionDto
+    public class SubscriptionDto
     {
-        public string SubcriptionId { get; set; }
-        public DateTime? SubcriptionDate { get; set; }
+        public string SubscriptionId { get; set; }
+        public DateTime? SubscriptionDate { get; set; }
         public double? Total { get; set; }
         public int? ClassId { get; set; }
-        public int SubcriptionStatusId { get; set; }
+        public string? UserId { get; set; }
+        public int SubscriptionStatusId { get; set; }
 
 
     }

@@ -12,8 +12,8 @@ using YogaCenter.BackEnd.DAL.Data;
 namespace YogaCenter.BackEnd.DAL.Migrations
 {
     [DbContext(typeof(YogaCenterContext))]
-    [Migration("20231010033552_addFieldUser")]
-    partial class addFieldUser
+    [Migration("20231018020920_addFieldCustomIF")]
+    partial class addFieldCustomIF
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -24,7 +24,143 @@ namespace YogaCenter.BackEnd.DAL.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<string>("ClaimType")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ClaimValue")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Discriminator")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("RoleId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("AspNetRoleClaims", (string)null);
+
+                    b.HasDiscriminator<string>("Discriminator").HasValue("IdentityRoleClaim<string>");
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<string>("ClaimType")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ClaimValue")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Discriminator")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("AspNetUserClaims", (string)null);
+
+                    b.HasDiscriminator<string>("Discriminator").HasValue("IdentityUserClaim<string>");
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
+                {
+                    b.Property<string>("LoginProvider")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("ProviderKey")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Discriminator")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ProviderDisplayName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("LoginProvider", "ProviderKey");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("AspNetUserLogins", (string)null);
+
+                    b.HasDiscriminator<string>("Discriminator").HasValue("IdentityUserLogin<string>");
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
+                {
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("RoleId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Discriminator")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("UserId", "RoleId");
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("AspNetUserRoles", (string)null);
+
+                    b.HasDiscriminator<string>("Discriminator").HasValue("IdentityUserRole<string>");
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
+                {
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("LoginProvider")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Discriminator")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Value")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("UserId", "LoginProvider", "Name");
+
+                    b.ToTable("AspNetUserTokens", (string)null);
+
+                    b.HasDiscriminator<string>("Discriminator").HasValue("IdentityUserToken<string>");
+                });
+
+            modelBuilder.Entity("YogaCenter.BackEnd.DAL.Models.ApplicationRole", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
@@ -49,112 +185,6 @@ namespace YogaCenter.BackEnd.DAL.Migrations
                         .HasFilter("[NormalizedName] IS NOT NULL");
 
                     b.ToTable("AspNetRoles", (string)null);
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<string>("ClaimType")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ClaimValue")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("RoleId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("RoleId");
-
-                    b.ToTable("AspNetRoleClaims", (string)null);
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<string>("ClaimType")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ClaimValue")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("AspNetUserClaims", (string)null);
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
-                {
-                    b.Property<string>("LoginProvider")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("ProviderKey")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("ProviderDisplayName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("LoginProvider", "ProviderKey");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("AspNetUserLogins", (string)null);
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
-                {
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("RoleId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("UserId", "RoleId");
-
-                    b.HasIndex("RoleId");
-
-                    b.ToTable("AspNetUserRoles", (string)null);
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
-                {
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("LoginProvider")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("Value")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("UserId", "LoginProvider", "Name");
-
-                    b.ToTable("AspNetUserTokens", (string)null);
                 });
 
             modelBuilder.Entity("YogaCenter.BackEnd.DAL.Models.ApplicationUser", b =>
@@ -280,6 +310,12 @@ namespace YogaCenter.BackEnd.DAL.Migrations
                     b.Property<bool?>("IsDeleted")
                         .HasColumnType("bit");
 
+                    b.Property<int>("MaxOfTrainer")
+                        .HasColumnType("int");
+
+                    b.Property<int>("MinOfTrainee")
+                        .HasColumnType("int");
+
                     b.Property<DateTime?>("StartDate")
                         .HasColumnType("datetime2");
 
@@ -358,7 +394,7 @@ namespace YogaCenter.BackEnd.DAL.Migrations
                     b.Property<int?>("PaymentTypeId")
                         .HasColumnType("int");
 
-                    b.Property<string>("SubcriptionId")
+                    b.Property<string>("SubscriptionId")
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<bool?>("Success")
@@ -368,7 +404,7 @@ namespace YogaCenter.BackEnd.DAL.Migrations
 
                     b.HasIndex("PaymentTypeId");
 
-                    b.HasIndex("SubcriptionId");
+                    b.HasIndex("SubscriptionId");
 
                     b.ToTable("PaymentRespones");
                 });
@@ -387,6 +423,18 @@ namespace YogaCenter.BackEnd.DAL.Migrations
                     b.HasKey("PaymentTypeId");
 
                     b.ToTable("PaymentTypes");
+
+                    b.HasData(
+                        new
+                        {
+                            PaymentTypeId = 1,
+                            Type = "VNPAY"
+                        },
+                        new
+                        {
+                            PaymentTypeId = 2,
+                            Type = "MOMO"
+                        });
                 });
 
             modelBuilder.Entity("YogaCenter.BackEnd.DAL.Models.Room", b =>
@@ -404,6 +452,108 @@ namespace YogaCenter.BackEnd.DAL.Migrations
                     b.HasKey("RoomId");
 
                     b.ToTable("Rooms");
+
+                    b.HasData(
+                        new
+                        {
+                            RoomId = 1,
+                            RoomName = "A01"
+                        },
+                        new
+                        {
+                            RoomId = 2,
+                            RoomName = "A02"
+                        },
+                        new
+                        {
+                            RoomId = 3,
+                            RoomName = "A03"
+                        },
+                        new
+                        {
+                            RoomId = 4,
+                            RoomName = "A04"
+                        },
+                        new
+                        {
+                            RoomId = 5,
+                            RoomName = "A05"
+                        },
+                        new
+                        {
+                            RoomId = 6,
+                            RoomName = "A06"
+                        },
+                        new
+                        {
+                            RoomId = 7,
+                            RoomName = "A07"
+                        },
+                        new
+                        {
+                            RoomId = 8,
+                            RoomName = "A08"
+                        },
+                        new
+                        {
+                            RoomId = 9,
+                            RoomName = "A09"
+                        },
+                        new
+                        {
+                            RoomId = 10,
+                            RoomName = "A10"
+                        },
+                        new
+                        {
+                            RoomId = 11,
+                            RoomName = "B01"
+                        },
+                        new
+                        {
+                            RoomId = 12,
+                            RoomName = "B02"
+                        },
+                        new
+                        {
+                            RoomId = 13,
+                            RoomName = "B03"
+                        },
+                        new
+                        {
+                            RoomId = 14,
+                            RoomName = "B04"
+                        },
+                        new
+                        {
+                            RoomId = 15,
+                            RoomName = "B05"
+                        },
+                        new
+                        {
+                            RoomId = 16,
+                            RoomName = "B06"
+                        },
+                        new
+                        {
+                            RoomId = 17,
+                            RoomName = "B07"
+                        },
+                        new
+                        {
+                            RoomId = 18,
+                            RoomName = "B08"
+                        },
+                        new
+                        {
+                            RoomId = 19,
+                            RoomName = "B09"
+                        },
+                        new
+                        {
+                            RoomId = 20,
+                            RoomName = "B10"
+                        });
                 });
 
             modelBuilder.Entity("YogaCenter.BackEnd.DAL.Models.Schedule", b =>
@@ -437,46 +587,67 @@ namespace YogaCenter.BackEnd.DAL.Migrations
                     b.ToTable("Schedules");
                 });
 
-            modelBuilder.Entity("YogaCenter.BackEnd.DAL.Models.Subcription", b =>
+            modelBuilder.Entity("YogaCenter.BackEnd.DAL.Models.Subscription", b =>
                 {
-                    b.Property<string>("SubcriptionId")
+                    b.Property<string>("SubscriptionId")
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<int?>("ClassId")
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasColumnOrder(3);
 
-                    b.Property<DateTime?>("SubcriptionDate")
+                    b.Property<DateTime?>("SubscriptionDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("SubcriptionStatusId")
+                    b.Property<int>("SubscriptionStatusId")
                         .HasColumnType("int");
 
                     b.Property<double?>("Total")
                         .HasColumnType("float");
 
-                    b.HasKey("SubcriptionId");
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("SubscriptionId");
 
                     b.HasIndex("ClassId");
 
-                    b.HasIndex("SubcriptionStatusId");
+                    b.HasIndex("SubscriptionStatusId");
 
-                    b.ToTable("Subcriptions");
+                    b.ToTable("Subscriptions");
                 });
 
-            modelBuilder.Entity("YogaCenter.BackEnd.DAL.Models.SubcriptionStatus", b =>
+            modelBuilder.Entity("YogaCenter.BackEnd.DAL.Models.SubscriptionStatus", b =>
                 {
-                    b.Property<int>("SubcriptionStatusId")
+                    b.Property<int>("SubscriptionStatusId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("SubcriptionStatusId"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("SubscriptionStatusId"), 1L, 1);
 
-                    b.Property<string>("SubcriptionStatusName")
+                    b.Property<string>("SubscriptionStatusName")
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("SubcriptionStatusId");
+                    b.HasKey("SubscriptionStatusId");
 
-                    b.ToTable("SubcriptionStatuses");
+                    b.ToTable("SubscriptionStatuses");
+
+                    b.HasData(
+                        new
+                        {
+                            SubscriptionStatusId = 3,
+                            SubscriptionStatusName = "Pending"
+                        },
+                        new
+                        {
+                            SubscriptionStatusId = 1,
+                            SubscriptionStatusName = "Successful"
+                        },
+                        new
+                        {
+                            SubscriptionStatusId = 2,
+                            SubscriptionStatusName = "Failed"
+                        });
                 });
 
             modelBuilder.Entity("YogaCenter.BackEnd.DAL.Models.Ticket", b =>
@@ -524,6 +695,23 @@ namespace YogaCenter.BackEnd.DAL.Migrations
                     b.HasKey("TicketStatusId");
 
                     b.ToTable("TicketStatuses");
+
+                    b.HasData(
+                        new
+                        {
+                            TicketStatusId = 1,
+                            TicketStatusName = "Pending"
+                        },
+                        new
+                        {
+                            TicketStatusId = 2,
+                            TicketStatusName = "Approved"
+                        },
+                        new
+                        {
+                            TicketStatusId = 3,
+                            TicketStatusName = "Rejected"
+                        });
                 });
 
             modelBuilder.Entity("YogaCenter.BackEnd.DAL.Models.TicketType", b =>
@@ -540,6 +728,18 @@ namespace YogaCenter.BackEnd.DAL.Migrations
                     b.HasKey("TicketTypeId");
 
                     b.ToTable("TicketTypes");
+
+                    b.HasData(
+                        new
+                        {
+                            TicketTypeId = 1,
+                            TicketName = "Refund ticket"
+                        },
+                        new
+                        {
+                            TicketTypeId = 2,
+                            TicketName = "Other ticket"
+                        });
                 });
 
             modelBuilder.Entity("YogaCenter.BackEnd.DAL.Models.TimeFrame", b =>
@@ -556,11 +756,75 @@ namespace YogaCenter.BackEnd.DAL.Migrations
                     b.HasKey("TimeFrameId");
 
                     b.ToTable("TimeFrames");
+
+                    b.HasData(
+                        new
+                        {
+                            TimeFrameId = 1,
+                            TimeFrameName = "7H00 - 9H00"
+                        },
+                        new
+                        {
+                            TimeFrameId = 2,
+                            TimeFrameName = "9H00 - 11H00"
+                        },
+                        new
+                        {
+                            TimeFrameId = 3,
+                            TimeFrameName = "13H00 - 15H00"
+                        },
+                        new
+                        {
+                            TimeFrameId = 4,
+                            TimeFrameName = "17H00 - 19H00"
+                        },
+                        new
+                        {
+                            TimeFrameId = 5,
+                            TimeFrameName = "19H00 - 21H00"
+                        });
+                });
+
+            modelBuilder.Entity("YogaCenter.BackEnd.DAL.Models.ApplicationRoleClaim", b =>
+                {
+                    b.HasBaseType("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>");
+
+                    b.HasDiscriminator().HasValue("ApplicationRoleClaim");
+                });
+
+            modelBuilder.Entity("YogaCenter.BackEnd.DAL.Models.ApplicationUserClaim", b =>
+                {
+                    b.HasBaseType("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>");
+
+                    b.HasDiscriminator().HasValue("ApplicationUserClaim");
+                });
+
+            modelBuilder.Entity("YogaCenter.BackEnd.DAL.Models.ApplicationUserLogin", b =>
+                {
+                    b.HasBaseType("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>");
+
+                    b.HasDiscriminator().HasValue("ApplicationUserLogin");
+                });
+
+            modelBuilder.Entity("YogaCenter.BackEnd.DAL.Models.ApplicationUserRole", b =>
+                {
+                    b.HasBaseType("Microsoft.AspNetCore.Identity.IdentityUserRole<string>");
+
+                    b.ToTable("AspNetUserRoles", (string)null);
+
+                    b.HasDiscriminator().HasValue("ApplicationUserRole");
+                });
+
+            modelBuilder.Entity("YogaCenter.BackEnd.DAL.Models.ApplicationUserToken", b =>
+                {
+                    b.HasBaseType("Microsoft.AspNetCore.Identity.IdentityUserToken<string>");
+
+                    b.HasDiscriminator().HasValue("ApplicationUserToken");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
+                    b.HasOne("YogaCenter.BackEnd.DAL.Models.ApplicationRole", null)
                         .WithMany()
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -587,7 +851,7 @@ namespace YogaCenter.BackEnd.DAL.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
                 {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
+                    b.HasOne("YogaCenter.BackEnd.DAL.Models.ApplicationRole", null)
                         .WithMany()
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -658,13 +922,13 @@ namespace YogaCenter.BackEnd.DAL.Migrations
                         .WithMany()
                         .HasForeignKey("PaymentTypeId");
 
-                    b.HasOne("YogaCenter.BackEnd.DAL.Models.Subcription", "Subcription")
+                    b.HasOne("YogaCenter.BackEnd.DAL.Models.Subscription", "Subscription")
                         .WithMany()
-                        .HasForeignKey("SubcriptionId");
+                        .HasForeignKey("SubscriptionId");
 
                     b.Navigation("PaymentType");
 
-                    b.Navigation("Subcription");
+                    b.Navigation("Subscription");
                 });
 
             modelBuilder.Entity("YogaCenter.BackEnd.DAL.Models.Schedule", b =>
@@ -688,21 +952,21 @@ namespace YogaCenter.BackEnd.DAL.Migrations
                     b.Navigation("TimeFrame");
                 });
 
-            modelBuilder.Entity("YogaCenter.BackEnd.DAL.Models.Subcription", b =>
+            modelBuilder.Entity("YogaCenter.BackEnd.DAL.Models.Subscription", b =>
                 {
                     b.HasOne("YogaCenter.BackEnd.DAL.Models.Class", "Class")
                         .WithMany()
                         .HasForeignKey("ClassId");
 
-                    b.HasOne("YogaCenter.BackEnd.DAL.Models.SubcriptionStatus", "SubcriptionStatus")
+                    b.HasOne("YogaCenter.BackEnd.DAL.Models.SubscriptionStatus", "SubscriptionStatus")
                         .WithMany()
-                        .HasForeignKey("SubcriptionStatusId")
+                        .HasForeignKey("SubscriptionStatusId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Class");
 
-                    b.Navigation("SubcriptionStatus");
+                    b.Navigation("SubscriptionStatus");
                 });
 
             modelBuilder.Entity("YogaCenter.BackEnd.DAL.Models.Ticket", b =>

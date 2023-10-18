@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace YogaCenter.BackEnd.DAL.Migrations
 {
-    public partial class AddDB : Migration
+    public partial class addFieldCustomIF : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -31,7 +31,10 @@ namespace YogaCenter.BackEnd.DAL.Migrations
                     PhoneNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     FirstName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     LastName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Gender = table.Column<bool>(type: "bit", nullable: true),
                     isDeleted = table.Column<bool>(type: "bit", nullable: true),
+                    RefreshToken = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    RefreshTokenExpiryTime = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
@@ -83,16 +86,29 @@ namespace YogaCenter.BackEnd.DAL.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "SubcriptionStatuses",
+                name: "Rooms",
                 columns: table => new
                 {
-                    SubcriptionStatusId = table.Column<int>(type: "int", nullable: false)
+                    RoomId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    SubcriptionStatusName = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    RoomName = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_SubcriptionStatuses", x => x.SubcriptionStatusId);
+                    table.PrimaryKey("PK_Rooms", x => x.RoomId);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "SubscriptionStatuses",
+                columns: table => new
+                {
+                    SubscriptionStatusId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    SubscriptionStatusName = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SubscriptionStatuses", x => x.SubscriptionStatusId);
                 });
 
             migrationBuilder.CreateTable(
@@ -142,7 +158,8 @@ namespace YogaCenter.BackEnd.DAL.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     RoleId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     ClaimType = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ClaimValue = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    ClaimValue = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Discriminator = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -163,7 +180,8 @@ namespace YogaCenter.BackEnd.DAL.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     ClaimType = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ClaimValue = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    ClaimValue = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Discriminator = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -183,7 +201,8 @@ namespace YogaCenter.BackEnd.DAL.Migrations
                     LoginProvider = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     ProviderKey = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     ProviderDisplayName = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Discriminator = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -201,7 +220,8 @@ namespace YogaCenter.BackEnd.DAL.Migrations
                 columns: table => new
                 {
                     UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    RoleId = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                    RoleId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Discriminator = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -227,7 +247,8 @@ namespace YogaCenter.BackEnd.DAL.Migrations
                     UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     LoginProvider = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Value = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    Value = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Discriminator = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -250,6 +271,8 @@ namespace YogaCenter.BackEnd.DAL.Migrations
                     EndDate = table.Column<DateTime>(type: "datetime2", nullable: true),
                     ClassName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CourseId = table.Column<int>(type: "int", nullable: true),
+                    MinOfTrainee = table.Column<int>(type: "int", nullable: false),
+                    MaxOfTrainer = table.Column<int>(type: "int", nullable: false),
                     IsDeleted = table.Column<bool>(type: "bit", nullable: true)
                 },
                 constraints: table =>
@@ -325,6 +348,7 @@ namespace YogaCenter.BackEnd.DAL.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     ClassId = table.Column<int>(type: "int", nullable: true),
                     TimeFrameId = table.Column<int>(type: "int", nullable: true),
+                    RoomId = table.Column<int>(type: "int", nullable: true),
                     Date = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
@@ -336,6 +360,11 @@ namespace YogaCenter.BackEnd.DAL.Migrations
                         principalTable: "Classes",
                         principalColumn: "ClassId");
                     table.ForeignKey(
+                        name: "FK_Schedules_Rooms_RoomId",
+                        column: x => x.RoomId,
+                        principalTable: "Rooms",
+                        principalColumn: "RoomId");
+                    table.ForeignKey(
                         name: "FK_Schedules_TimeFrames_TimeFrameId",
                         column: x => x.TimeFrameId,
                         principalTable: "TimeFrames",
@@ -343,28 +372,29 @@ namespace YogaCenter.BackEnd.DAL.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Subcriptions",
+                name: "Subscriptions",
                 columns: table => new
                 {
-                    SubcriptionId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    SubcriptionDate = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    Total = table.Column<double>(type: "float", nullable: true),
                     ClassId = table.Column<int>(type: "int", nullable: true),
-                    SubcriptionStatusId = table.Column<int>(type: "int", nullable: false)
+                    SubscriptionId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    SubscriptionDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    Total = table.Column<double>(type: "float", nullable: true),
+                    UserId = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    SubscriptionStatusId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Subcriptions", x => x.SubcriptionId);
+                    table.PrimaryKey("PK_Subscriptions", x => x.SubscriptionId);
                     table.ForeignKey(
-                        name: "FK_Subcriptions_Classes_ClassId",
+                        name: "FK_Subscriptions_Classes_ClassId",
                         column: x => x.ClassId,
                         principalTable: "Classes",
                         principalColumn: "ClassId");
                     table.ForeignKey(
-                        name: "FK_Subcriptions_SubcriptionStatuses_SubcriptionStatusId",
-                        column: x => x.SubcriptionStatusId,
-                        principalTable: "SubcriptionStatuses",
-                        principalColumn: "SubcriptionStatusId",
+                        name: "FK_Subscriptions_SubscriptionStatuses_SubscriptionStatusId",
+                        column: x => x.SubscriptionStatusId,
+                        principalTable: "SubscriptionStatuses",
+                        principalColumn: "SubscriptionStatusId",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -398,7 +428,7 @@ namespace YogaCenter.BackEnd.DAL.Migrations
                 columns: table => new
                 {
                     PaymentResponseId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    SubcriptionId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    SubscriptionId = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     Amount = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     OrderInfo = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Success = table.Column<bool>(type: "bit", nullable: true),
@@ -413,10 +443,87 @@ namespace YogaCenter.BackEnd.DAL.Migrations
                         principalTable: "PaymentTypes",
                         principalColumn: "PaymentTypeId");
                     table.ForeignKey(
-                        name: "FK_PaymentRespones_Subcriptions_SubcriptionId",
-                        column: x => x.SubcriptionId,
-                        principalTable: "Subcriptions",
-                        principalColumn: "SubcriptionId");
+                        name: "FK_PaymentRespones_Subscriptions_SubscriptionId",
+                        column: x => x.SubscriptionId,
+                        principalTable: "Subscriptions",
+                        principalColumn: "SubscriptionId");
+                });
+
+            migrationBuilder.InsertData(
+                table: "PaymentTypes",
+                columns: new[] { "PaymentTypeId", "Type" },
+                values: new object[,]
+                {
+                    { 1, "VNPAY" },
+                    { 2, "MOMO" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Rooms",
+                columns: new[] { "RoomId", "RoomName" },
+                values: new object[,]
+                {
+                    { 1, "A01" },
+                    { 2, "A02" },
+                    { 3, "A03" },
+                    { 4, "A04" },
+                    { 5, "A05" },
+                    { 6, "A06" },
+                    { 7, "A07" },
+                    { 8, "A08" },
+                    { 9, "A09" },
+                    { 10, "A10" },
+                    { 11, "B01" },
+                    { 12, "B02" },
+                    { 13, "B03" },
+                    { 14, "B04" },
+                    { 15, "B05" },
+                    { 16, "B06" },
+                    { 17, "B07" },
+                    { 18, "B08" },
+                    { 19, "B09" },
+                    { 20, "B10" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "SubscriptionStatuses",
+                columns: new[] { "SubscriptionStatusId", "SubscriptionStatusName" },
+                values: new object[,]
+                {
+                    { 1, "Successful" },
+                    { 2, "Failed" },
+                    { 3, "Pending" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "TicketStatuses",
+                columns: new[] { "TicketStatusId", "TicketStatusName" },
+                values: new object[,]
+                {
+                    { 1, "Pending" },
+                    { 2, "Approved" },
+                    { 3, "Rejected" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "TicketTypes",
+                columns: new[] { "TicketTypeId", "TicketName" },
+                values: new object[,]
+                {
+                    { 1, "Refund ticket" },
+                    { 2, "Other ticket" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "TimeFrames",
+                columns: new[] { "TimeFrameId", "TimeFrameName" },
+                values: new object[,]
+                {
+                    { 1, "7H00 - 9H00" },
+                    { 2, "9H00 - 11H00" },
+                    { 3, "13H00 - 15H00" },
+                    { 4, "17H00 - 19H00" },
+                    { 5, "19H00 - 21H00" }
                 });
 
             migrationBuilder.CreateIndex(
@@ -484,9 +591,9 @@ namespace YogaCenter.BackEnd.DAL.Migrations
                 column: "PaymentTypeId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_PaymentRespones_SubcriptionId",
+                name: "IX_PaymentRespones_SubscriptionId",
                 table: "PaymentRespones",
-                column: "SubcriptionId");
+                column: "SubscriptionId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Schedules_ClassId",
@@ -494,19 +601,24 @@ namespace YogaCenter.BackEnd.DAL.Migrations
                 column: "ClassId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Schedules_RoomId",
+                table: "Schedules",
+                column: "RoomId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Schedules_TimeFrameId",
                 table: "Schedules",
                 column: "TimeFrameId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Subcriptions_ClassId",
-                table: "Subcriptions",
+                name: "IX_Subscriptions_ClassId",
+                table: "Subscriptions",
                 column: "ClassId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Subcriptions_SubcriptionStatusId",
-                table: "Subcriptions",
-                column: "SubcriptionStatusId");
+                name: "IX_Subscriptions_SubscriptionStatusId",
+                table: "Subscriptions",
+                column: "SubscriptionStatusId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Tickets_TicketStatusId",
@@ -563,7 +675,7 @@ namespace YogaCenter.BackEnd.DAL.Migrations
                 name: "PaymentTypes");
 
             migrationBuilder.DropTable(
-                name: "Subcriptions");
+                name: "Subscriptions");
 
             migrationBuilder.DropTable(
                 name: "TicketStatuses");
@@ -575,13 +687,16 @@ namespace YogaCenter.BackEnd.DAL.Migrations
                 name: "AspNetUsers");
 
             migrationBuilder.DropTable(
+                name: "Rooms");
+
+            migrationBuilder.DropTable(
                 name: "TimeFrames");
 
             migrationBuilder.DropTable(
                 name: "Classes");
 
             migrationBuilder.DropTable(
-                name: "SubcriptionStatuses");
+                name: "SubscriptionStatuses");
 
             migrationBuilder.DropTable(
                 name: "Courses");

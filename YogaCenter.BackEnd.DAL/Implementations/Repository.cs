@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using YogaCenter.BackEnd.DAL.Contracts;
 using YogaCenter.BackEnd.DAL.Data;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace YogaCenter.BackEnd.DAL.Implementations
 {
@@ -21,9 +22,9 @@ namespace YogaCenter.BackEnd.DAL.Implementations
             _dbSet = context.Set<T>();
         }
 
-        public IQueryable<T> GetAll()
+        public async Task<IEnumerable<T>> GetAll()
         {
-            return _dbSet.AsNoTracking();
+            return await _dbSet.AsNoTracking().ToListAsync();
         }
 
         public async Task<T> GetById(object id)
@@ -31,29 +32,54 @@ namespace YogaCenter.BackEnd.DAL.Implementations
             return await _dbSet.FindAsync(id);
         }
 
-        public async Task Insert(T entity)
+        public async Task<T> Insert(T entity)
         {
             await _dbSet.AddAsync(entity);
+            return entity;
         }
 
-        public Task Update(T entity)
+        public async Task Update(T entity)
         {
             _dbSet.Update(entity);
-            return Task.CompletedTask;
+          
         }
 
-        public Task DeleteById(object id)
+        public async Task DeleteById(object id)
         {
-            T entityToDelete = _dbSet.Find(id);
+            T entityToDelete = await _dbSet.FindAsync(id);
             if (entityToDelete != null)
             {
                 _dbSet.Remove(entityToDelete);
 
             }
-            return Task.CompletedTask;
 
         }
 
-      
+        public async Task<IEnumerable<T>> GetListByExpression(Expression<Func<T, bool>> filter, params Expression<Func<T, object>>[] includeProperties)
+        {
+            var query = _dbSet.AsQueryable();
+
+            // Apply eager loading
+            foreach (var includeProperty in includeProperties)
+            {
+                query = query.Include(includeProperty);
+            }
+
+            if (filter == null && includeProperties.Length > 0)
+            {
+                return await query.ToListAsync();
+            }
+
+            return await query.Where(filter).ToListAsync();
+        }
+
+        public async Task<T> GetByExpression(Expression<Func<T, bool>> filter, params Expression<Func<T, object>>[] includeProperties)
+        {
+            foreach (var includeProperty in includeProperties)
+            {
+                 _dbSet.Include(includeProperty);
+            }
+            return await _dbSet.SingleOrDefaultAsync(filter);
+        }
     }
 }

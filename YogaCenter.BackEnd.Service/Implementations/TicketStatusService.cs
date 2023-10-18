@@ -10,12 +10,12 @@ namespace YogaCenter.BackEnd.Service.Implementations
 {
     public class TicketStatusService : ITicketStatusService
     {
-        public Task CreateTicketStatus(TicketStatusDto ticketStatus)
+        public Task<AppActionResult> CreateTicketStatus(TicketStatusDto ticketStatus)
         {
             throw new NotImplementedException();
         }
 
-        public Task UpdateTicketStatus(TicketStatusDto ticketStatus)
+        public Task<AppActionResult> UpdateTicketStatus(TicketStatusDto ticketStatus)
         {
             throw new NotImplementedException();
         }

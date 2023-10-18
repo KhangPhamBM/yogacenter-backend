@@ -10,12 +10,12 @@ namespace YogaCenter.BackEnd.Service.Implementations
 {
     public class TicketTypeService : ITicketTypeService
     {
-        Task ITicketTypeService.CreateTicketType(TicketTypeDto ticketType)
+        public Task<AppActionResult> CreateTicketType(TicketTypeDto ticketType)
         {
             throw new NotImplementedException();
         }
 
-        Task ITicketTypeService.UpdateTicketType(TicketTypeDto ticketType)
+        public Task<AppActionResult> UpdateTicketType(TicketTypeDto ticketType)
         {
             throw new NotImplementedException();
         }

@@ -7,10 +7,13 @@ using YogaCenter.BackEnd.Common.Dto;
 
 namespace YogaCenter.BackEnd.Service.Contracts
 {
-    public interface ISubcriptionService
+    public interface IJwtService
     {
-        Task CreateSubcription(SubcriptionDto subcription);
-        Task UpdateSubcription(SubcriptionDto subcription);
+        string GenerateRefreshToken();
+        Task<string> GenerateAccessToken(LoginRequestDto loginRequest);
+        Task<TokenDto> GetNewToken(string refreshToken, string accountId);
+
+
 
     }
 }
