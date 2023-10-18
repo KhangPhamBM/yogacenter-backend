@@ -26,10 +26,10 @@ The Yoga Center Management System backend API is built using the following techn
 
 ## Screen-shots
 
-![Home Page](https://github.com/duong-hong-quan/YogaCenterAPIV2/blob/main/screenshots/HomePage.png)
-![ Detail](https://github.com/duong-hong-quan/YogaCenterAPIV2/blob/main/screenshots/CourseDetail.png)
-![Blog](https://github.com/duong-hong-quan/YogaCenterAPIV2/blob/main/screenshots/Blog.png)
-![Admin Page](https://github.com/duong-hong-quan/YogaCenterAPIV2/blob/main/screenshots/Admin.png)
+![Home Page](https://github.com/duong-hong-quan/yogacenter-backend/blob/main/screenshots/HomePage.png)
+![ Detail](https://github.com/duong-hong-quan/yogacenter-backend/blob/main/screenshots/CourseDetail.png)
+![Blog](https://github.com/duong-hong-quan/yogacenter-backend/blob/main/screenshots/Blog.png)
+![Admin Page](https://github.com/duong-hong-quan/yogacenter-backend/blob/main/screenshots/Admin.png)
 
 ## Acknowledgements
 We would like to acknowledge the following individuals and projects for their contributions and inspiration to the Takeaway Management System:
