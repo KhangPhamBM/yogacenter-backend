@@ -10,9 +10,6 @@ namespace YogaCenter.BackEnd.DAL.Contracts
 {
     public interface IAccountRepository: IRepository<ApplicationUser>
     {
-        Task <TokenDto> Login(LoginRequestDto loginRequest);
-        Task<ApplicationUser>  SignUp(SignUpRequestDto user);
-        Task AssignRole(string userId, string roleName);
-
+       
     }
 }

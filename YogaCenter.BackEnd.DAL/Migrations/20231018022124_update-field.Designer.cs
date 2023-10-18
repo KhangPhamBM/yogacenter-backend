@@ -12,8 +12,8 @@ using YogaCenter.BackEnd.DAL.Data;
 namespace YogaCenter.BackEnd.DAL.Migrations
 {
     [DbContext(typeof(YogaCenterContext))]
-    [Migration("20231015062803_AddDB")]
-    partial class AddDB
+    [Migration("20231018022124_update-field")]
+    partial class updatefield
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -280,6 +280,12 @@ namespace YogaCenter.BackEnd.DAL.Migrations
                     b.Property<bool?>("IsDeleted")
                         .HasColumnType("bit");
 
+                    b.Property<int>("MaxOfTrainer")
+                        .HasColumnType("int");
+
+                    b.Property<int>("MinOfTrainee")
+                        .HasColumnType("int");
+
                     b.Property<DateTime?>("StartDate")
                         .HasColumnType("datetime2");
 
@@ -387,6 +393,18 @@ namespace YogaCenter.BackEnd.DAL.Migrations
                     b.HasKey("PaymentTypeId");
 
                     b.ToTable("PaymentTypes");
+
+                    b.HasData(
+                        new
+                        {
+                            PaymentTypeId = 1,
+                            Type = "VNPAY"
+                        },
+                        new
+                        {
+                            PaymentTypeId = 2,
+                            Type = "MOMO"
+                        });
                 });
 
             modelBuilder.Entity("YogaCenter.BackEnd.DAL.Models.Room", b =>
@@ -404,6 +422,108 @@ namespace YogaCenter.BackEnd.DAL.Migrations
                     b.HasKey("RoomId");
 
                     b.ToTable("Rooms");
+
+                    b.HasData(
+                        new
+                        {
+                            RoomId = 1,
+                            RoomName = "A01"
+                        },
+                        new
+                        {
+                            RoomId = 2,
+                            RoomName = "A02"
+                        },
+                        new
+                        {
+                            RoomId = 3,
+                            RoomName = "A03"
+                        },
+                        new
+                        {
+                            RoomId = 4,
+                            RoomName = "A04"
+                        },
+                        new
+                        {
+                            RoomId = 5,
+                            RoomName = "A05"
+                        },
+                        new
+                        {
+                            RoomId = 6,
+                            RoomName = "A06"
+                        },
+                        new
+                        {
+                            RoomId = 7,
+                            RoomName = "A07"
+                        },
+                        new
+                        {
+                            RoomId = 8,
+                            RoomName = "A08"
+                        },
+                        new
+                        {
+                            RoomId = 9,
+                            RoomName = "A09"
+                        },
+                        new
+                        {
+                            RoomId = 10,
+                            RoomName = "A10"
+                        },
+                        new
+                        {
+                            RoomId = 11,
+                            RoomName = "B01"
+                        },
+                        new
+                        {
+                            RoomId = 12,
+                            RoomName = "B02"
+                        },
+                        new
+                        {
+                            RoomId = 13,
+                            RoomName = "B03"
+                        },
+                        new
+                        {
+                            RoomId = 14,
+                            RoomName = "B04"
+                        },
+                        new
+                        {
+                            RoomId = 15,
+                            RoomName = "B05"
+                        },
+                        new
+                        {
+                            RoomId = 16,
+                            RoomName = "B06"
+                        },
+                        new
+                        {
+                            RoomId = 17,
+                            RoomName = "B07"
+                        },
+                        new
+                        {
+                            RoomId = 18,
+                            RoomName = "B08"
+                        },
+                        new
+                        {
+                            RoomId = 19,
+                            RoomName = "B09"
+                        },
+                        new
+                        {
+                            RoomId = 20,
+                            RoomName = "B10"
+                        });
                 });
 
             modelBuilder.Entity("YogaCenter.BackEnd.DAL.Models.Schedule", b =>
@@ -481,6 +601,23 @@ namespace YogaCenter.BackEnd.DAL.Migrations
                     b.HasKey("SubscriptionStatusId");
 
                     b.ToTable("SubscriptionStatuses");
+
+                    b.HasData(
+                        new
+                        {
+                            SubscriptionStatusId = 3,
+                            SubscriptionStatusName = "Pending"
+                        },
+                        new
+                        {
+                            SubscriptionStatusId = 1,
+                            SubscriptionStatusName = "Successful"
+                        },
+                        new
+                        {
+                            SubscriptionStatusId = 2,
+                            SubscriptionStatusName = "Failed"
+                        });
                 });
 
             modelBuilder.Entity("YogaCenter.BackEnd.DAL.Models.Ticket", b =>
@@ -528,6 +665,23 @@ namespace YogaCenter.BackEnd.DAL.Migrations
                     b.HasKey("TicketStatusId");
 
                     b.ToTable("TicketStatuses");
+
+                    b.HasData(
+                        new
+                        {
+                            TicketStatusId = 1,
+                            TicketStatusName = "Pending"
+                        },
+                        new
+                        {
+                            TicketStatusId = 2,
+                            TicketStatusName = "Approved"
+                        },
+                        new
+                        {
+                            TicketStatusId = 3,
+                            TicketStatusName = "Rejected"
+                        });
                 });
 
             modelBuilder.Entity("YogaCenter.BackEnd.DAL.Models.TicketType", b =>
@@ -544,6 +698,18 @@ namespace YogaCenter.BackEnd.DAL.Migrations
                     b.HasKey("TicketTypeId");
 
                     b.ToTable("TicketTypes");
+
+                    b.HasData(
+                        new
+                        {
+                            TicketTypeId = 1,
+                            TicketName = "Refund ticket"
+                        },
+                        new
+                        {
+                            TicketTypeId = 2,
+                            TicketName = "Other ticket"
+                        });
                 });
 
             modelBuilder.Entity("YogaCenter.BackEnd.DAL.Models.TimeFrame", b =>
@@ -560,6 +726,33 @@ namespace YogaCenter.BackEnd.DAL.Migrations
                     b.HasKey("TimeFrameId");
 
                     b.ToTable("TimeFrames");
+
+                    b.HasData(
+                        new
+                        {
+                            TimeFrameId = 1,
+                            TimeFrameName = "7H00 - 9H00"
+                        },
+                        new
+                        {
+                            TimeFrameId = 2,
+                            TimeFrameName = "9H00 - 11H00"
+                        },
+                        new
+                        {
+                            TimeFrameId = 3,
+                            TimeFrameName = "13H00 - 15H00"
+                        },
+                        new
+                        {
+                            TimeFrameId = 4,
+                            TimeFrameName = "17H00 - 19H00"
+                        },
+                        new
+                        {
+                            TimeFrameId = 5,
+                            TimeFrameName = "19H00 - 21H00"
+                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

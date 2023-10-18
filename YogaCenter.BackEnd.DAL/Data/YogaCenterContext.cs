@@ -31,6 +31,9 @@ namespace YogaCenter.BackEnd.DAL.Data
         public DbSet<TicketType> TicketTypes { get; set; }
         public DbSet<TimeFrame> TimeFrames { get; set; }
         public DbSet<Room> Rooms { get; set; }
+       
+
+
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

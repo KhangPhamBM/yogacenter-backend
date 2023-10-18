@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace YogaCenter.BackEnd.Service.Payment.PaymentRespone
 {
-    public class VNPayResponeDto
+    public class VNPayResponseDto
     {
         public string OrderDescription { get; set; }
         public string TransactionId { get; set; }

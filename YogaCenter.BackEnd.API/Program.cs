@@ -20,7 +20,6 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddCors(p => p.AddPolicy(MyAllowSpecificOrigins, builder =>
 {
-    // builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
     builder.WithOrigins("http://localhost:3000").AllowAnyMethod().AllowAnyHeader().AllowCredentials();
 }));
 builder.Services.AddDbContext<YogaCenterContext>(option =>
@@ -49,7 +48,7 @@ builder.Services.AddScoped<IClassService, ClassService>();
 builder.Services.AddScoped<ICourseRepository, CourseRepository>();
 builder.Services.AddScoped<ICourseService, CourseService>();
 
-builder.Services.AddScoped<IPaymentResponeRepository, PaymentResponeRepository>();
+builder.Services.AddScoped<IPaymentResponseRepository, PaymentResponseRepository>();
 builder.Services.AddScoped<IPaymentResponeService, PaymentResponeService>();
 
 builder.Services.AddScoped<IRoomRepository, RoomRepository>();
@@ -75,6 +74,7 @@ builder.Services.AddScoped<ITimeFrameRepository, TimeFrameRepository>();
 builder.Services.AddScoped<ITimeFrameService, TimeFrameService>();
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped<IJwtService, JwtService>();
 
 
 
@@ -133,7 +133,7 @@ builder.Services.AddAuthentication(options =>
 });
 
 var app = builder.Build();
-
+app.UseCors();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -148,3 +148,4 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+

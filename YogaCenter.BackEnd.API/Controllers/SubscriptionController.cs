@@ -24,14 +24,17 @@ namespace YogaCenter.BackEnd.API.Controllers
             return await _subscriptionService.CreateSubscription(request, HttpContext);
 
         }
+        [HttpPut("update-subscription")]
+        public async Task<AppActionResult> UpdateSubscription(SubscriptionDto request)
+        {
+            return await _subscriptionService.UpdateSubscription(request);
+        }
 
         [HttpPost("get-payment-url")]
         public async Task<AppActionResult> GetPaymentUrl(SubscriptionRequest request)
         {
             return await _subscriptionService.GetPaymentUrl(request, HttpContext);
-
         }
-
 
     }
 }

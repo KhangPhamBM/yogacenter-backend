@@ -7,9 +7,13 @@ using YogaCenter.BackEnd.Common.Dto;
 
 namespace YogaCenter.BackEnd.Service.Contracts
 {
-    public interface IPaymentResponeService
+    public interface IJwtService
     {
-        Task<AppActionResult> AddPaymentRespone(PaymentResponseDto paymentRespone);
+        string GenerateRefreshToken();
+        Task<string> GenerateAccessToken(LoginRequestDto loginRequest);
+        Task<TokenDto> GetNewToken(string refreshToken, string accountId);
+
+
 
     }
 }

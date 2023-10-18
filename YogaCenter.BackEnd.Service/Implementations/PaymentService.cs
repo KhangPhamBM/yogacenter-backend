@@ -37,7 +37,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
         public async Task<string> CreatePaymentUrlMomo(SubscriptionDto subscriptionDto)
         {
             string connection = "";
-            var courseId = _unitOfWork.GetRepository<Class>().GetByExpression(c => c.ClassId == subscriptionDto.ClassId).Result.CourseId;
+            var courseId =  _unitOfWork.GetRepository<Class>().GetByExpression(c => c.ClassId == subscriptionDto.ClassId).Result.CourseId;
             if (courseId != null)
             {
                 var course = await _unitOfWork.GetRepository<Course>().GetById(courseId);
@@ -53,8 +53,8 @@ namespace YogaCenter.BackEnd.Service.Implementations
 
                 string endpoint = "https://test-payment.momo.vn/v2/gateway/api/create";
                 string partnerCode = "MOMO";
-                string accessKey = "F8BBA842ECF85";
-                string serectkey = "K951B6PE1waDMi640xX08PD3vg6EkVlz";
+                string accessKey = _configuration["Momo:accessKey"] ;
+                string secretkey = _configuration["Momo:secretkey"];
                 string orderInfo = $"Khach hang: {momo.CustomerName} thanh toan hoa don {momo.OrderID}";
                 string redirectUrl = $"{_configuration["Momo:RedirectUrl"]}/{momo.OrderID}";
                 string ipnUrl = _configuration["Momo:IPNUrl"];
@@ -82,7 +82,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
 
                 MomoSecurity crypto = new MomoSecurity();
                 //sign signature SHA256
-                string signature = crypto.signSHA256(rawHash, serectkey);
+                string signature = crypto.signSHA256(rawHash, secretkey);
 
                 //build body json request
                 JObject message = new JObject

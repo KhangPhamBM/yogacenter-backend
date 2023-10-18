@@ -79,7 +79,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                     var course = await _unitOfWork.GetRepository<Course>().GetById(classDb.CourseId);
                     double total = 0;
                     total = (double)(course.Price * (100 - course.Discount) / 100);
-                    Subscription.Subscription.Total = total ;
+                    Subscription.Subscription.Total = total;
 
                     var subscription = await _unitOfWork.GetRepository<Subscription>().Insert(_mapper.Map<Subscription>(Subscription.Subscription));
                     _unitOfWork.SaveChange();
@@ -230,42 +230,13 @@ namespace YogaCenter.BackEnd.Service.Implementations
         }
 
 
-        //public async Task CreateSubscription(SubscriptionDto Subscription)
-        //{
-        //    var classDb = await _unitOfWork.GetRepository<Class>().GetById(Subscription.ClassId);
-        //    var userDb = await _unitOfWork.GetRepository<ApplicationUser>().GetById(Subscription.UserId);
-        //    if(classDb == null || userDb == null || (bool)classDb.IsDeleted) {
-        //        return;
-        //    }
-
-        //    var userSubscriptions = (IEnumerable<Subscription>)_subscriptionRepository.getSubcriptionByUserId(Subscription.UserId);
-        //    if(userSubscriptions != null) {
-        //        bool possibleSubscription = true;
-        //        foreach(var userSubscription in userSubscriptions)
-        //        {
-        //            if(userSubscription.ClassId == Subscription.ClassId &&
-        //               isValidSubscriptionToAdd(Subscription.SubscriptionStatusId)) { 
-        //                   possibleSubscription = false;
-        //                break;
-        //            }
-        //        }
-        //        if(possibleSubscription)
-        //        {
-        //            await _unitOfWork.GetRepository<Subscription>().Insert(_mapper.Map<Subscription>(Subscription));
-        //            _unitOfWork.SaveChange();
-        //        }
-        //    }
-        //    await _unitOfWork.GetRepository<Subscription>().Insert(_mapper.Map<Subscription>(Subscription));
-        //    _unitOfWork.SaveChange();
-        //}
-
         public async Task<AppActionResult> UpdateSubscription(SubscriptionDto Subscription)
         {
             try
             {
 
                 bool isValid = true;
-                if (_unitOfWork.GetRepository<Subscription>().GetById(Subscription.SubscriptionId) != null)
+                if (_unitOfWork.GetRepository<Subscription>().GetById(Subscription.SubscriptionId) == null)
                 {
                     isValid = false;
                     _result.Message.Add($"The subscription with id {Subscription.SubscriptionId} not found");
@@ -274,7 +245,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 {
                     await _unitOfWork.GetRepository<Subscription>().Update(_mapper.Map<Subscription>(Subscription));
                     _unitOfWork.SaveChange();
-                    _result.Message.Add(SD.ResponeMessage.UPDATE_SUCCESS);
+                    _result.Message.Add(SD.ResponseMessage.UPDATE_SUCCESS);
                 }
                 else
                 {
@@ -289,16 +260,69 @@ namespace YogaCenter.BackEnd.Service.Implementations
             return _result;
         }
 
-        //private bool isValidSubscriptionToAdd(int subscriptionStatus)
-        //{
-        //    return subscriptionStatus == SD.Subscription.FAIL_PAY_BANK_TRANSFER
-        //         || subscriptionStatus == SD.Subscription.FAIL_PAY_VNPAY
-        //         || subscriptionStatus == SD.Subscription.FAIL_PAY_BANK_TRANSFER
-        //         || subscriptionStatus == SD.Subscription.SUCCESS_REFUND_BANK_TRANSFER
-        //         || subscriptionStatus == SD.Subscription.SUCCESS_REFUND_VNPAY
-        //         || subscriptionStatus == SD.Subscription.SUCCESS_REFUND_MOMO;
-        //}
+        public async Task<AppActionResult> GetSubscriptionByIdWithPendingStatus(string subcriptionId)
+        {
+            try
+            {
 
+                bool isValid = true;
+                if (await _unitOfWork.GetRepository<Subscription>().GetById(subcriptionId) == null)
+                {
+                    isValid = false;
+                    _result.Message.Add($"The subscription with id {subcriptionId} not found");
+                }
+                if (isValid)
+                {
+                    _result.Data = await _unitOfWork.GetRepository<Subscription>().GetByExpression(s => s.SubscriptionId == subcriptionId && s.SubscriptionStatusId == SD.Subscription.PENDING);
+                }
+                else
+                {
+                    _result.isSuccess = false;
+                }
+            }
+            catch (Exception ex)
+            {
+                _result.isSuccess = false;
+                _result.Message.Add(ex.Message);
+            }
+            return _result;
+        }
 
+        public async Task<AppActionResult> UpdateStatusSubscription(string subcriptionId, int status)
+        {
+            try
+            {
+
+                bool isValid = true;
+                if (await _unitOfWork.GetRepository<Subscription>().GetById(subcriptionId) != null)
+                {
+                    isValid = false;
+                    _result.Message.Add($"The subscription with id {subcriptionId} not found");
+                }
+                if (status != SD.Subscription.PENDING && status != SD.Subscription.SUCCESSFUL && status != SD.Subscription.FAILED)
+                {
+                    isValid = false;
+                    _result.Message.Add($"The subscription status {status} not found");
+                }
+                if (isValid)
+                {
+                    Subscription subscription = await _unitOfWork.GetRepository<Subscription>().GetById(subcriptionId);
+                    subscription.SubscriptionStatusId = status;
+                    await _unitOfWork.GetRepository<Subscription>().Update(subscription);
+                    _unitOfWork.SaveChange();
+                    _result.Message.Add(SD.ResponseMessage.UPDATE_SUCCESS);
+                }
+                else
+                {
+                    _result.isSuccess = false;
+                }
+            }
+            catch (Exception ex)
+            {
+                _result.isSuccess = false;
+                _result.Message.Add(ex.Message);
+            }
+            return _result;
+        }
     }
 }

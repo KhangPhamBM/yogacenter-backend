@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace YogaCenter.BackEnd.Common.Dto
 {
-    public class PaymentResponeDto
+    public class PaymentResponseDto
     {
         public string PaymentResponseId { get; set; } = null!;
         public string? SubscriptionId { get; set; } = null!;

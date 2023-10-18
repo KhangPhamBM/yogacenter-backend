@@ -19,7 +19,7 @@ namespace YogaCenter.BackEnd.Service.Payment.PaymentLibrary
         private readonly SortedList<string, string> _requestData = new SortedList<string, string>(new VnPayCompare());
         private readonly SortedList<string, string> _responseData = new SortedList<string, string>(new VnPayCompare());
 
-        public VNPayResponeDto GetFullResponseData(IQueryCollection collection, string hashSecret)
+        public VNPayResponseDto GetFullResponseData(IQueryCollection collection, string hashSecret)
         {
             var vnPay = new VNPayLibrary();
 
@@ -42,12 +42,12 @@ namespace YogaCenter.BackEnd.Service.Payment.PaymentLibrary
                 vnPay.ValidateSignature(vnpSecureHash, hashSecret); //check Signature
 
             if (!checkSignature)
-                return new VNPayResponeDto()
+                return new VNPayResponseDto()
                 {
                     Success = false
                 };
 
-            return new VNPayResponeDto()
+            return new VNPayResponseDto()
             {
                 Success = true,
                 PaymentMethod = "VnPay",

@@ -24,7 +24,16 @@ namespace YogaCenter.BackEnd.API.Controllers
         {
            return await _courseService.CreateCourse(course);  
         }
-
+        [HttpPut("update-course")]
+        public async Task<AppActionResult> UpdateCourse(CourseDto course)
+        {
+            return await _courseService.UpdateCourse(course);
+        }
+        [HttpPost("get-course-by-id/{id:int}")]
+        public async Task<AppActionResult> GetCourseById(int id)
+        {
+            return await _courseService.GetCourseById(id);
+        }
 
 
     }

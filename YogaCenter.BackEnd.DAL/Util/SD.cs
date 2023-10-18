@@ -119,8 +119,10 @@ namespace YogaCenter.BackEnd.DAL.Util
         }
 
 
-        public class ResponeMessage
+        public class ResponseMessage
         {
+            public static string LOGIN_FAILED = "WRONG PASSWORD OR USERNAME";
+
             public static string CREATE_SUCCESS = "CREATE_SUCCESS";
             public static string UPDATE_SUCCESS = "UPDATE_SUCCESS";
             public static string DELETE_SUCCESS = "DELETE_SUCCESS";

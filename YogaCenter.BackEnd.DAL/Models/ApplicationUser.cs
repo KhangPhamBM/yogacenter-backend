@@ -9,6 +9,7 @@ namespace YogaCenter.BackEnd.DAL.Models
 {
     public class ApplicationUser: IdentityUser
     {
+
         public string? PhoneNumber { get; set; }
         public string? FirstName { get; set; }
         public string? LastName { get; set; }    
@@ -16,5 +17,7 @@ namespace YogaCenter.BackEnd.DAL.Models
         public bool? isDeleted { get; set; }
         public string? RefreshToken { get; set; }
         public DateTime RefreshTokenExpiryTime { get; set; }
+
+       
     }
 }

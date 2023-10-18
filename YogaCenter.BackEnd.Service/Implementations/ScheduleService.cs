@@ -34,41 +34,46 @@ namespace YogaCenter.BackEnd.Service.Implementations
             _result.Data = await _unitOfWork.GetRepository<Schedule>().GetListByExpression(c => c.ClassId == id);
             return _result;
         }
-        public async Task<AppActionResult> RegisterSchedulesForClass(IEnumerable<ScheduleDto> scheduleListDto, int classId)
+        public async Task<AppActionResult> RegisterSchedulesForClass(IEnumerable<ScheduleDto> scheduleListDto)
         {
             try
             {
 
                 bool isValid = true;
-                if (await _unitOfWork.GetRepository<Class>().GetById(classId) == null)
+               if(scheduleListDto.Any())
                 {
-                    isValid = false;
-                    _result.Message.Add($"The class with {classId} not found");
-                }
-                foreach (ScheduleDto scheduleDto in scheduleListDto)
-                {
-
-                    if (scheduleDto.ClassId != classId)
+                    var classRequest = scheduleListDto.First();
+                    if (await _unitOfWork.GetRepository<Class>().GetById(classRequest.ClassId) == null)
                     {
                         isValid = false;
-                        _result.Message.Add($"The classId Of Schedule {scheduleDto.ClassId} must same {classId} ");
-
+                        _result.Message.Add($"The class with {classRequest.ClassId} not found");
                     }
-
-                    var check = await _unitOfWork.GetRepository<Schedule>()
-                        .GetByExpression(s => s.Date == scheduleDto.Date &&
-                        s.TimeFrameId == scheduleDto.TimeFrameId &&
-                        s.ClassId == scheduleDto.ClassId &&
-                        s.RoomId == scheduleDto.RoomId
-                        );
-                    if (check != null)
+                    foreach (ScheduleDto scheduleDto in scheduleListDto)
                     {
-                        isValid = false;
-                        _result.Message.Add($"The schedule is exist ");
+
+                        if (scheduleDto.ClassId != classRequest.ClassId)
+                        {
+                            isValid = false;
+                            _result.Message.Add($"The classId Of Schedule {scheduleDto.ClassId} must same {classRequest.ClassId} ");
+
+                        }
+
+                        var check = await _unitOfWork.GetRepository<Schedule>()
+                            .GetByExpression(s => s.Date == scheduleDto.Date &&
+                            s.TimeFrameId == scheduleDto.TimeFrameId &&
+                            s.ClassId == scheduleDto.ClassId &&
+                            s.RoomId == scheduleDto.RoomId
+                            );
+                        if (check != null)
+                        {
+                            isValid = false;
+                            _result.Message.Add($"The schedule is exist ");
 
 
+                        }
                     }
                 }
+               
                 if (isValid)
                 {
                     foreach (ScheduleDto scheduleDto in scheduleListDto)
@@ -77,7 +82,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                         _unitOfWork.SaveChange();
 
                     }
-                    _result.Message.Add(SD.ResponeMessage.CREATE_SUCCESS);
+                    _result.Message.Add(SD.ResponseMessage.CREATE_SUCCESS);
                 }
                 else
                 {
@@ -94,7 +99,8 @@ namespace YogaCenter.BackEnd.Service.Implementations
 
         public async Task<AppActionResult> GetSchedulesByUserId(string UserId)
         {
-            try {
+            try
+            {
                 bool isValid = true;
                 var classDetail = await _unitOfWork.GetRepository<ClassDetail>().GetByExpression(s => s.UserId == UserId);
                 if (classDetail == null)
@@ -112,7 +118,8 @@ namespace YogaCenter.BackEnd.Service.Implementations
                     _result.isSuccess = false;
                 }
             }
-            catch(Exception ex) {
+            catch (Exception ex)
+            {
 
                 _result.isSuccess = false;
                 _result.Message.Add(ex.Message);
@@ -120,6 +127,34 @@ namespace YogaCenter.BackEnd.Service.Implementations
             return _result;
         }
 
+        public async Task<AppActionResult> UpdateSchedule(ScheduleDto scheduleDto)
+        {
+            try
+            {
+                bool isValid = true;
+                if (await _unitOfWork.GetRepository<Schedule>().GetById(scheduleDto.ScheduleId) == null)
+                {
+                    isValid = false;
+                    _result.Message.Add($"The schedule with Id {scheduleDto.ScheduleId} not found");
+                }
+                if (isValid)
+                {
+                    await _unitOfWork.GetRepository<Schedule>().Update(_mapper.Map<Schedule>(scheduleDto));
+                    _unitOfWork.SaveChange();
+                    _result.Message.Add(SD.ResponseMessage.UPDATE_SUCCESS);
+                }
+                else
+                {
+                    _result.isSuccess = false;
+                }
+            }
+            catch (Exception ex)
+            {
 
+                _result.isSuccess = false;
+                _result.Message.Add(ex.Message);
+            }
+            return _result;
+        }
     }
 }

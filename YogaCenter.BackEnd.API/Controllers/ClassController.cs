@@ -18,13 +18,23 @@ namespace YogaCenter.BackEnd.API.Controllers
             _responeDto = new AppActionResult();
         }
 
-       
+        [HttpPost("create-class")]
+        public async Task<AppActionResult> CreateClass(ClassDto classDto)
+        {
+            return await _classService.CreateClass(classDto);
+        }
         [HttpPut("update-class")]
         public async Task<AppActionResult> UpdateClass(ClassDto classDto)
         {
            return await _classService.UpdateClass(classDto);
         }
-      
+
+        [HttpGet("get-class-by-id/{id:int}")]
+        public async Task<AppActionResult> GetClassById(int id)
+        {
+            return await _classService.GetClassById(id);
+        }
+
 
 
     }

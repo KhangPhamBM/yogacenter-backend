@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace YogaCenter.BackEnd.DAL.Migrations
 {
-    public partial class AddDB : Migration
+    public partial class addFieldCustomIF : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -158,7 +158,8 @@ namespace YogaCenter.BackEnd.DAL.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     RoleId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     ClaimType = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ClaimValue = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    ClaimValue = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Discriminator = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -179,7 +180,8 @@ namespace YogaCenter.BackEnd.DAL.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     ClaimType = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ClaimValue = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    ClaimValue = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Discriminator = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -199,7 +201,8 @@ namespace YogaCenter.BackEnd.DAL.Migrations
                     LoginProvider = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     ProviderKey = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     ProviderDisplayName = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Discriminator = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -217,7 +220,8 @@ namespace YogaCenter.BackEnd.DAL.Migrations
                 columns: table => new
                 {
                     UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    RoleId = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                    RoleId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Discriminator = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -243,7 +247,8 @@ namespace YogaCenter.BackEnd.DAL.Migrations
                     UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     LoginProvider = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Value = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    Value = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Discriminator = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -266,6 +271,8 @@ namespace YogaCenter.BackEnd.DAL.Migrations
                     EndDate = table.Column<DateTime>(type: "datetime2", nullable: true),
                     ClassName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CourseId = table.Column<int>(type: "int", nullable: true),
+                    MinOfTrainee = table.Column<int>(type: "int", nullable: false),
+                    MaxOfTrainer = table.Column<int>(type: "int", nullable: false),
                     IsDeleted = table.Column<bool>(type: "bit", nullable: true)
                 },
                 constraints: table =>
@@ -440,6 +447,83 @@ namespace YogaCenter.BackEnd.DAL.Migrations
                         column: x => x.SubscriptionId,
                         principalTable: "Subscriptions",
                         principalColumn: "SubscriptionId");
+                });
+
+            migrationBuilder.InsertData(
+                table: "PaymentTypes",
+                columns: new[] { "PaymentTypeId", "Type" },
+                values: new object[,]
+                {
+                    { 1, "VNPAY" },
+                    { 2, "MOMO" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Rooms",
+                columns: new[] { "RoomId", "RoomName" },
+                values: new object[,]
+                {
+                    { 1, "A01" },
+                    { 2, "A02" },
+                    { 3, "A03" },
+                    { 4, "A04" },
+                    { 5, "A05" },
+                    { 6, "A06" },
+                    { 7, "A07" },
+                    { 8, "A08" },
+                    { 9, "A09" },
+                    { 10, "A10" },
+                    { 11, "B01" },
+                    { 12, "B02" },
+                    { 13, "B03" },
+                    { 14, "B04" },
+                    { 15, "B05" },
+                    { 16, "B06" },
+                    { 17, "B07" },
+                    { 18, "B08" },
+                    { 19, "B09" },
+                    { 20, "B10" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "SubscriptionStatuses",
+                columns: new[] { "SubscriptionStatusId", "SubscriptionStatusName" },
+                values: new object[,]
+                {
+                    { 1, "Successful" },
+                    { 2, "Failed" },
+                    { 3, "Pending" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "TicketStatuses",
+                columns: new[] { "TicketStatusId", "TicketStatusName" },
+                values: new object[,]
+                {
+                    { 1, "Pending" },
+                    { 2, "Approved" },
+                    { 3, "Rejected" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "TicketTypes",
+                columns: new[] { "TicketTypeId", "TicketName" },
+                values: new object[,]
+                {
+                    { 1, "Refund ticket" },
+                    { 2, "Other ticket" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "TimeFrames",
+                columns: new[] { "TimeFrameId", "TimeFrameName" },
+                values: new object[,]
+                {
+                    { 1, "7H00 - 9H00" },
+                    { 2, "9H00 - 11H00" },
+                    { 3, "13H00 - 15H00" },
+                    { 4, "17H00 - 19H00" },
+                    { 5, "19H00 - 21H00" }
                 });
 
             migrationBuilder.CreateIndex(

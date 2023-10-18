@@ -12,6 +12,7 @@ namespace YogaCenter.BackEnd.Service.Contracts
     {
         Task<AppActionResult> CreateCourse(CourseDto course);
         Task<AppActionResult> UpdateCourse(CourseDto course);
+        Task<AppActionResult> GetCourseById(int courseId);
 
     }
 }

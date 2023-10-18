@@ -9,6 +9,8 @@ using YogaCenter.BackEnd.DAL.Contracts;
 using YogaCenter.BackEnd.DAL.Models;
 using YogaCenter.BackEnd.DAL.Util;
 using YogaCenter.BackEnd.Service.Contracts;
+using static YogaCenter.BackEnd.DAL.Util.SD;
+using Room = YogaCenter.BackEnd.DAL.Models.Room;
 
 namespace YogaCenter.BackEnd.Service.Implementations
 {
@@ -39,7 +41,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 {
                     await _unitOfWork.GetRepository<Room>().Insert(_mapper.Map<Room>(room));
                     _unitOfWork.SaveChange();
-                    _result.Message.Add(SD.ResponeMessage.CREATE_SUCCESS);
+                    _result.Message.Add(SD.ResponseMessage.CREATE_SUCCESS);
 
                 }
                 else
@@ -54,6 +56,36 @@ namespace YogaCenter.BackEnd.Service.Implementations
             }
             return _result;
 
+        }
+
+        public async Task<AppActionResult> GetRoomById(int RoomId)
+        {
+            try
+            {
+                bool isValid = true;
+                if (await _unitOfWork.GetRepository<Room>().GetById(RoomId) == null)
+                {
+                    isValid = false;
+                    _result.Message.Add($"The room with name {RoomId} not found");
+                }
+
+                if (isValid)
+                {
+                    _result.Data = await _unitOfWork.GetRepository<Room>().GetById(RoomId);
+
+
+                }
+                else
+                {
+                    _result.isSuccess = false;
+                }
+            }
+            catch (Exception ex)
+            {
+                _result.isSuccess = false;
+                _result.Message.Add(ex.Message);
+            }
+            return _result;
         }
 
         public async Task<AppActionResult> UpdateRoom(RoomDto room)
@@ -71,7 +103,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 {
                     await _unitOfWork.GetRepository<Room>().Update(_mapper.Map<Room>(room));
                     _unitOfWork.SaveChange();
-                    _result.Message.Add(SD.ResponeMessage.UPDATE_SUCCESS);
+                    _result.Message.Add(SD.ResponseMessage.UPDATE_SUCCESS);
 
                 }
                 else

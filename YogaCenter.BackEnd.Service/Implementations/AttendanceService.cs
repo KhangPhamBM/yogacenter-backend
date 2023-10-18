@@ -36,12 +36,12 @@ namespace YogaCenter.BackEnd.Service.Implementations
 
                 foreach (var attendance in attendances)
                 {
-                    if (_unitOfWork.GetRepository<ClassDetail>().GetById(attendance.ClassDetailId) == null)
+                    if (await _unitOfWork.GetRepository<ClassDetail>().GetById(attendance.ClassDetailId) == null)
                     {
                         _result.Message.Add($"The class detail with id {attendance.ClassDetailId} not found ");
                         isValid = false;
                     }
-                    if (_unitOfWork.GetRepository<Schedule>().GetById(attendance.ScheduleId) == null)
+                    if (await _unitOfWork.GetRepository<Schedule>().GetById(attendance.ScheduleId) == null)
                     {
                         _result.Message.Add($"The schedule with id {attendance.ScheduleId} not found ");
                         isValid = false;
@@ -56,7 +56,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                     }
                     _unitOfWork.SaveChange();
 
-                    _result.Message.Add(SD.ResponeMessage.CREATE_SUCCESS);
+                    _result.Message.Add(SD.ResponseMessage.CREATE_SUCCESS);
 
                 }
                 else
@@ -127,12 +127,12 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 bool isValid = true;
                 foreach (var attendance in attendances)
                 {
-                    if (_unitOfWork.GetRepository<ClassDetail>().GetById(attendance.ClassDetailId) == null)
+                    if (await _unitOfWork.GetRepository<ClassDetail>().GetById(attendance.ClassDetailId) == null)
                     {
                         _result.Message.Add($"The class detail with id {attendance.ClassDetailId} not found ");
                         isValid = false;
                     }
-                    if (_unitOfWork.GetRepository<Schedule>().GetById(attendance.ScheduleId) == null)
+                    if (await _unitOfWork.GetRepository<Schedule>().GetById(attendance.ScheduleId) == null)
                     {
                         _result.Message.Add($"The schedule with id {attendance.ScheduleId} not found ");
                         isValid = false;
@@ -146,7 +146,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                         await _unitOfWork.GetRepository<Attendance>().Update(_mapper.Map<Attendance>(attendance));
                     }
                     _unitOfWork.SaveChange();
-                    _result.Message.Add(SD.ResponeMessage.UPDATE_SUCCESS);
+                    _result.Message.Add(SD.ResponseMessage.UPDATE_SUCCESS);
                 }
                 else
                 {

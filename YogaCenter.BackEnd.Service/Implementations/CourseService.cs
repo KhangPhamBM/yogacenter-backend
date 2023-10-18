@@ -39,7 +39,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 {
                     await _unitOfWork.GetRepository<Course>().Insert(_mapper.Map<Course>(course));
                     _unitOfWork.SaveChange();
-                    _result.Message.Add(SD.ResponeMessage.CREATE_SUCCESS);
+                    _result.Message.Add(SD.ResponseMessage.CREATE_SUCCESS);
                 }
                 else
                 {
@@ -69,7 +69,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 {
                     await _unitOfWork.GetRepository<Course>().Update(_mapper.Map<Course>(course));
                     _unitOfWork.SaveChange();
-                    _result.Message.Add(SD.ResponeMessage.UPDATE_SUCCESS);
+                    _result.Message.Add(SD.ResponseMessage.UPDATE_SUCCESS);
                 }
                 else
                 {
@@ -85,6 +85,36 @@ namespace YogaCenter.BackEnd.Service.Implementations
             return _result;
         }
 
+        public async Task<AppActionResult> GetCourseById(int courseId)
+        {
+            try
+            {
+                bool isValid = true;
+                if (await _unitOfWork.GetRepository<Course>().GetById(courseId) == null)
+                {
+                    _result.Message.Add($"The course with id {courseId} not found");
+                    isValid = false;
+                }
 
+                if (isValid)
+                {
+                    _result.Data = await _unitOfWork.GetRepository<Course>().GetById(courseId);
+
+
+                }
+                else
+                {
+                    _result.isSuccess = false;
+                }
+            }
+            catch (Exception ex)
+            {
+                _result.isSuccess = false;
+                _result.Message.Add(ex.Message);
+            }
+
+            return _result;
+        }
     }
 }
+
