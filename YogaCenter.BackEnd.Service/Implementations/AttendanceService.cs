@@ -120,7 +120,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
 
         }
 
-        public async Task<AppActionResult> UpdateAttend(IEnumerable<AttendanceDto> attendances)
+        public async Task<AppActionResult> UpdateAttendance(IEnumerable<AttendanceDto> attendances)
         {
             try
             {

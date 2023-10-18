@@ -11,6 +11,6 @@ namespace YogaCenter.BackEnd.Service.Contracts
     {
         Task<AppActionResult> CreateTicketType(TicketTypeDto ticketType);
         Task<AppActionResult> UpdateTicketType(TicketTypeDto ticketType);
-
+        Task<AppActionResult> GetTicketTypeById(int id);
     }
 }

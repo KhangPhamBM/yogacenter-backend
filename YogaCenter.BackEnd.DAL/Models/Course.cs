@@ -17,6 +17,6 @@ namespace YogaCenter.BackEnd.DAL.Models
         public double? Price { get; set; }   
         public double? Discount { get; set; }
 
-        public bool? IsDeleted { get; set; }
+        public bool? IsDeleted { get; set; } = false;
     }
 }

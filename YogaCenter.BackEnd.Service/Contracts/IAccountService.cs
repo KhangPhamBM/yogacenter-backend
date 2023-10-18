@@ -13,6 +13,7 @@ namespace YogaCenter.BackEnd.Service.Contracts
         Task<AppActionResult> Login(LoginRequestDto loginRequest);
         Task<AppActionResult> CreateAccount(SignUpRequestDto signUpRequest);
         Task<AppActionResult> UpdateAccount(ApplicationUser applicationUser);
+        Task<AppActionResult> ChangePassword(ChangePasswordDto changePasswordDto);
         Task<AppActionResult> GetAccountByUserId(string id);
         Task<AppActionResult> GetAllAccount();
 

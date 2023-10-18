@@ -9,6 +9,7 @@ using YogaCenter.BackEnd.DAL.Contracts;
 using YogaCenter.BackEnd.DAL.Models;
 using YogaCenter.BackEnd.DAL.Util;
 using YogaCenter.BackEnd.Service.Contracts;
+using static YogaCenter.BackEnd.Common.Dto.CreateScheduleRequest;
 
 namespace YogaCenter.BackEnd.Service.Implementations
 {
@@ -32,68 +33,6 @@ namespace YogaCenter.BackEnd.Service.Implementations
         public async Task<AppActionResult> GetScheduleByClassId(int id)
         {
             _result.Data = await _unitOfWork.GetRepository<Schedule>().GetListByExpression(c => c.ClassId == id);
-            return _result;
-        }
-        public async Task<AppActionResult> RegisterSchedulesForClass(IEnumerable<ScheduleDto> scheduleListDto)
-        {
-            try
-            {
-
-                bool isValid = true;
-               if(scheduleListDto.Any())
-                {
-                    var classRequest = scheduleListDto.First();
-                    if (await _unitOfWork.GetRepository<Class>().GetById(classRequest.ClassId) == null)
-                    {
-                        isValid = false;
-                        _result.Message.Add($"The class with {classRequest.ClassId} not found");
-                    }
-                    foreach (ScheduleDto scheduleDto in scheduleListDto)
-                    {
-
-                        if (scheduleDto.ClassId != classRequest.ClassId)
-                        {
-                            isValid = false;
-                            _result.Message.Add($"The classId Of Schedule {scheduleDto.ClassId} must same {classRequest.ClassId} ");
-
-                        }
-
-                        var check = await _unitOfWork.GetRepository<Schedule>()
-                            .GetByExpression(s => s.Date == scheduleDto.Date &&
-                            s.TimeFrameId == scheduleDto.TimeFrameId &&
-                            s.ClassId == scheduleDto.ClassId &&
-                            s.RoomId == scheduleDto.RoomId
-                            );
-                        if (check != null)
-                        {
-                            isValid = false;
-                            _result.Message.Add($"The schedule is exist ");
-
-
-                        }
-                    }
-                }
-               
-                if (isValid)
-                {
-                    foreach (ScheduleDto scheduleDto in scheduleListDto)
-                    {
-                        await _unitOfWork.GetRepository<Schedule>().Insert(_mapper.Map<Schedule>(scheduleDto));
-                        _unitOfWork.SaveChange();
-
-                    }
-                    _result.Message.Add(SD.ResponseMessage.CREATE_SUCCESS);
-                }
-                else
-                {
-                    _result.isSuccess = false;
-                }
-            }
-            catch (Exception ex)
-            {
-                _result.isSuccess = false;
-                _result.Message.Add(ex.Message);
-            }
             return _result;
         }
 
@@ -146,6 +85,73 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 else
                 {
                     _result.isSuccess = false;
+                }
+            }
+            catch (Exception ex)
+            {
+
+                _result.isSuccess = false;
+                _result.Message.Add(ex.Message);
+            }
+            return _result;
+        }
+
+        public async Task<AppActionResult> GenerateScheduleForClass(CreateScheduleRequest request)
+        {
+            bool isValid = true;
+            try
+            {
+                if (await _unitOfWork.GetRepository<Class>().GetById(request.ClassId) == null)
+                {
+                    isValid = false;
+                    _result.Message.Add($"The class with id {request.ClassId} not found");
+
+                }
+                foreach (var item in request.Schedules)
+                {
+                    if (await _unitOfWork.GetRepository<TimeFrame>().GetById(item.TimeFrameId) == null)
+                    {
+                        isValid = false;
+                        _result.Message.Add($"The timeframe with id {item.TimeFrameId} not found");
+
+
+                    }
+
+                    if (await _unitOfWork.GetRepository<Room>().GetById(item.RoomId) == null)
+                    {
+                        isValid = false;
+                        _result.Message.Add($"The room with id {item.RoomId} not found");
+                    }
+                }
+
+                if (isValid)
+                {
+                    var classDto = await _unitOfWork.GetRepository<Class>().GetById(request.ClassId);
+
+                    DateTime currentDate = (DateTime)classDto.StartDate;
+                    foreach (var item in request.Schedules)
+                    {
+                        while (currentDate < classDto.EndDate)
+                        {
+                            if (currentDate.DayOfWeek == item.DayOfWeek) 
+                            {
+                                ScheduleDto scheduleDto = new ScheduleDto
+                                {
+                                    ClassId = classDto.ClassId,
+                                    Date = currentDate,
+                                    TimeFrameId = item.TimeFrameId,
+                                    RoomId = item.RoomId
+                                };
+
+                                await _unitOfWork.GetRepository<Schedule>().Insert(_mapper.Map<Schedule>(scheduleDto));
+                            }
+                            currentDate = currentDate.AddDays(1);
+
+                        }
+                    }
+                    _unitOfWork.SaveChange();
+                    _result.Message.Add(SD.ResponseMessage.CREATE_SUCCESS);
+
                 }
             }
             catch (Exception ex)

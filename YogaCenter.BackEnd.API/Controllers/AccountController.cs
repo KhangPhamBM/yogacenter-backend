@@ -48,5 +48,10 @@ namespace YogaCenter.BackEnd.API.Controllers
         {
             return await _accountService.GetAllAccount();
         }
+        [HttpPut("change-password")]
+        public async Task<AppActionResult> ChangePassword(ChangePasswordDto dto)
+        {
+            return await _accountService.ChangePassword(dto);
+        }
     }
 }

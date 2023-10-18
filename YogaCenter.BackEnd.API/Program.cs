@@ -65,16 +65,17 @@ builder.Services.AddScoped<ITicketRepository, TicketRepository>();
 builder.Services.AddScoped<ITicketService, TicketService>();
 
 builder.Services.AddScoped<ITicketStatusRepository, TicketStatusRepository>();
-builder.Services.AddScoped<ITicketStatusService, TicketStatusService>();
+builder.Services.AddScoped<ITicketStatusService, TicketService>();
 
 builder.Services.AddScoped<ITicketTypeRepository, TicketTypeRepository>();
-builder.Services.AddScoped<ITicketTypeService, TicketTypeService>();
+builder.Services.AddScoped<ITicketTypeService, TicketService>();
 
 builder.Services.AddScoped<ITimeFrameRepository, TimeFrameRepository>();
 builder.Services.AddScoped<ITimeFrameService, TimeFrameService>();
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IJwtService, JwtService>();
+builder.Services.AddScoped<IRoleService, RoleService>();
 
 
 
