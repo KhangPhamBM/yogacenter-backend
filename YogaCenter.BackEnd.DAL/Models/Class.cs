@@ -21,6 +21,6 @@ namespace YogaCenter.BackEnd.DAL.Models
         public Course? Course { get; set; }
         public int MinOfTrainee { get; set; }
         public int MaxOfTrainer { get; set; }
-        public bool? IsDeleted { get; set; }
+        public bool? IsDeleted { get; set; }=false;
     }
 }

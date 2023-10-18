@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -30,12 +31,6 @@ namespace YogaCenter.BackEnd.Service.Implementations
 
             try
             {
-                if(paymentRespone == null)
-                {
-                    isValid = false;
-                    _result.Message.Add("The paymentRespone is null");
-                }
-
                 if (await _unitOfWork.GetRepository<PaymentRespone>().GetById(paymentRespone.PaymentTypeId) == null)
                 {
                     isValid = false;

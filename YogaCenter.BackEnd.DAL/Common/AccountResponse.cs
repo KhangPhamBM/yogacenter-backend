@@ -11,6 +11,6 @@ namespace YogaCenter.BackEnd.DAL.Common
     public class AccountResponse
     {
         public ApplicationUser User { get; set; }
-        public IdentityRole<string> Role { get; set; }
+        public IEnumerable<IdentityRole> Role { get; set; } = new List<IdentityRole>();
     }
 }

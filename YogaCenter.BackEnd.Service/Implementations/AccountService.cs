@@ -49,6 +49,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
             _roleManager = roleManager;
             _signInManager = signInManager;
             _jwtService = jwtService;
+            _tokenDto = new();
         }
 
 
@@ -57,7 +58,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
             bool isValid = true;
             try
             {
-                if (await _unitOfWork.GetRepository<ApplicationUser>().GetByExpression(u => u.Email.ToLower() == loginRequest.Email.ToLower()) != null)
+                if (await _unitOfWork.GetRepository<ApplicationUser>().GetByExpression(u => u.Email.ToLower() == loginRequest.Email.ToLower() && u.isDeleted == false) == null)
                 {
                     isValid = false;
                     _result.Message.Add($"The user with username {loginRequest.Email} not found");
@@ -103,47 +104,73 @@ namespace YogaCenter.BackEnd.Service.Implementations
         }
         public async Task<AppActionResult> CreateAccount(SignUpRequestDto signUpRequest)
         {
+            bool isValid = true;
             try
             {
-                if (await _unitOfWork.GetRepository<IdentityRole>().GetByExpression(r => r.Name == signUpRequest.RoleName) == null)
+                if (await _unitOfWork.GetRepository<ApplicationUser>().GetByExpression(r => r.UserName == signUpRequest.Email) != null)
                 {
-                    await _roleManager.CreateAsync(new IdentityRole(signUpRequest.RoleName));
+                    _result.Message.Add("The email or username is existed");
+                    isValid = false;
 
                 }
-                var user = new ApplicationUser
+                if (isValid)
                 {
-                    Email = signUpRequest.Email,
-                    UserName = signUpRequest.Email,
-                    FirstName = signUpRequest.FirstName,
-                    LastName = signUpRequest.LastName,
-                    PhoneNumber = signUpRequest.PhoneNumber,
-                    Gender = signUpRequest.Gender
+                    if (await _unitOfWork.GetRepository<IdentityRole>().GetByExpression(r => r.Name == signUpRequest.RoleName) == null)
+                    {
+                        await _roleManager.CreateAsync(new IdentityRole(signUpRequest.RoleName));
 
-                };
-                await _userManager.CreateAsync(user, signUpRequest.Password);
-                await _userManager.AddToRoleAsync(user, signUpRequest.RoleName);
+                    }
 
-                _result.Message.Add(SD.ResponseMessage.CREATE_SUCCESS);
+                    var user = new ApplicationUser
+                    {
+                        Email = signUpRequest.Email,
+                        UserName = signUpRequest.Email,
+                        FirstName = signUpRequest.FirstName,
+                        LastName = signUpRequest.LastName,
+                        PhoneNumber = signUpRequest.PhoneNumber,
+                        Gender = signUpRequest.Gender
+
+                    };
+                    var resultCreateUser = await _userManager.CreateAsync(user, signUpRequest.Password);
+                    if (resultCreateUser.Succeeded)
+                    {
+                        _result.Message.Add($"{SD.ResponseMessage.CREATE_SUCCESS} USER");
+
+                    }
+                    else
+                    {
+                        _result.Message.Add($"{SD.ResponseMessage.FAILED} USER");
+
+                    }
+                    var resultCreateRole = await _userManager.AddToRoleAsync(user, signUpRequest.RoleName);
+                    if (resultCreateRole.Succeeded)
+                    {
+                        _result.Message.Add($"ASSIGN ROLE SUCCESSFUL");
+
+                    }
+                    else
+                    {
+                        _result.Message.Add($"ASSIGN ROLE FAILED");
+
+                    }
+                }
+
             }
             catch (Exception ex)
             {
                 _result.Message.Add(ex.Message);
                 _result.isSuccess = false;
             }
-
             return _result;
-
-
-
         }
-        
+
         public async Task<AppActionResult> UpdateAccount(ApplicationUser applicationUser)
         {
             bool isValid = true;
             try
             {
 
-                if (await _unitOfWork.GetRepository<ApplicationUser>().GetById(applicationUser) == null)
+                if (await _unitOfWork.GetRepository<ApplicationUser>().GetByExpression(a => a.Id == applicationUser.Id) == null)
                 {
                     isValid = false;
                     _result.Message.Add($"The user with id {applicationUser.Id} not found");
@@ -196,12 +223,18 @@ namespace YogaCenter.BackEnd.Service.Implementations
             try
             {
                 List<AccountResponse> accounts = new List<AccountResponse>();
-               var list =  await _unitOfWork.GetRepository<ApplicationUser>().GetAll();
+                var list = await _unitOfWork.GetRepository<ApplicationUser>().GetAll();
                 foreach (var account in list)
                 {
-                    var userRole = await _unitOfWork.GetRepository<IdentityUserRole<string>>().GetByExpression(s=> s.UserId== account.Id);
-                    var role = await _unitOfWork.GetRepository<IdentityRole>().GetById(userRole.RoleId);
-                    accounts.Add(new AccountResponse { User = account, Role = role });
+                    var userRole = await _unitOfWork.GetRepository<IdentityUserRole<string>>().GetListByExpression(s => s.UserId == account.Id);
+                    var listRole = new List<IdentityRole>();
+                    foreach (var role in userRole)
+                    {
+                        var item = await _unitOfWork.GetRepository<IdentityRole>().GetById(role.RoleId);
+                        listRole.Add(item);
+
+                    }
+                    accounts.Add(new AccountResponse { User = account, Role = listRole });
                 }
                 _result.Data = accounts;
 
@@ -211,6 +244,39 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 _result.isSuccess = false;
                 _result.Message.Add(ex.Message);
 
+            }
+            return _result;
+        }
+
+        public async Task<AppActionResult> ChangePassword(ChangePasswordDto changePasswordDto)
+        {
+            bool isValid = true;
+            try
+            {
+                if (await _unitOfWork.GetRepository<ApplicationUser>().GetByExpression(c => c.Email == changePasswordDto.Email && c.isDeleted == false) == null)
+                {
+                    isValid = false;
+                    _result.Message.Add($"The user with email {changePasswordDto.Email} not found");
+                }
+                if (isValid)
+                {
+                    var user = await _unitOfWork.GetRepository<ApplicationUser>().GetByExpression(c => c.Email == changePasswordDto.Email && c.isDeleted == false);
+                    var result = await _userManager.ChangePasswordAsync(user, changePasswordDto.OldPassword, changePasswordDto.NewPassword);
+                    if (result.Succeeded)
+                    {
+                        _result.Message.Add(SD.ResponseMessage.UPDATE_SUCCESS);
+                    }
+                    else
+                    {
+                        _result.Message.Add(SD.ResponseMessage.FAILED);
+
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _result.isSuccess = false;
+                _result.Message.Add(ex.Message);
             }
             return _result;
         }

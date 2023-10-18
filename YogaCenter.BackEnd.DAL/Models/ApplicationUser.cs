@@ -14,7 +14,7 @@ namespace YogaCenter.BackEnd.DAL.Models
         public string? FirstName { get; set; }
         public string? LastName { get; set; }    
         public bool? Gender { get; set; }
-        public bool? isDeleted { get; set; }
+        public bool? isDeleted { get; set; } = false;
         public string? RefreshToken { get; set; }
         public DateTime RefreshTokenExpiryTime { get; set; }
 
