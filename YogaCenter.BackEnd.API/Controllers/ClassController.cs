@@ -11,31 +11,18 @@ namespace YogaCenter.BackEnd.API.Controllers
     public class ClassController : ControllerBase
     {
         public readonly IClassService _classService;
-        public ResponeDto _responeDto;
+        public AppActionResult _responeDto;
         public ClassController(IClassService classService)
         {
             _classService = classService;
-            _responeDto = new ResponeDto();
+            _responeDto = new AppActionResult();
         }
 
        
         [HttpPut("update-class")]
-        public async Task<ResponeDto> UpdateClass(ClassDto classDto)
+        public async Task<AppActionResult> UpdateClass(ClassDto classDto)
         {
-            try
-            {
-                await _classService.UpdateClass(classDto);
-                _responeDto.Data = true;
-
-            }
-            catch (Exception ex)
-            {
-
-                _responeDto.isSuccess = false;
-                _responeDto.Message = ex.Message;
-
-            }
-            return _responeDto;
+           return await _classService.UpdateClass(classDto);
         }
       
 

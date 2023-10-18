@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,7 +10,7 @@ namespace YogaCenter.BackEnd.Service.Contracts
 {
     public interface ISubscriptionService
     {
-        Task CreateSubscription(SubscriptionDto Subscription);
-        Task UpdateSubscription(SubscriptionDto Subscription);
+        Task<AppActionResult> CreateSubscription(SubscriptionRequest Subscription, HttpContext context);
+        Task<AppActionResult> UpdateSubscription(SubscriptionDto Subscription);
     }
 }

@@ -21,9 +21,9 @@ namespace YogaCenter.BackEnd.DAL.Implementations
             _dbSet = context.Set<T>();
         }
 
-        public IQueryable<T> GetAll()
+        public async Task<IEnumerable<T>> GetAll()
         {
-            return _dbSet.AsNoTracking();
+            return await _dbSet.AsNoTracking().ToListAsync();
         }
 
         public async Task<T> GetById(object id)
@@ -31,29 +31,37 @@ namespace YogaCenter.BackEnd.DAL.Implementations
             return await _dbSet.FindAsync(id);
         }
 
-        public async Task Insert(T entity)
+        public async Task<T> Insert(T entity)
         {
             await _dbSet.AddAsync(entity);
+            return entity;
         }
 
-        public Task Update(T entity)
+        public async Task Update(T entity)
         {
             _dbSet.Update(entity);
-            return Task.CompletedTask;
+          
         }
 
-        public Task DeleteById(object id)
+        public async Task DeleteById(object id)
         {
-            T entityToDelete = _dbSet.Find(id);
+            T entityToDelete = await _dbSet.FindAsync(id);
             if (entityToDelete != null)
             {
                 _dbSet.Remove(entityToDelete);
 
             }
-            return Task.CompletedTask;
 
         }
 
-      
+        public async Task<IEnumerable<T>> GetListByExpression(Expression<Func<T, bool>> filter)
+        {
+            return await _dbSet.Where(filter).ToListAsync();
+        }
+
+        public async Task<T> GetByExpression(Expression<Func<T, bool>> filter)
+        {
+            return await _dbSet.SingleOrDefaultAsync(filter);
+        }
     }
 }

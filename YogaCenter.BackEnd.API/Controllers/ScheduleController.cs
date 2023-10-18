@@ -11,64 +11,31 @@ namespace YogaCenter.BackEnd.API.Controllers
     public class ScheduleController : ControllerBase
     {
         private readonly IScheduleService _scheduleService;
-        private readonly ResponeDto _responeDto;
+        private readonly AppActionResult _responeDto;
 
         public ScheduleController(IScheduleService scheduleService)
         {
             _scheduleService = scheduleService;
-            _responeDto = new ResponeDto();
+            _responeDto = new AppActionResult();
         }
         [HttpGet("get-schedule-by-classId/{classId}")]
-        public async Task<ResponeDto> GetScheduleByClassId(int classId)
+        public async Task<AppActionResult> GetScheduleByClassId(int classId)
         {
-            try
-            {
-
-                _responeDto.Data = await _scheduleService.GetScheduleByClassId(classId);
-            }
-            catch (Exception ex)
-            {
-                _responeDto.Message = ex.Message;
-                _responeDto.isSuccess = false;
-
-            }
-            return _responeDto;
+           return await _scheduleService.GetScheduleByClassId(classId);    
         }
         [HttpPost("register-schedule-for-class")]
-        public async Task<ResponeDto> RegisterSchedulesForClass(IEnumerable<ScheduleDto> scheduleListDto, int classId)
+        public async Task<AppActionResult> RegisterSchedulesForClass(IEnumerable<ScheduleDto> scheduleListDto, int classId)
         {
-            try
-            {
+            return await _scheduleService.RegisterSchedulesForClass(scheduleListDto, classId);
 
-                await _scheduleService.RegisterSchedulesForClass(scheduleListDto, classId);
-                _responeDto.Data = true;
-            }
-            catch (Exception ex)
-            {
-                _responeDto.Message = ex.Message;
-                _responeDto.isSuccess = false;
-
-            }
-            return _responeDto;
         }
         [HttpGet("get-schedule-by-userId/{userId}")]
 
-        public async Task<ResponeDto> GetSchedulesByUserId(string UserId)
+        public async Task<AppActionResult> GetSchedulesByUserId(string UserId)
         {
 
-            try
-            {
+            return await _scheduleService.GetSchedulesByUserId(UserId);
 
-                _responeDto.Data = await _scheduleService.GetSchedulesByUserId(UserId);
-
-            }
-            catch (Exception ex)
-            {
-                _responeDto.Message = ex.Message;
-                _responeDto.isSuccess = false;
-
-            }
-            return _responeDto;
         }
     }
 }

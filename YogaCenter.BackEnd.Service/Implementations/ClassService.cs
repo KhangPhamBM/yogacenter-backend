@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using YogaCenter.BackEnd.Common.Dto;
 using YogaCenter.BackEnd.DAL.Contracts;
 using YogaCenter.BackEnd.DAL.Models;
+using YogaCenter.BackEnd.DAL.Util;
 using YogaCenter.BackEnd.Service.Contracts;
 
 namespace YogaCenter.BackEnd.Service.Implementations
@@ -16,35 +17,89 @@ namespace YogaCenter.BackEnd.Service.Implementations
         private readonly IUnitOfWork _unitOfWork;
         private readonly IClassDetailRepository _classDetailRepository;
         private readonly IMapper _mapper;
+        private readonly AppActionResult _result;
         public ClassService(IUnitOfWork unitOfWork, IClassDetailRepository classDetailRepository, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
             _classDetailRepository = classDetailRepository;
             _mapper = mapper;
+            _result = new();
         }
 
-      
-        public async Task AddClass(ClassDto classDto)
+
+        public async Task<AppActionResult> AddClass(ClassDto classDto)
         {
-            var courseDb = await _unitOfWork.GetRepository<Course>().GetById(classDto.CourseId);
-            var classDb = await _unitOfWork.GetRepository<Class>().GetById(classDto.ClassId);
-            if (courseDb != null && classDb == null)
+            try
             {
-                await _unitOfWork.GetRepository<Class>().Insert(_mapper.Map<Class>(classDto));
-                _unitOfWork.SaveChange();
+                bool isValid = true;
+                if (await _unitOfWork.GetRepository<Course>().GetById(classDto.CourseId) == null)
+                {
+                    _result.Message.Add($"The course with id {classDto.CourseId} not found");
+                    isValid = false;
+
+                }
+                if (await _unitOfWork.GetRepository<Class>().GetByExpression(c => c.ClassName == classDto.ClassName) != null)
+                {
+                    _result.Message.Add($"The class with name {classDto.CourseId} is exist");
+                    isValid = false;
+
+                }
+                if (isValid)
+                {
+                    await _unitOfWork.GetRepository<Class>().Insert(_mapper.Map<Class>(classDto));
+                    _unitOfWork.SaveChange();
+                    _result.Message.Add(SD.ResponeMessage.CREATE_SUCCESS);
+                }
+                else
+                {
+                    _result.isSuccess = false;
+                }
             }
+            catch (Exception ex)
+            {
+                _result.isSuccess = false;
+                _result.Message.Add(ex.Message);
+            }
+
+            return _result;
         }
-        public async Task UpdateClass(ClassDto classDto) 
+        public async Task<AppActionResult> UpdateClass(ClassDto classDto)
         {
-            var classDb = await _unitOfWork.GetRepository<Class>().GetById(classDto.ClassId);
-            if (classDb != null)
+            try
             {
-                await _unitOfWork.GetRepository<Class>().Update(_mapper.Map<Class>(classDto));
-                _unitOfWork.SaveChange();
+                bool isValid = true;
+                if (await _unitOfWork.GetRepository<Course>().GetById(classDto.CourseId) == null)
+                {
+                    _result.Message.Add($"The course with id {classDto.CourseId} not found");
+                    isValid = false;
+
+                }
+                if (await _unitOfWork.GetRepository<Class>().GetById(classDto.ClassId) == null)
+                {
+                    _result.Message.Add($"The class with id {classDto.ClassId} not found");
+                    isValid = false;
+
+                }
+                if (isValid)
+                {
+                    await _unitOfWork.GetRepository<Class>().Update(_mapper.Map<Class>(classDto));
+                    _unitOfWork.SaveChange();
+                    _result.Message.Add(SD.ResponeMessage.UPDATE_SUCCESS);
+                }
+                else
+                {
+                    _result.isSuccess = false;
+                }
             }
+            catch (Exception ex)
+            {
+                _result.isSuccess = false;
+                _result.Message.Add(ex.Message);
+            }
+            return _result;
         }
 
-     
+
 
     }
 }

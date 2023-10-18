@@ -9,8 +9,7 @@ namespace YogaCenter.BackEnd.Service.Contracts
 {
     public interface ITicketStatusService
     {
-        Task CreateTicketStatus(TicketStatusDto ticketStatus);
-        Task UpdateTicketStatus(TicketStatusDto ticketStatus);
-
+        Task<AppActionResult> CreateTicketStatus(TicketStatusDto ticketStatus);
+        Task<AppActionResult> UpdateTicketStatus(TicketStatusDto ticketStatus);
     }
 }

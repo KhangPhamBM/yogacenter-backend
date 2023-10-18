@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using YogaCenter.BackEnd.Common.Dto;
 using YogaCenter.BackEnd.DAL.Contracts;
 using YogaCenter.BackEnd.DAL.Models;
+using YogaCenter.BackEnd.DAL.Util;
 using YogaCenter.BackEnd.Service.Contracts;
 
 namespace YogaCenter.BackEnd.Service.Implementations
@@ -16,41 +17,150 @@ namespace YogaCenter.BackEnd.Service.Implementations
         private readonly IAttendanceRepository _attendanceRepository;
         private readonly IUnitOfWork _unitOfWork;
         private IMapper _mapper;
+        private readonly AppActionResult _result;
 
         public AttendanceService(IAttendanceRepository attendanceRepository, IUnitOfWork unitOfWork, IMapper mapper)
         {
             _attendanceRepository = attendanceRepository;
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _result = new AppActionResult();
         }
 
-        public async Task AddListAttendance(IEnumerable<AttendanceDto> attendances)
+        public async Task<AppActionResult> AddListAttendance(IEnumerable<AttendanceDto> attendances)
         {
-            foreach (var attendance in attendances)
+            try
             {
-                await _unitOfWork.GetRepository<Attendance>().Insert(_mapper.Map<Attendance>(attendance));
+                bool isValid = true;
+
+
+                foreach (var attendance in attendances)
+                {
+                    if (_unitOfWork.GetRepository<ClassDetail>().GetById(attendance.ClassDetailId) == null)
+                    {
+                        _result.Message.Add($"The class detail with id {attendance.ClassDetailId} not found ");
+                        isValid = false;
+                    }
+                    if (_unitOfWork.GetRepository<Schedule>().GetById(attendance.ScheduleId) == null)
+                    {
+                        _result.Message.Add($"The schedule with id {attendance.ScheduleId} not found ");
+                        isValid = false;
+                    }
+                }
+
+                if (isValid)
+                {
+                    foreach (var attendance in attendances)
+                    {
+                        await _unitOfWork.GetRepository<Attendance>().Insert(_mapper.Map<Attendance>(attendance));
+                    }
+                    _unitOfWork.SaveChange();
+
+                    _result.Message.Add(SD.ResponeMessage.CREATE_SUCCESS);
+
+                }
+                else
+                {
+                    _result.isSuccess = false;
+                }
             }
-            _unitOfWork.SaveChange();
+            catch (Exception ex)
+            {
+                _result.isSuccess = false;
+                _result.Message.Add(ex.Message);
+            }
+
+            return _result;
         }
 
-        public Task<IEnumerable<Attendance>> GetAttendancesByClassId(int classId)
+        public async Task<AppActionResult> GetAttendancesByClassId(int classId)
         {
-            throw new NotImplementedException();
+            try
+            {
+                _result.Data = await _unitOfWork.GetRepository<Attendance>().GetListByExpression(c => c.ClassDetail.ClassId == classId);
+
+            }
+            catch (Exception ex)
+            {
+                _result.isSuccess = false;
+                _result.Message.Add(ex.Message);
+            }
+            return _result;
         }
 
-        public Task<IEnumerable<Attendance>> GetAttendancesByScheduleId(int scheduleId)
+        public async Task<AppActionResult> GetAttendancesByScheduleId(int scheduleId)
         {
-            throw new NotImplementedException();
+            try
+            {
+                _result.Data = await _unitOfWork.GetRepository<Attendance>().GetListByExpression(c => c.ScheduleId == scheduleId);
+
+            }
+            catch (Exception ex)
+            {
+                _result.isSuccess = false;
+                _result.Message.Add(ex.Message);
+            }
+            return _result;
+
         }
 
-        public Task<IEnumerable<Attendance>> GetAttendancesByUserId(string userId)
+        public async Task<AppActionResult> GetAttendancesByUserId(string userId)
         {
-            throw new NotImplementedException();
+            try
+            {
+                _result.Data = await _unitOfWork.GetRepository<Attendance>().GetListByExpression(c => c.ClassDetail.UserId == userId);
+
+            }
+            catch (Exception ex)
+            {
+                _result.isSuccess = false;
+                _result.Message.Add(ex.Message);
+            }
+            return _result;
+
         }
 
-        public Task UpdateAttend(IEnumerable<AttendanceDto> attendances)
+        public async Task<AppActionResult> UpdateAttend(IEnumerable<AttendanceDto> attendances)
         {
-            throw new NotImplementedException();
+            try
+            {
+                bool isValid = true;
+                foreach (var attendance in attendances)
+                {
+                    if (_unitOfWork.GetRepository<ClassDetail>().GetById(attendance.ClassDetailId) == null)
+                    {
+                        _result.Message.Add($"The class detail with id {attendance.ClassDetailId} not found ");
+                        isValid = false;
+                    }
+                    if (_unitOfWork.GetRepository<Schedule>().GetById(attendance.ScheduleId) == null)
+                    {
+                        _result.Message.Add($"The schedule with id {attendance.ScheduleId} not found ");
+                        isValid = false;
+                    }
+                }
+
+                if (isValid)
+                {
+                    foreach (var attendance in attendances)
+                    {
+                        await _unitOfWork.GetRepository<Attendance>().Update(_mapper.Map<Attendance>(attendance));
+                    }
+                    _unitOfWork.SaveChange();
+                    _result.Message.Add(SD.ResponeMessage.UPDATE_SUCCESS);
+                }
+                else
+                {
+                    _result.isSuccess = false;
+                }
+
+            }
+            catch (Exception ex)
+            {
+                _result.isSuccess = false;
+                _result.Message.Add(ex.Message);
+            }
+            return _result;
+          
         }
     }
 }

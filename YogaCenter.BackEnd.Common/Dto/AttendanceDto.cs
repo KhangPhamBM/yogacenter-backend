@@ -13,7 +13,7 @@ namespace YogaCenter.BackEnd.Common.Dto
         public int ClassDetailId { get; set; }
 
         public int ScheduleId { get; set; }
-        public bool isAttended { get; set; }
+        public bool isAttended { get; set; } = false;
 
     }
 }
