@@ -10,10 +10,13 @@ using YogaCenter.BackEnd.DAL.Contracts;
 using YogaCenter.BackEnd.DAL.Models;
 using YogaCenter.BackEnd.DAL.Util;
 using YogaCenter.BackEnd.Service.Contracts;
+using static YogaCenter.BackEnd.DAL.Util.SD;
+using TicketStatus = YogaCenter.BackEnd.DAL.Models.TicketStatus;
+using TicketType = YogaCenter.BackEnd.DAL.Models.TicketType;
 
 namespace YogaCenter.BackEnd.Service.Implementations
 {
-    public class TicketService : ITicketService, ITicketStatusService,ITicketTypeService
+    public class TicketService : ITicketService, ITicketStatusService, ITicketTypeService
 
     {
         private readonly IUnitOfWork _unitOfWork;
@@ -31,7 +34,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
             bool isValid = true;
             try
             {
-                if(await _unitOfWork.GetRepository<TicketStatus>().GetById(ticket.TicketStatusId)== null)
+                if (await _unitOfWork.GetRepository<TicketStatus>().GetById(ticket.TicketStatusId) == null)
                 {
                     isValid = false;
                     _result.Message.Add($"The ticket status with id {ticket.TicketStatusId} not found");
@@ -44,8 +47,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 if (isValid)
                 {
                     await _unitOfWork.GetRepository<Ticket>().Insert(_mapper.Map<Ticket>(ticket));
-                    _unitOfWork.SaveChange();
-                    _result.Message.Add(SD.ResponseMessage.CREATE_SUCCESSFUL);
+                    _result.Message.Add(SD.ResponseMessage.CREATE_SUCCESS);
                 }
 
             }
@@ -59,7 +61,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
 
         }
 
-       
+
         public async Task<AppActionResult> GetTicketById(int ticketId)
         {
             bool isValid = true;
@@ -70,7 +72,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                     isValid = false;
                     _result.Message.Add($"The ticket with id {ticketId} not found");
                 }
-               
+
                 if (isValid)
                 {
                     await _unitOfWork.GetRepository<Ticket>().GetById(ticketId);
@@ -108,9 +110,8 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 }
                 if (isValid)
                 {
-                    await _unitOfWork.GetRepository<Ticket>().Insert(_mapper.Map<Ticket>(ticket));
-                    _unitOfWork.SaveChange();
-                    _result.Message.Add(SD.ResponseMessage.CREATE_SUCCESSFUL);
+                    await _unitOfWork.GetRepository<Ticket>().Update(_mapper.Map<Ticket>(ticket));
+                    _result.Message.Add(SD.ResponseMessage.UPDATE_SUCCESS);
                 }
 
             }
@@ -124,42 +125,53 @@ namespace YogaCenter.BackEnd.Service.Implementations
         }
         public async Task<AppActionResult> CreateTicketStatus(TicketStatusDto ticketStatus)
         {
+            bool isValid = true;
             try
             {
-                var existedTicketStatus = await _unitOfWork.GetRepository<TicketStatus>().GetByExpression(ts => ts.TicketStatusName == ticketStatus.TicketStatusName);
-                if (existedTicketStatus != null)
+                if (await _unitOfWork.GetRepository<TicketStatus>().GetByExpression(c => c.TicketStatusName == ticketStatus.TicketStatusName) != null)
                 {
-                    _result.isSuccess = false;
-                    _result.Message.Add($"Tick status whose name is {ticketStatus.TicketStatusName} has already existed");
+                    isValid = false;
+                    _result.Message.Add($"The ticket name is existed");
                 }
-                else
+
+                if (isValid)
                 {
                     await _unitOfWork.GetRepository<TicketStatus>().Insert(_mapper.Map<TicketStatus>(ticketStatus));
                     _unitOfWork.SaveChange();
+                    _result.Message.Add(SD.ResponseMessage.CREATE_SUCCESS);
+
                 }
-            } catch(Exception ex)
+
+            }
+            catch (Exception ex)
             {
                 _result.isSuccess = false;
                 _result.Message.Add(ex.Message);
+
+
             }
             return _result;
         }
 
         public async Task<AppActionResult> CreateTicketType(TicketTypeDto ticketType)
         {
+            bool isValid = true;
             try
             {
-                var existedTicketType = await _unitOfWork.GetRepository<TicketType>().GetByExpression(tt => tt.TicketName == ticketType.TicketName);
-                if (existedTicketType != null)
+                if (await _unitOfWork.GetRepository<TicketType>().GetByExpression(c => c.TicketName == ticketType.TicketName) != null)
                 {
-                    _result.isSuccess = false;
-                    _result.Message.Add($"Ticket type whose name is {ticketType.TicketName} has already existed");
+                    isValid = false;
+                    _result.Message.Add($"The ticket type with name is existed");
                 }
-                else
+
+                if (isValid)
                 {
                     await _unitOfWork.GetRepository<TicketType>().Insert(_mapper.Map<TicketType>(ticketType));
                     _unitOfWork.SaveChange();
+                    _result.Message.Add(SD.ResponseMessage.CREATE_SUCCESS);
+
                 }
+
             }
             catch (Exception ex)
             {
@@ -167,23 +179,28 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 _result.Message.Add(ex.Message);
             }
             return _result;
+
         }
 
         public async Task<AppActionResult> UpdateTicketStatus(TicketStatusDto ticketStatus)
         {
             bool isValid = true;
+
             try
             {
                 if (await _unitOfWork.GetRepository<TicketStatus>().GetById(ticketStatus.TicketStatusId) == null)
                 {
                     isValid = false;
-                    _result.Message.Add($"The ticket status with id {ticketStatus.TicketStatusId} not found");
+                    _result.Message.Add($"The ticket with id not found");
                 }
 
                 if (isValid)
                 {
                     await _unitOfWork.GetRepository<TicketStatus>().Update(_mapper.Map<TicketStatus>(ticketStatus));
                     _unitOfWork.SaveChange();
+                    _result.Message.Add(SD.ResponseMessage.UPDATE_SUCCESS);
+
+
                 }
 
             }
@@ -191,26 +208,30 @@ namespace YogaCenter.BackEnd.Service.Implementations
             {
                 _result.isSuccess = false;
                 _result.Message.Add(ex.Message);
-
             }
             return _result;
+
         }
 
         public async Task<AppActionResult> UpdateTicketType(TicketTypeDto ticketType)
         {
             bool isValid = true;
+
             try
             {
                 if (await _unitOfWork.GetRepository<TicketType>().GetById(ticketType.TicketTypeId) == null)
                 {
                     isValid = false;
-                    _result.Message.Add($"The ticket status with id {ticketType.TicketTypeId} not found");
+                    _result.Message.Add($"The ticket type with id not found");
                 }
 
                 if (isValid)
                 {
                     await _unitOfWork.GetRepository<TicketType>().Update(_mapper.Map<TicketType>(ticketType));
                     _unitOfWork.SaveChange();
+                    _result.Message.Add(SD.ResponseMessage.UPDATE_SUCCESS);
+
+
                 }
 
             }
@@ -218,25 +239,27 @@ namespace YogaCenter.BackEnd.Service.Implementations
             {
                 _result.isSuccess = false;
                 _result.Message.Add(ex.Message);
-
             }
             return _result;
+
         }
 
         public async Task<AppActionResult> GetTicketTypeById(int id)
         {
             bool isValid = true;
+
             try
             {
                 if (await _unitOfWork.GetRepository<TicketType>().GetById(id) == null)
                 {
                     isValid = false;
-                    _result.Message.Add($"The ticket type with id {id} not found");
+                    _result.Message.Add($"The ticket type with id not found");
                 }
 
                 if (isValid)
                 {
-                    await _unitOfWork.GetRepository<TicketType>().GetById(id);
+                    _result.Data = await _unitOfWork.GetRepository<TicketType>().GetById(id);
+
                 }
 
             }
@@ -244,33 +267,35 @@ namespace YogaCenter.BackEnd.Service.Implementations
             {
                 _result.isSuccess = false;
                 _result.Message.Add(ex.Message);
-
             }
             return _result;
+
         }
 
         public async Task<AppActionResult> GetTicketStatusById(int id)
         {
             bool isValid = true;
+
             try
             {
+
                 if (await _unitOfWork.GetRepository<TicketStatus>().GetById(id) == null)
                 {
                     isValid = false;
-                    _result.Message.Add($"The ticket status with id {id} not found");
+                    _result.Message.Add($"The ticket status with id not found");
                 }
 
                 if (isValid)
                 {
-                    await _unitOfWork.GetRepository<TicketStatus>().GetById(id);
-                }
+                    _result.Data = await _unitOfWork.GetRepository<TicketStatus>().GetById(id);
 
+                }
             }
             catch (Exception ex)
             {
+
                 _result.isSuccess = false;
                 _result.Message.Add(ex.Message);
-
             }
             return _result;
         }

@@ -13,17 +13,64 @@ namespace YogaCenter.BackEnd.API.Controllers
         private readonly ITicketTypeService _ticketTypeService;
         private readonly ITicketStatusService _ticketStatusService;
 
-        public TicketController(ITicketService ticketService, ITicketTypeService ticketTypeService, ITicketStatusService ticketStatusService)
+        public TicketController
+            (
+            ITicketService ticketService,
+            ITicketTypeService ticketTypeService,
+            ITicketStatusService ticketStatusService
+            )
         {
             _ticketService = ticketService;
             _ticketTypeService = ticketTypeService;
             _ticketStatusService = ticketStatusService;
         }
 
-        [HttpGet("get-by-id/{id}")]
+        [HttpGet("get-ticket-by-id/{id:int}")]
         public async Task<AppActionResult> GetTicketById(int id)
         {
             return await _ticketService.GetTicketById(id);
+        }
+        [HttpPost("create-ticket")]
+        public async Task<AppActionResult> CreateTicket(TicketDto ticketDto)
+        {
+            return await _ticketService.CreateTicket(ticketDto);
+        }
+        [HttpPut("update-ticket")]
+        public async Task<AppActionResult> UpdateTicket(TicketDto ticketDto)
+        {
+            return await _ticketService.UpdateTicket(ticketDto);
+        }
+
+        [HttpGet("get-ticket-type-by-id/{id:int}")]
+        public async Task<AppActionResult> GetTicketTypeById(int id)
+        {
+            return await _ticketTypeService.GetTicketTypeById(id);
+        }
+        [HttpPost("create-ticket-type")]
+        public async Task<AppActionResult> CreateTicketType(TicketTypeDto ticketTypeDto)
+        {
+            return await _ticketTypeService.CreateTicketType(ticketTypeDto);
+        }
+        [HttpPut("update-ticket-type")]
+        public async Task<AppActionResult> UpdateTicketType(TicketTypeDto ticketTypeDto)
+        {
+            return await _ticketTypeService.UpdateTicketType(ticketTypeDto);
+        }
+        [HttpGet("get-ticket-status-by-id/{id:int}")]
+        public async Task<AppActionResult> GetTicketStatusById(int id)
+        {
+            return await _ticketStatusService.GetTicketStatusById(id);
+        }
+        [HttpPost("create-ticket-status")]
+        public async Task<AppActionResult> CreateTicketStatus(TicketStatusDto ticketStatusDto)
+        {
+            return await _ticketStatusService.CreateTicketStatus(ticketStatusDto);
+        }
+
+        [HttpPut("update-ticket-status")]
+        public async Task<AppActionResult> UpdateTicketStatus(TicketStatusDto ticketStatusDto)
+        {
+            return await _ticketStatusService.UpdateTicketStatus(ticketStatusDto);
         }
     }
 }
