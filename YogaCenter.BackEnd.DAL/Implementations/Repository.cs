@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using YogaCenter.BackEnd.DAL.Contracts;
 using YogaCenter.BackEnd.DAL.Data;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace YogaCenter.BackEnd.DAL.Implementations
 {
@@ -54,14 +55,37 @@ namespace YogaCenter.BackEnd.DAL.Implementations
 
         }
 
-        public async Task<IEnumerable<T>> GetListByExpression(Expression<Func<T, bool>> filter)
+        public async Task<IEnumerable<T>> GetListByExpression(Expression<Func<T, bool>> filter, params Expression<Func<T, object>>[] includeProperties)
         {
-            return await _dbSet.Where(filter).ToListAsync();
+            var query = _dbSet.AsQueryable();
+
+            // Apply eager loading
+            foreach (var includeProperty in includeProperties)
+            {
+                query = query.Include(includeProperty);
+            }
+
+            if (filter == null && includeProperties.Length > 0)
+            {
+                return await query.ToListAsync();
+            }
+
+            return await query.Where(filter).ToListAsync();
         }
 
-        public async Task<T> GetByExpression(Expression<Func<T, bool>> filter)
+        public async Task<T> GetByExpression(Expression<Func<T, bool>> filter, params Expression<Func<T, object>>[] includeProperties)
         {
+            foreach (var includeProperty in includeProperties)
+            {
+                 _dbSet.Include(includeProperty);
+            }
             return await _dbSet.SingleOrDefaultAsync(filter);
+        }
+
+        public async Task<IEnumerable<T>> InsertRange(IEnumerable<T> entities)
+        {
+            _dbSet.AddRange(entities);
+            return entities;
         }
     }
 }

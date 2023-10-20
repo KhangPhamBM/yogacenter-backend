@@ -11,5 +11,6 @@ namespace YogaCenter.BackEnd.Service.Contracts
     {
         Task<AppActionResult> CreateRoom(RoomDto room);
         Task<AppActionResult> UpdateRoom(RoomDto room);
+        Task<AppActionResult> GetRoomById(int RoomId);
     }
 }

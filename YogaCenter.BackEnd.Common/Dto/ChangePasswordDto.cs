@@ -6,7 +6,11 @@ using System.Threading.Tasks;
 
 namespace YogaCenter.BackEnd.Common.Dto
 {
-    public class SearchCourseRequest: BaseSearchRequest
+    public class ChangePasswordDto
     {
+        public string Email { get; set; }
+        public string OldPassword { get; set; }
+        public string NewPassword { get; set; }
+
     }
 }

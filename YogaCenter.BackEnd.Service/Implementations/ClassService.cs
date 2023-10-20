@@ -27,7 +27,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
         }
 
 
-        public async Task<AppActionResult> AddClass(ClassDto classDto)
+        public async Task<AppActionResult> CreateClass(ClassDto classDto)
         {
             try
             {
@@ -48,7 +48,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 {
                     await _unitOfWork.GetRepository<Class>().Insert(_mapper.Map<Class>(classDto));
                     _unitOfWork.SaveChange();
-                    _result.Message.Add(SD.ResponeMessage.CREATE_SUCCESS);
+                    _result.Message.Add(SD.ResponseMessage.CREATE_SUCCESSFUL);
                 }
                 else
                 {
@@ -63,6 +63,36 @@ namespace YogaCenter.BackEnd.Service.Implementations
 
             return _result;
         }
+
+        public async Task<AppActionResult> GetClassById(int classId)
+        {
+            try
+            {
+                bool isValid = true;
+
+                if (await _unitOfWork.GetRepository<Class>().GetById(classId) == null)
+                {
+                    _result.Message.Add($"The class with id {classId} not found");
+                    isValid = false;
+
+                }
+                if (isValid)
+                {
+                    _result.Data = await _unitOfWork.GetRepository<Class>().GetById(classId);
+                }
+                else
+                {
+                    _result.isSuccess = false;
+                }
+            }
+            catch (Exception ex)
+            {
+                _result.isSuccess = false;
+                _result.Message.Add(ex.Message);
+            }
+            return _result;
+        }
+
         public async Task<AppActionResult> UpdateClass(ClassDto classDto)
         {
             try
@@ -84,7 +114,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 {
                     await _unitOfWork.GetRepository<Class>().Update(_mapper.Map<Class>(classDto));
                     _unitOfWork.SaveChange();
-                    _result.Message.Add(SD.ResponeMessage.UPDATE_SUCCESS);
+                    _result.Message.Add(SD.ResponseMessage.UPDATE_SUCCESSFUL);
                 }
                 else
                 {
@@ -99,7 +129,32 @@ namespace YogaCenter.BackEnd.Service.Implementations
             return _result;
         }
 
+        public async Task<AppActionResult> GetAllClass()
+        {
+            try
+            {
+                _result.Data = await _unitOfWork.GetRepository<Class>().GetAll();
+            }
+            catch (Exception ex)
+            {
+                _result.isSuccess = false;
+                _result.Message.Add(ex.Message);
+            }
+            return _result;
+        }
 
-
+        public async Task<AppActionResult> GetAllAvailableClass()
+        {
+            try
+            {
+                _result.Data = await _unitOfWork.GetRepository<Class>().GetByExpression(c => !(bool)c.IsDeleted);
+            }
+            catch (Exception ex)
+            {
+                _result.isSuccess = false;
+                _result.Message.Add(ex.Message);
+            }
+            return _result;
+        }
     }
 }

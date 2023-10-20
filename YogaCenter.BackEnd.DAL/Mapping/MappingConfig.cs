@@ -29,6 +29,12 @@ namespace YogaCenter.BackEnd.DAL.Mapping
                   .ForMember(desc => desc.EndDate, act => act.MapFrom(src => src.EndDate))
                   .ReverseMap();
 
+                config.CreateMap<ClassDetailDto, ClassDetail>()
+                .ForMember(desc => desc.ClassDetailId, act => act.MapFrom(src => src.ClassDetailId))
+                .ForMember(desc => desc.UserId, act => act.MapFrom(src => src.UserId))
+                .ForMember(desc => desc.ClassId, act => act.MapFrom(src => src.ClassId))
+                  .ReverseMap();
+
                 config.CreateMap<CourseDto, Course>()
                .ForMember(desc => desc.CourseId, act => act.MapFrom(src => src.CourseId))
                .ForMember(desc => desc.CourseName, act => act.MapFrom(src => src.CourseName))
@@ -39,7 +45,7 @@ namespace YogaCenter.BackEnd.DAL.Mapping
                .ForMember(desc => desc.Discount, act => act.MapFrom(src => src.Discount))
                .ReverseMap();
 
-                config.CreateMap<PaymentResponeDto, PaymentRespone>()
+                config.CreateMap<PaymentResponseDto, PaymentRespone>()
                 .ForMember(desc => desc.SubscriptionId, act => act.MapFrom(src => src.SubscriptionId))
                 .ForMember(desc => desc.PaymentTypeId, act => act.MapFrom(src => src.PaymentTypeId))
                 .ForMember(desc => desc.Success, act => act.MapFrom(src => src.Success))
@@ -56,8 +62,8 @@ namespace YogaCenter.BackEnd.DAL.Mapping
                 config.CreateMap<RoomDto, Room>()
                 .ForMember(desc => desc.RoomId, act => act.MapFrom(src => src.RoomId))
                 .ForMember(desc => desc.RoomName, act => act.MapFrom(src => src.RoomName))
-                .ReverseMap() ;
-                  
+                .ReverseMap();
+
                 config.CreateMap<ScheduleDto, Schedule>()
                 .ForMember(desc => desc.RoomId, act => act.MapFrom(src => src.RoomId))
                 .ForMember(desc => desc.ScheduleId, act => act.MapFrom(src => src.ScheduleId))

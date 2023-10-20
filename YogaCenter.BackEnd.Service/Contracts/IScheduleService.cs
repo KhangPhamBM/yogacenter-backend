@@ -11,7 +11,9 @@ namespace YogaCenter.BackEnd.Service.Contracts
     public interface IScheduleService
     {
         Task<AppActionResult> GetScheduleByClassId(int id);
-        Task<AppActionResult> RegisterSchedulesForClass(IEnumerable<ScheduleDto> scheduleListDto, int classId);
         Task<AppActionResult> GetSchedulesByUserId(string UserId);
+        Task<AppActionResult> UpdateSchedule(ScheduleDto scheduleDto);
+
+        Task<AppActionResult> GenerateScheduleForClass(CreateScheduleRequest request);
     }
 }

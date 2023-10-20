@@ -12,10 +12,12 @@ namespace YogaCenter.BackEnd.DAL.Contracts
     {
         Task< IEnumerable<T>> GetAll();
         Task<T> GetById(object id);
-        Task<T> GetByExpression(Expression<Func<T, bool>> filter);
-        Task<IEnumerable<T>> GetListByExpression(Expression<Func<T, bool>> filter);
+        Task<T> GetByExpression(Expression<Func<T, bool>> filter, params Expression<Func<T, object>>[] includeProperties);
+        Task<IEnumerable<T>> GetListByExpression(Expression<Func<T, bool>> filter, params Expression<Func<T, object>>[] includeProperties);
         Task<T> Insert(T entity);
+        Task<IEnumerable<T>> InsertRange(IEnumerable<T> entities);
         Task Update(T entity);
         Task DeleteById(object id);
+
     }
 }

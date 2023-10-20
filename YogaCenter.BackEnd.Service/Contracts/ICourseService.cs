@@ -9,14 +9,14 @@ using YogaCenter.BackEnd.DAL.Models;
 
 namespace YogaCenter.BackEnd.Service.Contracts
 {
-    public interface ICourseService
+    public interface ICourseService : ISearching<Course>
     {
         Task<AppActionResult> CreateCourse(CourseDto course);
         Task<AppActionResult> UpdateCourse(CourseDto course);
         Task<AppActionResult> GetCourseById(int id);
         Task<AppActionResult> GetAll();
         Task<AppActionResult> DeleteCourse(int id);
-        Task<AppActionResult> Filter(SearchCourseRequest searchCourseRequest);
-        Task<AppActionResult> ApplyPaging(IEnumerable<CourseDto> source, int pageIndex, int pageSize);
+
+        //Task<AppActionResult> SearchApplyingSortingAndFiltering(BaseFilterRequest filterRequest);
     }
 }

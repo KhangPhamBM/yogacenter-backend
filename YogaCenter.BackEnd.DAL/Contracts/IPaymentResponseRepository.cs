@@ -7,7 +7,7 @@ using YogaCenter.BackEnd.DAL.Models;
 
 namespace YogaCenter.BackEnd.DAL.Contracts
 {
-    public interface IPaymentResponeRepository: IRepository<PaymentRespone>
+    public interface IPaymentResponseRepository: IRepository<PaymentRespone>
     {
         Task<IEnumerable<PaymentRespone>> GetPaymentResponsesByUserId(string UserId);
         Task<IEnumerable<PaymentRespone>> GetPaymentResponsesByYear(int year);

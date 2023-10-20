@@ -23,19 +23,26 @@ namespace YogaCenter.BackEnd.API.Controllers
         {
            return await _scheduleService.GetScheduleByClassId(classId);    
         }
-        [HttpPost("register-schedule-for-class")]
-        public async Task<AppActionResult> RegisterSchedulesForClass(IEnumerable<ScheduleDto> scheduleListDto, int classId)
-        {
-            return await _scheduleService.RegisterSchedulesForClass(scheduleListDto, classId);
-
-        }
+       
         [HttpGet("get-schedule-by-userId/{userId}")]
 
         public async Task<AppActionResult> GetSchedulesByUserId(string UserId)
         {
-
             return await _scheduleService.GetSchedulesByUserId(UserId);
+        }
 
+        [HttpPut("update-schedule")]
+
+        public async Task<AppActionResult> UpdateSchedule(ScheduleDto scheduleDto)
+        {
+            return await _scheduleService.UpdateSchedule(scheduleDto);
+        }
+
+        [HttpPost("generate-schedule-for-class")]
+
+        public async Task<AppActionResult> GenerateScheduleForClass(CreateScheduleRequest scheduleDto)
+        {
+            return await _scheduleService.GenerateScheduleForClass(scheduleDto);
         }
     }
 }

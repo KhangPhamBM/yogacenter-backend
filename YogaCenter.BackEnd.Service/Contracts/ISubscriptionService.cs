@@ -11,6 +11,11 @@ namespace YogaCenter.BackEnd.Service.Contracts
     public interface ISubscriptionService
     {
         Task<AppActionResult> CreateSubscription(SubscriptionRequest Subscription, HttpContext context);
+        Task<AppActionResult> GetPaymentUrl(SubscriptionRequest Subscription, HttpContext context);
+
         Task<AppActionResult> UpdateSubscription(SubscriptionDto Subscription);
+
+        Task<AppActionResult> GetSubscriptionByIdWithPendingStatus(string subcriptionId);
+        Task<AppActionResult> UpdateStatusSubscription(string subcriptionId, int status);
     }
 }

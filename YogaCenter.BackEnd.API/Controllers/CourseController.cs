@@ -25,8 +25,7 @@ namespace YogaCenter.BackEnd.API.Controllers
            return await _courseService.CreateCourse(course);  
         }
 
-        [HttpPost]
-        [Route("update-course")]
+        [HttpPut("update-course")]
         public async Task<AppActionResult> UpdateCourse(CourseDto course)
         {
             return await _courseService.UpdateCourse(course);
@@ -53,5 +52,11 @@ namespace YogaCenter.BackEnd.API.Controllers
             return await _courseService.DeleteCourse(id);
         }
 
+        [HttpGet]
+        [Route("Get-course-with-searching")]
+        public async Task<AppActionResult> GetCourseWithSearching([FromBody] BaseFilterRequest baseFilterRequest)
+        {
+            return await _courseService.SearchApplyingSortingAndFiltering(baseFilterRequest);
+        }
     }
 }

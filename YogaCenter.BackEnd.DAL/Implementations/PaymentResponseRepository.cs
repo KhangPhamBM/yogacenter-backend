@@ -9,11 +9,12 @@ using YogaCenter.BackEnd.DAL.Models;
 
 namespace YogaCenter.BackEnd.DAL.Implementations
 {
-    public class PaymentResponeRepository : Repository<PaymentRespone>,IPaymentResponeRepository
+    public class PaymentResponseRepository : Repository<PaymentRespone>,IPaymentResponseRepository
     {
         YogaCenterContext _context;
 
-        public PaymentResponeRepository(YogaCenterContext context) : base(context)
+      
+        public PaymentResponseRepository(YogaCenterContext context) : base(context)
         {
             _context = context;
         }

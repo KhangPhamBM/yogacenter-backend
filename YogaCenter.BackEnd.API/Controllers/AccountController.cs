@@ -11,69 +11,54 @@ namespace YogaCenter.BackEnd.API.Controllers
     public class AccountController : ControllerBase
     {
         private readonly IAccountService _accountService;
-        private readonly AppActionResult _responeDto;
         public AccountController(IAccountService accountService)
         {
             _accountService = accountService;
-            _responeDto = new AppActionResult();
         }
 
         [HttpPost("create-account")]
-        public async Task<AppActionResult> SignUp(SignUpRequestDto request)
+        public async Task<AppActionResult> CreateAccount(SignUpRequestDto request)
         {
-            try
-            {
-                await _accountService.SignUp(request);
-                _responeDto.Data = true;
-            }
-            catch (Exception ex)
-            {
-                _responeDto.isSuccess = false;
-            }
-            return _responeDto;
+            return await _accountService.CreateAccount(request);
+
         }
 
         [HttpPost("login")]
         public async Task<AppActionResult> Login(LoginRequestDto request)
         {
-            try
-            {
-                _responeDto.Data = await _accountService.Login(request);
-            }
-            catch (Exception ex)
-            {
-                _responeDto.isSuccess = false;
-            }
-            return _responeDto;
+            return await _accountService.Login(request);
+
         }
 
         [HttpPut("update-account")]
         public async Task<AppActionResult> UpdateAccount(ApplicationUser request)
         {
-            try
-            {
-                await _accountService.UpdateAccount(request);
-                _responeDto.Data = true;
-            }
-            catch (Exception ex)
-            {
-                _responeDto.isSuccess = false;
-            }
-            return _responeDto;
-        }
-        [HttpPost("get-account-by-id/{id}")]
-        public AppActionResult UpdateAccount(string id)
-        {
-            try
-            {
-                _responeDto.Data = _accountService.GetAccountByUserId(id);
+            return await _accountService.UpdateAccount(request);
 
-            }
-            catch (Exception ex)
-            {
-                _responeDto.isSuccess = false;
-            }
-            return _responeDto;
         }
+        [HttpGet("get-account-by-id/{id}")]
+        public async Task<AppActionResult> UpdateAccount(string id)
+        {
+            return await _accountService.GetAccountByUserId(id);
+
+        }
+
+        [HttpGet("get-all-account")]
+        public async Task<AppActionResult> GetAllAccount()
+        {
+            return await _accountService.GetAllAccount();
+        }
+        [HttpPut("change-password")]
+        public async Task<AppActionResult> ChangePassword(ChangePasswordDto dto)
+        {
+            return await _accountService.ChangePassword(dto);
+        }
+
+        [HttpGet("get-accounts-with-searching")]
+        public async Task<AppActionResult> GetAccountWithSearching([FromBody] BaseFilterRequest baseFilterRequest)
+        {
+            return await _accountService.SearchApplyingSortingAndFiltering(baseFilterRequest);
+        }
+
     }
 }

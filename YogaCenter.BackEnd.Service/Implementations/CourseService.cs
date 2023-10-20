@@ -10,6 +10,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web.Mvc;
+using System.Web.WebPages;
 using YogaCenter.BackEnd.Common.Dto;
 using YogaCenter.BackEnd.DAL.Contracts;
 using YogaCenter.BackEnd.DAL.Models;
@@ -18,8 +19,8 @@ using YogaCenter.BackEnd.Service.Contracts;
 
 namespace YogaCenter.BackEnd.Service.Implementations
 {
-    public class CourseService : ICourseService
-    {
+    public class CourseService : ICourseService { 
+
         private readonly IUnitOfWork _unitOfWork;
         private IMapper _mapper;
         private readonly AppActionResult _result;
@@ -45,7 +46,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 {
                     await _unitOfWork.GetRepository<Course>().Insert(_mapper.Map<Course>(course));
                     _unitOfWork.SaveChange();
-                    _result.Message.Add(SD.ResponeMessage.CREATE_SUCCESS);
+                    _result.Message.Add(SD.ResponseMessage.CREATE_SUCCESSFUL);
                 }
                 else
                 {
@@ -75,7 +76,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 {
                     await _unitOfWork.GetRepository<Course>().Update(_mapper.Map<Course>(course));
                     _unitOfWork.SaveChange();
-                    _result.Message.Add(SD.ResponeMessage.UPDATE_SUCCESS);
+                    _result.Message.Add(SD.ResponseMessage.UPDATE_SUCCESSFUL);
                 }
                 else
                 {
@@ -93,32 +94,29 @@ namespace YogaCenter.BackEnd.Service.Implementations
 
         public async Task<AppActionResult> GetCourseById(int id)
         {
-            try
-            {
+            try {
                 bool isValid = true;
-                if(id < 0)
+                if (await _unitOfWork.GetRepository<Course>().GetById(id) == null)
                 {
-                    _result.Message.Add("Invalid CourseId");
+                    _result.Message.Add($"The course with id {id} not found");
                     isValid = false;
+                }
+
+                if (isValid)
+                {
+                    _result.Data = await _unitOfWork.GetRepository<Course>().GetById(id);
+                }
+                else
+                {
                     _result.isSuccess = false;
                 }
-                if(isValid)
-                {
-                    var course = _unitOfWork.GetRepository<Course>().GetById(id);
-                    if(course.Result != null)
-                    {
-                        _result.Data = course.Result;
-                    } else
-                    {
-                        _result.isSuccess = false;
-                        _result.Message.Add($"Course with id: {id} not found");
-                    }
-                }
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 _result.isSuccess = false;
                 _result.Message.Add(ex.Message);
             }
+
             return _result;
         }
 
@@ -177,57 +175,40 @@ namespace YogaCenter.BackEnd.Service.Implementations
             return _result;
         }
 
-        public async Task<AppActionResult> ApplyPaging(IEnumerable<CourseDto> source, int pageIndex, int pageSize)
+        public async Task<AppActionResult> SearchApplyingSortingAndFiltering(BaseFilterRequest filterRequest)
         {
             try
             {
-                int toSkip = (pageIndex - 1) * pageSize;
-                _result.Data = source.Skip(toSkip).Take(pageSize).ToList();
-            } catch (Exception ex) {
-                _result.isSuccess = false;
-                _result.Message.Add(ex.Message);
-            }
-            return _result;
-        }
-
-        public async Task<AppActionResult> Filter(SearchCourseRequest searchCourseRequest)
-        {
-            try
-            {
-                var sortList = searchCourseRequest.sortInfoList; 
-                var filterList = searchCourseRequest.filterInfoList;
-                Expression<Func<CourseDto, bool>> combinedExpression = c => c.IsDeleted == false && (c.CourseName != null && c.CourseName.Contains(searchCourseRequest.searchKeyWord));                
-                if (filterList != null)
+                var source = (IQueryable<CourseDto>)_unitOfWork.GetRepository<Course>().GetByExpression(c => (bool)!c.IsDeleted);
+                if (filterRequest != null)
                 {
-                    foreach (var filterInfo in filterList)
+                    if (filterRequest.pageIndex <= 0 || filterRequest.pageSize <= 0)
                     {
-                        Expression<Func<CourseDto, bool>> subFilter = null;
-                        if (filterInfo is FilterInfoToRange toRange)
+                        _result.Message.Add($"Invalid value of pageIndex or pageSize");
+                        _result.isSuccess=false;
+                    } else
+                    {
+                        if (!filterRequest.keyword.IsEmpty())
                         {
-                            subFilter = CreateRangeFilterExpression(toRange);
+                            source = (IQueryable<CourseDto>)_unitOfWork.GetRepository<Course>().GetByExpression(c => (bool)!c.IsDeleted && c.CourseName.Contains(filterRequest.keyword));
                         }
-                        else if (filterInfo is FilterInfoToValue toValue)
+                        if (filterRequest.filterInfoList != null)
                         {
-                            subFilter = CreateValueFilterExpression(toValue);
+                            source = DataPresentationHelper.ApplyFiltering(source, filterRequest.filterInfoList);
                         }
-                        
-                        if(subFilter!= null)
-                        {
-                            var invokedExpr = Expression.Invoke(subFilter, combinedExpression.Parameters);
-                            combinedExpression = Expression.Lambda<Func<CourseDto, bool>>(
-                                Expression.AndAlso(invokedExpr, combinedExpression.Body),
-                                combinedExpression.Parameters);
-                        }
-                    }
-                }
-                var result = await _unitOfWork.GetRepository<CourseDto>().GetListByExpression(combinedExpression);
-                if (sortList != null && sortList.Count > 0)
-                {
-                    result = ApplySorting((IQueryable<CourseDto>)result, sortList);
-                }
-                _result.Data = result;
-            }
 
+                        if (filterRequest.sortInfoList != null)
+                        {
+                            source = DataPresentationHelper.ApplySorting(source, filterRequest.sortInfoList);
+                        }
+                        source = DataPresentationHelper.ApplyPaging(source, filterRequest.pageIndex, filterRequest.pageSize);
+                        _result.Data = source;
+                    }                
+                } else
+                {
+                    _result.Data = source;
+                }
+            }
             catch (Exception ex)
             {
                 _result.isSuccess = false;
@@ -235,84 +216,5 @@ namespace YogaCenter.BackEnd.Service.Implementations
             }
             return _result;
         }
-
-        private Expression<Func<CourseDto, bool>> CreateRangeFilterExpression(FilterInfoToRange filterInfoToRange)
-        {
-            var parameter = Expression.Parameter(typeof(CourseDto), "c");
-            var property = Expression.PropertyOrField(parameter, filterInfoToRange.fieldName);
-            var minValue = Expression.Constant(filterInfoToRange.minValue);
-            var maxValue = Expression.Constant(filterInfoToRange.maxValue);
-
-            var greaterThanOrEqual = Expression.GreaterThanOrEqual(property, minValue);
-            var lessThanOrEqual = Expression.LessThanOrEqual(property, maxValue);
-            var andAlso = Expression.AndAlso(greaterThanOrEqual, lessThanOrEqual);
-
-            return Expression.Lambda<Func<CourseDto, bool>>(andAlso, parameter);
-        }
-
-        private Expression<Func<CourseDto, bool>> CreateValueFilterExpression(FilterInfoToValue filterInfoToValue)
-        {
-            var parameter = Expression.Parameter(typeof(CourseDto), "c");
-            var conjunctions = new List<Expression>();
-
-            var fieldName = filterInfoToValue.fieldName;
-            var filterValues = filterInfoToValue.filterValues;
-
-            if (filterValues is IEnumerable<object> values)
-            {
-                // Create equality expressions for each value
-                foreach (var filterValue in values)
-                {
-                    var value = Expression.Constant(filterValue);
-                    var property = Expression.Property(parameter, fieldName);
-                    var equality = Expression.Equal(property, value);
-                    conjunctions.Add(equality);
-                }
-            }
-            else
-            {
-                throw new InvalidOperationException("filterValues must be of type IEnumerable<object> for filtering.");
-            }
-
-            // Use OR for the same field name and AND for different field names
-            var combinedFilter = conjunctions.Aggregate((current, next) => Expression.Or(current, next));
-
-            return Expression.Lambda<Func<CourseDto, bool>>(combinedFilter, parameter);
-        }
-
-        private IOrderedQueryable<CourseDto> ApplySorting(IQueryable<CourseDto> filteredData, IList<SortInfo> sortingList) {
-            IOrderedQueryable<CourseDto> orderedQuery = filteredData as IOrderedQueryable<CourseDto>;
-
-            if (orderedQuery == null)
-            {
-                orderedQuery = (IOrderedQueryable<CourseDto>?)filteredData.OrderBy(x => 0); // Order by a constant to initiate sorting.
-            }
-
-            foreach (var sortInfo in sortingList)
-            {
-                var property = typeof(CourseDto).GetProperty(sortInfo.fieldName);
-
-                if (property == null)
-                {
-                    throw new ArgumentException($"Property '{sortInfo.fieldName}' not found in type '{typeof(CourseDto).FullName}'.");
-                }
-
-                Expression<Func<CourseDto, object>> expression = x => property.GetValue(x);
-
-                if (sortInfo.ascending)
-                {
-                    orderedQuery = orderedQuery.ThenBy(expression);
-                }
-                else
-                {
-                    orderedQuery = orderedQuery.ThenByDescending(expression);
-                }
-            }
-
-            return orderedQuery;
-
-        }
-
-        
     }
 }

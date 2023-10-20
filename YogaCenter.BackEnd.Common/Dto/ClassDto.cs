@@ -16,7 +16,8 @@ namespace YogaCenter.BackEnd.Common.Dto
         public string? ClassName { get; set; }
 
         public int? CourseId { get; set; }
-    
+        public int MinOfTrainee { get; set; }
+        public int MaxOfTrainer { get; set; }
         public bool? IsDeleted { get; set; }
     }
 }

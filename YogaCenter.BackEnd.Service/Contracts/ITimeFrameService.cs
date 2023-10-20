@@ -11,6 +11,8 @@ namespace YogaCenter.BackEnd.Service.Contracts
     {
         Task<AppActionResult> CreateTimeFrame(TimeFrameDto timeFrameDto);
         Task<AppActionResult> UpdateTimeFrame(TimeFrameDto timeFrameDto);
+        Task<AppActionResult> GetTimeFrameById(int timeframeId);
+
         Task<TimeSpan[]> ConvertStringTimeFrameToTime(string timeFrame);
     }
 }

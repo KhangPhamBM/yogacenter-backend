@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json.Linq;
 using RestSharp;
@@ -23,7 +24,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
     public class PaymentService : IPaymentService
     {
 
-        private  readonly IConfiguration _configuration;
+        private readonly IConfiguration _configuration;
         private readonly IUnitOfWork _unitOfWork;
         public PaymentService(IConfiguration configuration, IUnitOfWork unitOfWork)
         {
@@ -31,100 +32,60 @@ namespace YogaCenter.BackEnd.Service.Implementations
             _unitOfWork = unitOfWork;
         }
 
-        //private string SendPaymentRequest(string endpoint, string postJsonString)
-        //{
-        //    try
-        //    {
-        //        HttpWebRequest httpWReq = (HttpWebRequest)WebRequest.Create(endpoint);
+     
 
-        //        var postData = postJsonString;
-
-        //        var data = Encoding.UTF8.GetBytes(postData);
-
-        //        httpWReq.ProtocolVersion = HttpVersion.Version11;
-        //        httpWReq.Method = "POST";
-        //        httpWReq.ContentType = "application/json";
-
-        //        httpWReq.ContentLength = data.Length;
-        //        httpWReq.ReadWriteTimeout = 30000;
-        //        httpWReq.Timeout = 15000;
-        //        Stream stream = httpWReq.GetRequestStream();
-        //        stream.Write(data, 0, data.Length);
-        //        stream.Close();
-
-        //        HttpWebResponse response = (HttpWebResponse)httpWReq.GetResponse();
-
-        //        string jsonresponse = "";
-
-        //        using (var reader = new StreamReader(response.GetResponseStream()))
-        //        {
-
-        //            string temp = null;
-        //            while ((temp = reader.ReadLine()) != null)
-        //            {
-        //                jsonresponse += temp;
-        //            }
-        //        }
-
-
-        //        //todo parse it
-        //        return jsonresponse;
-        //        //return new MomoResponse(mtid, jsonresponse);
-
-        //    }
-        //    catch (WebException e)
-        //    {
-        //        return e.Message;
-        //    }
-        //}
-
-        public  string CreatePaymentUrlMomo(SubscriptionDto subscriptionDto)
+        public async Task<string> CreatePaymentUrlMomo(SubscriptionDto subscriptionDto)
         {
-            PaymentInformationRequest momo = new PaymentInformationRequest
-            { 
-            AccountID = subscriptionDto.UserId,
-            Amount = (double)subscriptionDto.Total,
-            CustomerName =  _unitOfWork.GetRepository<ApplicationUser>().GetById(subscriptionDto.UserId).Result.FirstName,
-            OrderID = subscriptionDto.SubscriptionId
-            };
-
             string connection = "";
+            var courseId =  _unitOfWork.GetRepository<Class>().GetByExpression(c => c.ClassId == subscriptionDto.ClassId).Result.CourseId;
+            if (courseId != null)
+            {
+                var course = await _unitOfWork.GetRepository<Course>().GetById(courseId);
 
-            string endpoint = "https://test-payment.momo.vn/v2/gateway/api/create";
-            string partnerCode = "MOMO";
-            string accessKey = "F8BBA842ECF85";
-            string serectkey = "K951B6PE1waDMi640xX08PD3vg6EkVlz";
-            string orderInfo = $"Khach hang: {momo.CustomerName} thanh toan hoa don {momo.OrderID}";
-            string redirectUrl = $"{_configuration["Momo:RedirectUrl"]}/{momo.OrderID}";
-            string ipnUrl = _configuration["Momo:IPNUrl"];
-            //  string ipnUrl = "https://webhook.site/3399b42a-eee3-4e2d-8925-c2f893737de9";
+                PaymentInformationRequest momo = new PaymentInformationRequest
+                {
+                    AccountID = subscriptionDto.UserId,
+                    Amount = (double)(course.Price * (100 - course.Discount) / 100),
+                    CustomerName = _unitOfWork.GetRepository<ApplicationUser>().GetById(subscriptionDto.UserId).Result.FirstName,
+                    OrderID = subscriptionDto.SubscriptionId
+                };
 
-            string requestType = "captureWallet";
 
-            string amount = momo.Amount.ToString();
-            string orderId = Guid.NewGuid().ToString();
-            string requestId = Guid.NewGuid().ToString();
-            string extraData = momo.OrderID.ToString();
+                string endpoint = "https://test-payment.momo.vn/v2/gateway/api/create";
+                string partnerCode = "MOMO";
+                string accessKey = _configuration["Momo:accessKey"] ;
+                string secretkey = _configuration["Momo:secretkey"];
+                string orderInfo = $"Khach hang: {momo.CustomerName} thanh toan hoa don {momo.OrderID}";
+                string redirectUrl = $"{_configuration["Momo:RedirectUrl"]}/{momo.OrderID}";
+                string ipnUrl = _configuration["Momo:IPNUrl"];
+                //  string ipnUrl = "https://webhook.site/3399b42a-eee3-4e2d-8925-c2f893737de9";
 
-            //Before sign HMAC SHA256 signature
-            string rawHash = "accessKey=" + accessKey +
-                "&amount=" + amount +
-                "&extraData=" + extraData +
-                "&ipnUrl=" + ipnUrl +
-                "&orderId=" + orderId +
-                "&orderInfo=" + orderInfo +
-                "&partnerCode=" + partnerCode +
-                "&redirectUrl=" + redirectUrl +
-                "&requestId=" + requestId +
-                "&requestType=" + requestType
-                ;
+                string requestType = "captureWallet";
 
-            MomoSecurity crypto = new MomoSecurity();
-            //sign signature SHA256
-            string signature = crypto.signSHA256(rawHash, serectkey);
+                string amount = momo.Amount.ToString();
+                string orderId = Guid.NewGuid().ToString();
+                string requestId = Guid.NewGuid().ToString();
+                string extraData = momo.OrderID.ToString();
 
-            //build body json request
-            JObject message = new JObject
+                //Before sign HMAC SHA256 signature
+                string rawHash = "accessKey=" + accessKey +
+                    "&amount=" + amount +
+                    "&extraData=" + extraData +
+                    "&ipnUrl=" + ipnUrl +
+                    "&orderId=" + orderId +
+                    "&orderInfo=" + orderInfo +
+                    "&partnerCode=" + partnerCode +
+                    "&redirectUrl=" + redirectUrl +
+                    "&requestId=" + requestId +
+                    "&requestType=" + requestType
+                    ;
+
+                MomoSecurity crypto = new MomoSecurity();
+                //sign signature SHA256
+                string signature = crypto.signSHA256(rawHash, secretkey);
+
+                //build body json request
+                JObject message = new JObject
             {
                 { "partnerCode", partnerCode },
                 { "partnerName", "Test" },
@@ -139,56 +100,61 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 { "extraData", extraData },
                 { "requestType", requestType },
                 { "signature", signature }
+                };
 
-            };
-            var client = new RestClient(endpoint);
-            var request = new RestRequest(endpoint, Method.Post);
-            request.AddBody(message);
-            RestResponse response = client.Execute(request);
-            if(response.StatusCode == HttpStatusCode.OK)
-            {
-                JObject jmessage = JObject.Parse(response.Content);
+                var client = new RestClient();
 
-                connection = jmessage.GetValue("payUrl").ToString();
-
+                var request = new RestRequest(endpoint, Method.Post);
+                request.AddJsonBody(message.ToString());
+                RestResponse response = client.Execute(request);
+                if (response.StatusCode == HttpStatusCode.OK)
+                {
+                    JObject jmessage = JObject.Parse(response.Content);
+                    connection = jmessage.GetValue("payUrl").ToString();
+                }
             }
 
-            //string responseFromMomo = SendPaymentRequest(endpoint, message.ToString());
-            //JObject jmessage = JObject.Parse(responseFromMomo);
             return connection;
         }
 
 
-        public string CreatePaymentUrlVNPay(SubscriptionDto subscriptionDto, HttpContext context)
+        public async Task<string> CreatePaymentUrlVNPay(SubscriptionDto subscriptionDto, HttpContext context)
         {
-            PaymentInformationRequest model = new PaymentInformationRequest
+            var paymentUrl = "";
+            var courseId = _unitOfWork.GetRepository<Class>().GetByExpression(c => c.ClassId == subscriptionDto.ClassId).Result.CourseId;
+            if (courseId != null)
             {
-                AccountID = subscriptionDto.UserId,
-                Amount = (double)subscriptionDto.Total,
-                CustomerName = _unitOfWork.GetRepository<ApplicationUser>().GetById(subscriptionDto.UserId).Result.FirstName,
-                OrderID = subscriptionDto.SubscriptionId
-            };
-            var timeZoneById = TimeZoneInfo.FindSystemTimeZoneById(_configuration["TimeZoneId"]);
-            var timeNow = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZoneById);
-            var pay = new VNPayLibrary();
-            var urlCallBack = $"{_configuration["Vnpay:ReturnUrl"]}/{model.OrderID}";
+                var course = await _unitOfWork.GetRepository<Course>().GetById(courseId);
+                PaymentInformationRequest model = new PaymentInformationRequest
+                {
+                    AccountID = subscriptionDto.UserId,
+                    Amount = (double)(course.Price *(100 - course.Discount)/100),
+                    CustomerName = _unitOfWork.GetRepository<ApplicationUser>().GetById(subscriptionDto.UserId).Result.FirstName,
+                    OrderID = subscriptionDto.SubscriptionId
+                };
+                var timeZoneById = TimeZoneInfo.FindSystemTimeZoneById(_configuration["TimeZoneId"]);
+                var timeNow = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZoneById);
+                var pay = new VNPayLibrary();
+                var urlCallBack = $"{_configuration["Vnpay:ReturnUrl"]}/{model.OrderID}";
 
-            pay.AddRequestData("vnp_Version", _configuration["Vnpay:Version"]);
-            pay.AddRequestData("vnp_Command", _configuration["Vnpay:Command"]);
-            pay.AddRequestData("vnp_TmnCode", _configuration["Vnpay:TmnCode"]);
-            pay.AddRequestData("vnp_Amount", ((int)model.Amount * 100).ToString());
-            pay.AddRequestData("vnp_CreateDate", timeNow.ToString("yyyyMMddHHmmss"));
+                pay.AddRequestData("vnp_Version", _configuration["Vnpay:Version"]);
+                pay.AddRequestData("vnp_Command", _configuration["Vnpay:Command"]);
+                pay.AddRequestData("vnp_TmnCode", _configuration["Vnpay:TmnCode"]);
+                pay.AddRequestData("vnp_Amount", ((int)model.Amount * 100).ToString());
+                pay.AddRequestData("vnp_CreateDate", timeNow.ToString("yyyyMMddHHmmss"));
 
-            pay.AddRequestData("vnp_CurrCode", _configuration["Vnpay:CurrCode"]);
-            pay.AddRequestData("vnp_IpAddr", pay.GetIpAddress(context));
-            pay.AddRequestData("vnp_Locale", _configuration["Vnpay:Locale"]);
-            pay.AddRequestData("vnp_OrderInfo", $"Khach hang: {model.CustomerName} thanh toan hoa don {model.OrderID}");
-            pay.AddRequestData("vnp_OrderType", "other");
+                pay.AddRequestData("vnp_CurrCode", _configuration["Vnpay:CurrCode"]);
+                pay.AddRequestData("vnp_IpAddr", pay.GetIpAddress(context));
+                pay.AddRequestData("vnp_Locale", _configuration["Vnpay:Locale"]);
+                pay.AddRequestData("vnp_OrderInfo", $"Khach hang: {model.CustomerName} thanh toan hoa don {model.OrderID}");
+                pay.AddRequestData("vnp_OrderType", "other");
 
-            pay.AddRequestData("vnp_ReturnUrl", urlCallBack);
-            pay.AddRequestData("vnp_TxnRef", model.OrderID.ToString());
+                pay.AddRequestData("vnp_ReturnUrl", urlCallBack);
+                pay.AddRequestData("vnp_TxnRef", model.OrderID.ToString());
 
-            var paymentUrl = pay.CreateRequestUrl(_configuration["Vnpay:BaseUrl"], _configuration["Vnpay:HashSecret"]);
+                 paymentUrl = pay.CreateRequestUrl(_configuration["Vnpay:BaseUrl"], _configuration["Vnpay:HashSecret"]);
+            }
+          
 
             return paymentUrl;
         }

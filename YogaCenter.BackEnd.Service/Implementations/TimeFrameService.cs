@@ -59,7 +59,34 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 {
                     await _unitOfWork.GetRepository<TimeFrame>().Insert(_mapper.Map<TimeFrame>(timeFrameDto));
                     _unitOfWork.SaveChange();
-                    _result.Message.Add(SD.ResponeMessage.CREATE_SUCCESS);
+                    _result.Message.Add(SD.ResponseMessage.CREATE_SUCCESSFUL);
+                }
+                else
+                {
+                    _result.isSuccess = false;
+                }
+            }
+            catch (Exception ex)
+            {
+                _result.isSuccess = false;
+                _result.Message.Add(ex.Message);
+            }
+            return _result;
+        }
+
+        public async Task<AppActionResult> GetTimeFrameById(int timeframeId)
+        {
+            try
+            {
+                bool isValid = true;
+                if (await _unitOfWork.GetRepository<TimeFrame>().GetById(timeframeId) == null)
+                {
+                    isValid = false;
+                    _result.Message.Add($"The timeframe with id {timeframeId} not found");
+                }
+                if (isValid)
+                {
+                    _result.Data = await _unitOfWork.GetRepository<TimeFrame>().GetById(timeframeId);
                 }
                 else
                 {
@@ -88,14 +115,15 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 {
                     await _unitOfWork.GetRepository<TimeFrame>().Update(_mapper.Map<TimeFrame>(timeFrameDto));
                     _unitOfWork.SaveChange();
-                    _result.Message.Add(SD.ResponeMessage.UPDATE_SUCCESS);
+                    _result.Message.Add(SD.ResponseMessage.UPDATE_SUCCESSFUL);
                 }
                 else
                 {
                     _result.isSuccess = false;
                 }
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
                 _result.isSuccess = false;
                 _result.Message.Add(ex.Message);
             }

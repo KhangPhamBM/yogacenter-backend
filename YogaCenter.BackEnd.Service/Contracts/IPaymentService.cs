@@ -11,7 +11,7 @@ namespace YogaCenter.BackEnd.Service.Contracts
 {
     public interface IPaymentService
     {
-        public  string CreatePaymentUrlMomo(SubscriptionDto subscriptionDto);
-        public string CreatePaymentUrlVNPay(SubscriptionDto subscriptionDto, HttpContext context);
+        public  Task<string> CreatePaymentUrlMomo(SubscriptionDto subscriptionDto);
+        public Task<string> CreatePaymentUrlVNPay(SubscriptionDto subscriptionDto, HttpContext context);
     }
 }

@@ -11,5 +11,7 @@ namespace YogaCenter.BackEnd.Service.Contracts
     {
         Task<AppActionResult> CreateTicket(TicketDto ticket);
         Task<AppActionResult> UpdateTicket(TicketDto ticket);
+        Task<AppActionResult> GetTicketById(int ticketId);
+
     }
 }
