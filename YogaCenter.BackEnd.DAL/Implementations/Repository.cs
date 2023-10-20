@@ -60,9 +60,13 @@ namespace YogaCenter.BackEnd.DAL.Implementations
             var query = _dbSet.AsQueryable();
 
             // Apply eager loading
-            foreach (var includeProperty in includeProperties)
+            if(includeProperties != null)
             {
-                query = query.Include(includeProperty);
+                foreach (var includeProperty in includeProperties)
+                {
+                    query = query.Include(includeProperty);
+                }
+
             }
 
             if (filter == null && includeProperties.Length > 0)

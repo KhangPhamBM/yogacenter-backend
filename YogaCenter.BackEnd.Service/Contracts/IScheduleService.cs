@@ -13,7 +13,9 @@ namespace YogaCenter.BackEnd.Service.Contracts
         Task<AppActionResult> GetScheduleByClassId(int id);
         Task<AppActionResult> GetSchedulesByUserId(string UserId);
         Task<AppActionResult> UpdateSchedule(ScheduleDto scheduleDto);
-
         Task<AppActionResult> GenerateScheduleForClass(CreateScheduleRequest request);
+        Task<AppActionResult> GetScheduleOfClassByDate(int classId,  DateTime date);
+        Task<AppActionResult> GetScheduleOfClassByWeek(int classId, int week, int year);
+        Task<AppActionResult> GetScheduleOfClassByMonth(int classId, int month, int year);
     }
 }

@@ -47,7 +47,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 if (isValid)
                 {
                     await _unitOfWork.GetRepository<Ticket>().Insert(_mapper.Map<Ticket>(ticket));
-                    _result.Message.Add(SD.ResponseMessage.CREATE_SUCCESS);
+                    _result.Message.Add(SD.ResponseMessage.CREATE_SUCCESSFUL);
                 }
 
             }
@@ -111,7 +111,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 if (isValid)
                 {
                     await _unitOfWork.GetRepository<Ticket>().Update(_mapper.Map<Ticket>(ticket));
-                    _result.Message.Add(SD.ResponseMessage.UPDATE_SUCCESS);
+                    _result.Message.Add(SD.ResponseMessage.UPDATE_SUCCESSFUL);
                 }
 
             }
@@ -138,7 +138,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 {
                     await _unitOfWork.GetRepository<TicketStatus>().Insert(_mapper.Map<TicketStatus>(ticketStatus));
                     _unitOfWork.SaveChange();
-                    _result.Message.Add(SD.ResponseMessage.CREATE_SUCCESS);
+                    _result.Message.Add(SD.ResponseMessage.CREATE_SUCCESSFUL);
 
                 }
 
@@ -168,7 +168,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 {
                     await _unitOfWork.GetRepository<TicketType>().Insert(_mapper.Map<TicketType>(ticketType));
                     _unitOfWork.SaveChange();
-                    _result.Message.Add(SD.ResponseMessage.CREATE_SUCCESS);
+                    _result.Message.Add(SD.ResponseMessage.CREATE_SUCCESSFUL);
 
                 }
 
@@ -198,7 +198,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 {
                     await _unitOfWork.GetRepository<TicketStatus>().Update(_mapper.Map<TicketStatus>(ticketStatus));
                     _unitOfWork.SaveChange();
-                    _result.Message.Add(SD.ResponseMessage.UPDATE_SUCCESS);
+                    _result.Message.Add(SD.ResponseMessage.UPDATE_SUCCESSFUL);
 
 
                 }
@@ -229,7 +229,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 {
                     await _unitOfWork.GetRepository<TicketType>().Update(_mapper.Map<TicketType>(ticketType));
                     _unitOfWork.SaveChange();
-                    _result.Message.Add(SD.ResponseMessage.UPDATE_SUCCESS);
+                    _result.Message.Add(SD.ResponseMessage.UPDATE_SUCCESSFUL);
 
 
                 }

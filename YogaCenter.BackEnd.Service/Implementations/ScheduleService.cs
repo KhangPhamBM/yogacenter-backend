@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
 using Microsoft.VisualBasic;
+using NPOI.SS.Formula.Functions;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -128,12 +130,16 @@ namespace YogaCenter.BackEnd.Service.Implementations
                         isValid = false;
                         _result.Message.Add($"The room with id {item.RoomId} not found");
                     }
-                }
 
+                    //if (await _unitOfWork.GetRepository<Schedule>().GetByExpression(s => s.RoomId == item.RoomId && s.TimeFrameId == item.TimeFrameId))
+
+                }
+                
                 if (isValid)
                 {
                     var classDto = await _unitOfWork.GetRepository<Class>().GetById(request.ClassId);
                     List<ScheduleDto> schedules = new List<ScheduleDto>();
+                    bool isCollided = false;
                     foreach (var item in request.Schedules)
                     {
                         DateTime currentDate = (DateTime)classDto.StartDate;
@@ -142,27 +148,41 @@ namespace YogaCenter.BackEnd.Service.Implementations
                         
                         while (currentDate <= classDto.EndDate)
                         {
-                            if (currentDate.DayOfWeek == item.DayOfWeek) 
+                            if(await _unitOfWork.GetRepository<Schedule>().GetByExpression(s => s.RoomId == item.RoomId && s.TimeFrameId == item.TimeFrameId && s.Date == currentDate) != null)
                             {
-                                ScheduleDto scheduleDto = new ScheduleDto
+                                isCollided = true;
+                                _result.Message.Add($"Collided schedule time at timeFrameId: {item.TimeFrameId}, on {currentDate.DayOfWeek}, {currentDate}, ar roomId: {item.RoomId}");
+                            } 
+                            if(!isCollided)
+                            {
                                 {
-                                    ClassId = classDto.ClassId,
-                                    Date = currentDate,
-                                    TimeFrameId = item.TimeFrameId,
-                                    RoomId = item.RoomId
-                                };
-                                schedules.Add(scheduleDto);
-                                //await _unitOfWork.GetRepository<Schedule>().Insert(_mapper.Map<Schedule>(scheduleDto));
-                            }
+                                    if (currentDate.DayOfWeek == item.DayOfWeek)
+                                    {
+                                        ScheduleDto scheduleDto = new ScheduleDto
+                                        {
+                                            ClassId = classDto.ClassId,
+                                            Date = currentDate,
+                                            TimeFrameId = item.TimeFrameId,
+                                            RoomId = item.RoomId
+                                        };
+                                        schedules.Add(scheduleDto);
+                                        //await _unitOfWork.GetRepository<Schedule>().Insert(_mapper.Map<Schedule>(scheduleDto));
+                                    }
+                                }
+                            }                            
                             currentDate = currentDate.AddDays(7);
+
                         }
                     }
-                    schedules = schedules.OrderBy(s => s.Date).ThenBy(s => s.TimeFrameId).ToList();
+                    if(!isCollided)
+                    {
+                        schedules = schedules.OrderBy(s => s.Date).ThenBy(s => s.TimeFrameId).ToList();
 
-                    await _unitOfWork.GetRepository<Schedule>().InsertRange(_mapper.Map<IEnumerable<Schedule>>(schedules));
+                        await _unitOfWork.GetRepository<Schedule>().InsertRange(_mapper.Map<IEnumerable<Schedule>>(schedules));
 
-                    _unitOfWork.SaveChange();
-                    _result.Message.Add(SD.ResponseMessage.CREATE_SUCCESSFUL);
+                        _unitOfWork.SaveChange();
+                        _result.Message.Add(SD.ResponseMessage.CREATE_SUCCESSFUL);
+                    }
 
                 }
             }
@@ -175,7 +195,111 @@ namespace YogaCenter.BackEnd.Service.Implementations
             return _result;
         }
 
-        
+        public async Task<AppActionResult> GetScheduleOfClassByDate(int classId, DateTime date)
+        {
+            try
+            {
+                bool isValid = true;
+                if (await _unitOfWork.GetRepository<Class>().GetById(classId) == null)
+                {
+                    isValid = false;
+                    _result.Message.Add($"Class with id {classId} does not exist");
+                }
+                if (isValid)
+                {
+                    _result.Data = await _unitOfWork.GetRepository<Schedule>().GetListByExpression(s => s.ClassId == classId && s.Date == date, null);
+                }
+            }
+            catch (Exception ex)
+            {
+                _result.isSuccess = false;
+                _result.Message.Add(ex.Message);
+            }
+            return _result;
+        }
+
+        public async Task<AppActionResult> GetScheduleOfClassByWeek(int classId, int week, int year)
+        {
+            try
+            {
+                bool isValid = true;
+                if (await _unitOfWork.GetRepository<Class>().GetById(classId) == null)
+                {
+                    isValid = false;
+                    _result.Message.Add($"Class with id {classId} does not exist");
+                }
+
+                if (year < 1900)
+                {
+                    isValid = false;
+                    _result.Message.Add("Year must be equal or greater than 1900");
+                }
+
+                if (week < 1 || week > 53)
+                {
+                    isValid = false;
+                    _result.Message.Add("Invalid week value");
+                }
+
+                if (isValid)
+                {
+                    DateTime[] weekpoints = GetWeekDates(year, week);
+                    _result.Data = await _unitOfWork.GetRepository<Schedule>().GetListByExpression(s => s.ClassId == classId && s.Date <= weekpoints[1] && s.Date >= weekpoints[0] && s.Date.Year == year, null);
+                }
+            }
+            catch (Exception ex)
+            {
+                _result.isSuccess = false;
+                _result.Message.Add(ex.Message);
+            }
+            return _result;
+        }
+
+        public async Task<AppActionResult> GetScheduleOfClassByMonth(int classId, int month, int year)
+        {
+            try
+            {
+                bool isValid = true;
+                if(await _unitOfWork.GetRepository<Class>().GetById(classId) == null)
+                {
+                    isValid = false;
+                    _result.Message.Add($"Class with id {classId} does not exist");
+                }
+
+                if(year < 1900)
+                {
+                    isValid = false;
+                    _result.Message.Add("Year must be equal or greater than 1900");
+                }
+
+                if (month < 1 || month > 12)
+                {
+                    isValid = false;
+                    _result.Message.Add("Invalid month value");
+                }
+
+                if (isValid)
+                {
+                    _result.Data = await _unitOfWork.GetRepository<Schedule>().GetListByExpression(s => s.ClassId == classId && s.Date.Month == month && s.Date.Year == year, null);
+                }
+            } catch (Exception ex)
+            {
+                _result.isSuccess=false;
+                _result.Message.Add(ex.Message);
+            }
+            return _result;
+        }
+
+        private DateTime[] GetWeekDates(int year, int week)
+        {
+            DateTime jan1 = new DateTime(year, 1, 1);
+            DateTime firstDayOfYear = jan1.AddDays(-((int)jan1.DayOfWeek - 1));
+
+            DateTime firstDateOfWeek = firstDayOfYear.AddDays((week - 1) * 7);
+            DateTime lastDateOfWeek = firstDateOfWeek.AddDays(6);
+
+            return new DateTime[] { firstDateOfWeek, lastDateOfWeek };
+        }
 
     }
 }

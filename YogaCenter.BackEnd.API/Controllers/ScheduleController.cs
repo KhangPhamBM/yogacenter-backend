@@ -44,5 +44,27 @@ namespace YogaCenter.BackEnd.API.Controllers
         {
             return await _scheduleService.GenerateScheduleForClass(scheduleDto);
         }
+
+        /*Task<AppActionResult> GetScheduleOfClassByDate(int classId,  DateTime date);
+        Task<AppActionResult> GetScheduleOfClassByWeek(int classId, int week, int year);
+        Task<AppActionResult> GetScheduleOfClassByMonth(int classId, int month, int year);*/
+
+        [HttpGet("get-schedule-of-class-by-date")]
+        public async Task<AppActionResult> GetScheduleOfClassByDate(int classId, DateTime date)
+        {
+            return await _scheduleService.GetScheduleOfClassByDate(classId, date);           
+        }
+
+        [HttpGet("get-schedule-of-class-by-week")]
+        public async Task<AppActionResult> GetScheduleOfClassByWeek(int classId, int week, int year)
+        {
+            return await _scheduleService.GetScheduleOfClassByWeek(classId, week, year);
+        }
+
+        [HttpGet("get-schedule-of-class-by-month")]
+        public async Task<AppActionResult> GetScheduleOfClassByMonth(int classId, int month, int year)
+        {
+            return await _scheduleService.GetScheduleOfClassByMonth(classId, month, year);
+        }
     }
 }

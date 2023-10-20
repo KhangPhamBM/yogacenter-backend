@@ -53,7 +53,6 @@ namespace YogaCenter.BackEnd.Service.Implementations
             _tokenDto = new();
         }
 
-
         public async Task<AppActionResult> Login(LoginRequestDto loginRequest)
         {
             bool isValid = true;
@@ -164,7 +163,6 @@ namespace YogaCenter.BackEnd.Service.Implementations
             }
             return _result;
         }
-
         public async Task<AppActionResult> UpdateAccount(ApplicationUser applicationUser)
         {
             bool isValid = true;
@@ -192,7 +190,6 @@ namespace YogaCenter.BackEnd.Service.Implementations
 
             return _result;
         }
-
         public async Task<AppActionResult> GetAccountByUserId(string id)
         {
             bool isValid = true;
@@ -218,7 +215,6 @@ namespace YogaCenter.BackEnd.Service.Implementations
             }
             return _result;
         }
-
         public async Task<AppActionResult> GetAllAccount()
         {
             try
@@ -233,22 +229,18 @@ namespace YogaCenter.BackEnd.Service.Implementations
                     {
                         var item = await _unitOfWork.GetRepository<IdentityRole>().GetById(role.RoleId);
                         listRole.Add(item);
-
                     }
                     accounts.Add(new AccountResponse { User = account, Role = listRole });
                 }
                 _result.Data = accounts;
-
             }
             catch (Exception ex)
             {
                 _result.isSuccess = false;
                 _result.Message.Add(ex.Message);
-
             }
             return _result;
         }
-
         public async Task<AppActionResult> ChangePassword(ChangePasswordDto changePasswordDto)
         {
             bool isValid = true;
@@ -270,7 +262,6 @@ namespace YogaCenter.BackEnd.Service.Implementations
                     else
                     {
                         _result.Message.Add(SD.ResponseMessage.CREATE_FAILED);
-
                     }
                 }
             }
@@ -281,7 +272,6 @@ namespace YogaCenter.BackEnd.Service.Implementations
             }
             return _result;
         }
-
         public async Task<AppActionResult> SearchApplyingSortingAndFiltering(BaseFilterRequest filterRequest)
         {
             try
