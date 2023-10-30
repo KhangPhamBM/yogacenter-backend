@@ -276,7 +276,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
         {
             try
             {
-                var source = (IQueryable<ApplicationUser>)_unitOfWork.GetRepository<ApplicationUser>().GetByExpression(a => (bool)a.isDeleted);
+                var source = (IOrderedQueryable<ApplicationUser>)_unitOfWork.GetRepository<ApplicationUser>().GetByExpression(a => (bool)a.isDeleted);
                 if (filterRequest != null)
                 {
                     if (filterRequest.pageIndex <= 0 || filterRequest.pageSize <= 0)
@@ -288,7 +288,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                     {
                         if (!filterRequest.keyword.IsEmpty())
                         {
-                            source = (IQueryable<ApplicationUser>)_unitOfWork.GetRepository<ApplicationUser>().GetByExpression(c => (bool)!c.isDeleted && c.UserName.Contains(filterRequest.keyword));
+                            source = (IOrderedQueryable<ApplicationUser>)_unitOfWork.GetRepository<ApplicationUser>().GetByExpression(c => (bool)!c.isDeleted && c.UserName.Contains(filterRequest.keyword));
                         }
                         if (filterRequest.filterInfoList != null)
                         {

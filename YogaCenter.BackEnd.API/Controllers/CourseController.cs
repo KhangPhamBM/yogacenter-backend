@@ -52,9 +52,9 @@ namespace YogaCenter.BackEnd.API.Controllers
             return await _courseService.DeleteCourse(id);
         }
 
-        [HttpGet]
+        [HttpPost]
         [Route("Get-course-with-searching")]
-        public async Task<AppActionResult> GetCourseWithSearching([FromBody] BaseFilterRequest baseFilterRequest)
+        public async Task<AppActionResult> GetCourseWithSearching(BaseFilterRequest baseFilterRequest)
         {
             return await _courseService.SearchApplyingSortingAndFiltering(baseFilterRequest);
         }

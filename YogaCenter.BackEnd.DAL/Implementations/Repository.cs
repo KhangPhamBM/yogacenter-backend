@@ -55,7 +55,7 @@ namespace YogaCenter.BackEnd.DAL.Implementations
 
         }
 
-        public async Task<IEnumerable<T>> GetListByExpression(Expression<Func<T, bool>> filter, params Expression<Func<T, object>>[] includeProperties)
+        public async Task<IOrderedQueryable<T>> GetListByExpression(Expression<Func<T, bool>> filter, params Expression<Func<T, object>>[] includeProperties)
         {
             var query = _dbSet.AsQueryable();
 
@@ -71,17 +71,20 @@ namespace YogaCenter.BackEnd.DAL.Implementations
 
             if (filter == null && includeProperties.Length > 0)
             {
-                return await query.ToListAsync();
+                return (IOrderedQueryable<T>)await query.ToListAsync();
             }
 
-            return await query.Where(filter).ToListAsync();
+            return (IOrderedQueryable<T>)query.Where(filter);
         }
 
         public async Task<T> GetByExpression(Expression<Func<T, bool>> filter, params Expression<Func<T, object>>[] includeProperties)
         {
-            foreach (var includeProperty in includeProperties)
+            if(includeProperties != null)
             {
-                 _dbSet.Include(includeProperty);
+                foreach (var includeProperty in includeProperties)
+                {
+                    _dbSet.Include(includeProperty);
+                }
             }
             return await _dbSet.SingleOrDefaultAsync(filter);
         }

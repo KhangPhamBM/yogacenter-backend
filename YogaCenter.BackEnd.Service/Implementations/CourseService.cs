@@ -36,7 +36,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
             try
             {
                 bool isValid = true;
-                if (await _unitOfWork.GetRepository<Course>().GetByExpression(c => c.CourseName == course.CourseName) != null)
+                if (await _unitOfWork.GetRepository<Course>().GetByExpression(c => c.CourseName == course.CourseName, null) != null)
                 {
                     _result.Message.Add("The course is existed");
                     isValid = false;
@@ -179,7 +179,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
         {
             try
             {
-                var source = (IQueryable<CourseDto>)_unitOfWork.GetRepository<Course>().GetByExpression(c => (bool)!c.IsDeleted);
+                var source = await _unitOfWork.GetRepository<Course>().GetListByExpression(c => (bool)!c.IsDeleted, null);
                 if (filterRequest != null)
                 {
                     if (filterRequest.pageIndex <= 0 || filterRequest.pageSize <= 0)
@@ -190,7 +190,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                     {
                         if (!filterRequest.keyword.IsEmpty())
                         {
-                            source = (IQueryable<CourseDto>)_unitOfWork.GetRepository<Course>().GetByExpression(c => (bool)!c.IsDeleted && c.CourseName.Contains(filterRequest.keyword));
+                            source = await _unitOfWork.GetRepository<Course>().GetListByExpression(c => (bool)!c.IsDeleted && c.CourseName.Contains(filterRequest.keyword), null);
                         }
                         if (filterRequest.filterInfoList != null)
                         {
