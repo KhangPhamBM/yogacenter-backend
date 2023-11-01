@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
 using YogaCenter.BackEnd.Common.Dto;
 using YogaCenter.BackEnd.DAL.Models;
 using YogaCenter.BackEnd.Service.Contracts;
@@ -36,16 +37,16 @@ namespace YogaCenter.BackEnd.API.Controllers
             return await _classService.GetClassById(id);
         }
 
-        [HttpGet("get-all-classes")]
-        public async Task<AppActionResult> GetAllClasses()
+        [HttpPost("get-all-classes")]
+        public async Task<AppActionResult> GetAllClasses(int pageIndex, int pageSize, IList<SortInfo> sortInfos)
         {
-            return await _classService.GetAllClass();
+            return await _classService.GetAllClass(pageIndex, pageSize, sortInfos);
         }
 
-        [HttpGet("get-all-available-classes")]
-        public async Task<AppActionResult> GetAllAvailablClasses()
+        [HttpPost("get-all-available-classes")]
+        public async Task<AppActionResult> GetAllAvailablClasses(int pageIndex, int pageSize, IList<SortInfo> sortInfos)
         {
-            return await _classService.GetAllAvailableClass();
+            return await _classService.GetAllAvailableClass(pageIndex, pageSize, sortInfos);
         }
 
     }

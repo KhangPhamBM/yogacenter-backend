@@ -22,9 +22,9 @@ namespace YogaCenter.BackEnd.DAL.Implementations
             _dbSet = context.Set<T>();
         }
 
-        public async Task<IEnumerable<T>> GetAll()
+        public async Task<IOrderedQueryable<T>> GetAll()
         {
-            return await _dbSet.AsNoTracking().ToListAsync();
+            return (IOrderedQueryable<T>)_dbSet.AsNoTracking();
         }
 
         public async Task<T> GetById(object id)

@@ -15,7 +15,7 @@ namespace YogaCenter.BackEnd.Service.Contracts
         Task<AppActionResult> UpdateAccount(ApplicationUser applicationUser);
         Task<AppActionResult> ChangePassword(ChangePasswordDto changePasswordDto);
         Task<AppActionResult> GetAccountByUserId(string id);
-        Task<AppActionResult> GetAllAccount();
+        Task<AppActionResult> GetAllAccount(int pageIndex, int pageSize, IList<SortInfo> sortInfos);
         Task<AppActionResult> SearchApplyingSortingAndFiltering(BaseFilterRequest filterRequest);
 
     }

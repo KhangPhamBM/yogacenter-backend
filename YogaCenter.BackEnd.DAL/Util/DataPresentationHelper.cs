@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -22,10 +23,10 @@ namespace YogaCenter.BackEnd.DAL.Util
                     foreach (var filterInfo in filterList)
                     {
                         Expression<Func<T, bool>> subFilter = null;
-                        if (!filterInfo.isValueFilter)
+                        /*if (!filterInfo.isValueFilter)
                             subFilter = CreateRangeFilterExpression<T>(filterInfo);
-                        else 
-                            subFilter = CreateValueFilterExpression<T>(filterInfo);
+                        else */
+                            subFilter = CreateRangeFilterExpression<T>(filterInfo);
 
                         if (subFilter != null)
                         {
@@ -61,7 +62,7 @@ namespace YogaCenter.BackEnd.DAL.Util
             return Expression.Lambda<Func<T, bool>>(andAlso, parameter);
         }
 
-        private static Expression<Func<T, bool>> CreateValueFilterExpression<T>(FilterInfo filterInfoToValue)
+        /*private static Expression<Func<T, bool>> CreateValueFilterExpression<T>(FilterInfo filterInfoToValue)
         {
             var parameter = Expression.Parameter(typeof(T), "c");
             var conjunctions = new List<Expression>();
@@ -74,9 +75,9 @@ namespace YogaCenter.BackEnd.DAL.Util
                 // Create equality expressions for each value
                 foreach (var filterValue in values)
                 {
+                    var property = Expression.Property(parameter, fieldName);  
                     var value = Expression.Constant(filterValue);
-                    var property = Expression.Property(parameter, fieldName);
-                    var equality = Expression.Equal(property, value);
+                        var equality = Expression.Equal(property, value);
                     conjunctions.Add(equality);
                 }
             }
@@ -84,12 +85,10 @@ namespace YogaCenter.BackEnd.DAL.Util
             {
                 throw new InvalidOperationException("filterValues must be of type IEnumerable<object> for filtering.");
             }
-
             // Use OR for the same field name and AND for different field names
             var combinedFilter = conjunctions.Aggregate((current, next) => Expression.Or(current, next));
-
             return Expression.Lambda<Func<T, bool>>(combinedFilter, parameter);
-        }
+        }*/
 
         public static IOrderedQueryable<T> ApplySorting<T>(IOrderedQueryable<T> filteredData, IList<SortInfo> sortingList)
         {
@@ -122,7 +121,6 @@ namespace YogaCenter.BackEnd.DAL.Util
             }
 
             return orderedQuery;
-
         }
     }
 }

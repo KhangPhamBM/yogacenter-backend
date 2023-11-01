@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using NPOI.Util;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -76,7 +77,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
             return _result;
         }
 
-        public async Task<AppActionResult> GetClassDetailsByClassId(int classId)
+        public async Task<AppActionResult> GetClassDetailsByClassId(int classId, int pageIndex, int pageSize, IList<SortInfo> sortInfos)
         {
             try
             {
@@ -84,18 +85,26 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 if(await _unitOfWork.GetRepository<Class>().GetById(classId) == null)
                 {
                     isValid = false;
-                    _result.Message.Add("The class with id {detail.ClassDetailId} not found");
+                    _result.Message.Add($"The class with id {classId} not found");
                 }
                 if(isValid)
                 {
                     var details = await _unitOfWork.GetRepository<ClassDetail>().GetListByExpression(cd => cd.ClassId == classId);
                     if (details != null) {
+                        if (sortInfos != null)
+                        {
+                            details = DataPresentationHelper.ApplySorting(details, sortInfos);
+                        }
+                        if (pageIndex > 0 && pageSize > 0)
+                        {
+                            details = DataPresentationHelper.ApplyPaging(details, pageIndex, pageSize);
+                        }
                         _result.Data = details;
                     }
                     else
                     {
                         _result.isSuccess = false;
-                        _result.Message.Add("The class detail with id {detail.ClassDetailId} not found");
+                        _result.Message.Add($"The class detail with class id {classId} not found");
                     }
                 }
             }

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using YogaCenter.BackEnd.Common.Dto;
+using YogaCenter.BackEnd.Service.Implementations;
 
 namespace YogaCenter.BackEnd.Service.Contracts
 {
@@ -12,5 +13,6 @@ namespace YogaCenter.BackEnd.Service.Contracts
         Task<AppActionResult> CreateTicketStatus(TicketStatusDto ticketStatus);
         Task<AppActionResult> UpdateTicketStatus(TicketStatusDto ticketStatus);
         Task<AppActionResult> GetTicketStatusById(int id);
+        Task<AppActionResult> GetTicketWithSearching(BaseFilterRequest baseFilterRequest);
     }
 }

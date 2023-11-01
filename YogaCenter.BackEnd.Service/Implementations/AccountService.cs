@@ -215,7 +215,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
             }
             return _result;
         }
-        public async Task<AppActionResult> GetAllAccount()
+        public async Task<AppActionResult> GetAllAccount(int pageIndex, int pageSize, IList<SortInfo> sortInfos)
         {
             try
             {
@@ -232,7 +232,16 @@ namespace YogaCenter.BackEnd.Service.Implementations
                     }
                     accounts.Add(new AccountResponse { User = account, Role = listRole });
                 }
-                _result.Data = accounts;
+                var data = accounts.AsQueryable().OrderBy(x => x.User.Id);
+                if (sortInfos != null)
+                {
+                    data = DataPresentationHelper.ApplySorting(data, sortInfos);
+                }
+                if(pageIndex > 0 && pageSize > 0)
+                {
+                    data = DataPresentationHelper.ApplyPaging(data, pageIndex, pageSize);
+                }
+                _result.Data = data;
             }
             catch (Exception ex)
             {
@@ -276,7 +285,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
         {
             try
             {
-                var source = (IOrderedQueryable<ApplicationUser>)_unitOfWork.GetRepository<ApplicationUser>().GetByExpression(a => (bool)a.isDeleted);
+                var source = (IOrderedQueryable<ApplicationUser>) await _unitOfWork.GetRepository<ApplicationUser>().GetByExpression(a => (bool)a.isDeleted, null);
                 if (filterRequest != null)
                 {
                     if (filterRequest.pageIndex <= 0 || filterRequest.pageSize <= 0)
@@ -288,7 +297,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                     {
                         if (!filterRequest.keyword.IsEmpty())
                         {
-                            source = (IOrderedQueryable<ApplicationUser>)_unitOfWork.GetRepository<ApplicationUser>().GetByExpression(c => (bool)!c.isDeleted && c.UserName.Contains(filterRequest.keyword));
+                            source = (IOrderedQueryable<ApplicationUser>)await _unitOfWork.GetRepository<ApplicationUser>().GetByExpression(c => (bool)!c.isDeleted && c.UserName.Contains(filterRequest.keyword), null);
                         }
                         if (filterRequest.filterInfoList != null)
                         {

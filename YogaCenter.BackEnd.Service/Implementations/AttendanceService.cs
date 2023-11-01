@@ -73,12 +73,20 @@ namespace YogaCenter.BackEnd.Service.Implementations
             return _result;
         }
 
-        public async Task<AppActionResult> GetAttendancesByClassId(int classId)
+        public async Task<AppActionResult> GetAttendancesByClassId(int classId, int pageIndex, int pageSize, IList<SortInfo> sortInfos)
         {
             try
             {
-                _result.Data = await _unitOfWork.GetRepository<Attendance>().GetListByExpression(c => c.ClassDetail.ClassId == classId);
-
+                var attendances = await _unitOfWork.GetRepository<Attendance>().GetListByExpression(c => c.ClassDetail.ClassId == classId);
+                if (sortInfos != null)
+                {
+                    attendances = DataPresentationHelper.ApplySorting(attendances, sortInfos);
+                }
+                if (pageIndex > 0 && pageSize > 0)
+                {
+                    attendances = DataPresentationHelper.ApplyPaging(attendances, pageIndex, pageSize);
+                }
+                _result.Data = attendances;
             }
             catch (Exception ex)
             {
@@ -88,12 +96,20 @@ namespace YogaCenter.BackEnd.Service.Implementations
             return _result;
         }
 
-        public async Task<AppActionResult> GetAttendancesByScheduleId(int scheduleId)
+        public async Task<AppActionResult> GetAttendancesByScheduleId(int scheduleId, int pageIndex, int pageSize, IList<SortInfo> sortInfos)
         {
             try
             {
-                _result.Data = await _unitOfWork.GetRepository<Attendance>().GetListByExpression(c => c.ScheduleId == scheduleId);
-
+                var attendances = await _unitOfWork.GetRepository<Attendance>().GetListByExpression(c => c.ScheduleId == scheduleId);
+                if (sortInfos != null)
+                {
+                    attendances = DataPresentationHelper.ApplySorting(attendances, sortInfos);
+                }
+                if (pageIndex > 0 && pageSize > 0)
+                {
+                    attendances = DataPresentationHelper.ApplyPaging(attendances, pageIndex, pageSize);
+                }
+                _result.Data = attendances;
             }
             catch (Exception ex)
             {
@@ -104,12 +120,20 @@ namespace YogaCenter.BackEnd.Service.Implementations
 
         }
 
-        public async Task<AppActionResult> GetAttendancesByUserId(string userId)
+        public async Task<AppActionResult> GetAttendancesByUserId(string userId, int pageIndex, int pageSize, IList<SortInfo> sortInfos)
         {
             try
             {
-                _result.Data = await _unitOfWork.GetRepository<Attendance>().GetListByExpression(c => c.ClassDetail.UserId == userId);
-
+                var attendances = await _unitOfWork.GetRepository<Attendance>().GetListByExpression(c => c.ClassDetail.UserId == userId);
+                if (sortInfos != null)
+                {
+                    attendances = DataPresentationHelper.ApplySorting(attendances, sortInfos);
+                }
+                if (pageIndex > 0 && pageSize > 0)
+                {
+                    attendances = DataPresentationHelper.ApplyPaging(attendances, pageIndex, pageSize);
+                }
+                _result.Data = attendances;
             }
             catch (Exception ex)
             {

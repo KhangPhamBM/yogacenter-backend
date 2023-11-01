@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using NPOI.Util;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -129,11 +130,20 @@ namespace YogaCenter.BackEnd.Service.Implementations
             return _result;
         }
 
-        public async Task<AppActionResult> GetAllClass()
+        public async Task<AppActionResult> GetAllClass(int pageIndex, int pageSize, IList<SortInfo> sortInfos)
         {
             try
             {
-                _result.Data = await _unitOfWork.GetRepository<Class>().GetAll();
+                var classes = await _unitOfWork.GetRepository<Class>().GetAll();
+                if (sortInfos != null)
+                {
+                    classes = DataPresentationHelper.ApplySorting(classes, sortInfos);
+                }
+                if (pageIndex > 0 && pageSize > 0)
+                {
+                    classes = DataPresentationHelper.ApplyPaging(classes, pageIndex, pageSize);
+                }
+                _result.Data = classes;
             }
             catch (Exception ex)
             {
@@ -143,11 +153,20 @@ namespace YogaCenter.BackEnd.Service.Implementations
             return _result;
         }
 
-        public async Task<AppActionResult> GetAllAvailableClass()
+        public async Task<AppActionResult> GetAllAvailableClass(int pageIndex, int pageSize, IList<SortInfo> sortInfos)
         {
             try
             {
-                _result.Data = await _unitOfWork.GetRepository<Class>().GetByExpression(c => !(bool)c.IsDeleted);
+                var classes = await _unitOfWork.GetRepository<Class>().GetListByExpression(c => !(bool)c.IsDeleted);
+                if (sortInfos != null)
+                {
+                    classes = DataPresentationHelper.ApplySorting(classes, sortInfos);
+                }
+                if (pageIndex > 0 && pageSize > 0)
+                {
+                    classes = DataPresentationHelper.ApplyPaging(classes, pageIndex, pageSize);
+                }
+                _result.Data = classes;
             }
             catch (Exception ex)
             {

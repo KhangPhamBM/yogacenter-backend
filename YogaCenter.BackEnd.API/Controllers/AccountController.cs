@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
 using YogaCenter.BackEnd.Common.Dto;
 using YogaCenter.BackEnd.DAL.Models;
 using YogaCenter.BackEnd.Service.Contracts;
@@ -43,10 +44,10 @@ namespace YogaCenter.BackEnd.API.Controllers
 
         }
 
-        [HttpGet("get-all-account")]
-        public async Task<AppActionResult> GetAllAccount()
+        [HttpPost("get-all-account")]
+        public async Task<AppActionResult> GetAllAccount(int pageIndex, int pageSize, IList<SortInfo> sortInfos)
         {
-            return await _accountService.GetAllAccount();
+            return await _accountService.GetAllAccount(pageIndex, pageSize, sortInfos);
         }
         [HttpPut("change-password")]
         public async Task<AppActionResult> ChangePassword(ChangePasswordDto dto)
@@ -54,8 +55,8 @@ namespace YogaCenter.BackEnd.API.Controllers
             return await _accountService.ChangePassword(dto);
         }
 
-        [HttpGet("get-accounts-with-searching")]
-        public async Task<AppActionResult> GetAccountWithSearching([FromBody] BaseFilterRequest baseFilterRequest)
+        [HttpPost("get-accounts-with-searching")]
+        public async Task<AppActionResult> setAccountWithSearching(BaseFilterRequest baseFilterRequest)
         {
             return await _accountService.SearchApplyingSortingAndFiltering(baseFilterRequest);
         }

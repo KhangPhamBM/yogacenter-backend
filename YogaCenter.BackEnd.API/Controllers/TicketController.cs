@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using YogaCenter.BackEnd.Common.Dto;
 using YogaCenter.BackEnd.Service.Contracts;
+using YogaCenter.BackEnd.Service.Implementations;
 
 namespace YogaCenter.BackEnd.API.Controllers
 {
@@ -71,6 +72,13 @@ namespace YogaCenter.BackEnd.API.Controllers
         public async Task<AppActionResult> UpdateTicketStatus(TicketStatusDto ticketStatusDto)
         {
             return await _ticketStatusService.UpdateTicketStatus(ticketStatusDto);
+        }
+
+        [HttpPost]
+        [Route("Get-ticket-with-searching")]
+        public async Task<AppActionResult> GetTicketWithSearching(BaseFilterRequest baseFilterRequest)
+        {
+            return await _ticketService.SearchApplyingSortingAndFiltering(baseFilterRequest);
         }
     }
 }

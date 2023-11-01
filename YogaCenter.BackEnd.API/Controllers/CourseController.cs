@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
 using YogaCenter.BackEnd.Common.Dto;
 using YogaCenter.BackEnd.DAL.Models;
 using YogaCenter.BackEnd.Service.Contracts;
@@ -38,11 +39,11 @@ namespace YogaCenter.BackEnd.API.Controllers
             return await _courseService.GetCourseById(id);
         }
 
-        [HttpGet]
+        [HttpPost]
         [Route("Get-all-course")]
-        public async Task<AppActionResult> GetAllCourse()
+        public async Task<AppActionResult> GetAllCourse(int pageIndex, int pageSize, IList<SortInfo> sortInfos)
         {
-            return await _courseService.GetAll();
+            return await _courseService.GetAll(pageIndex, pageSize, sortInfos);
         }
 
         [HttpPost]

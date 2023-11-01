@@ -10,7 +10,7 @@ namespace YogaCenter.BackEnd.DAL.Contracts
 {
     public interface IRepository<T> where T : class
     {
-        Task< IEnumerable<T>> GetAll();
+        Task<IOrderedQueryable<T>> GetAll();
         Task<T> GetById(object id);
         Task<T> GetByExpression(Expression<Func<T, bool>> filter, params Expression<Func<T, object>>[] includeProperties);
         Task<IOrderedQueryable<T>> GetListByExpression(Expression<Func<T, bool>> filter, params Expression<Func<T, object>>[] includeProperties);

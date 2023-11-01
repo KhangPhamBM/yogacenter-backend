@@ -34,22 +34,22 @@ namespace YogaCenter.BackEnd.API.Controllers
             return await _attendanceService.UpdateAttendance(attendances);
         }
 
-        [HttpGet("get-attendances-by-classId")]
-        public async Task<AppActionResult> GetAttendancesByClassId(int classId)
+        [HttpPost("get-attendances-by-classId")]
+        public async Task<AppActionResult> GetAttendancesByClassId(int classId, int pageIndex, int pageSize, IList<SortInfo> sortInfos)
         {
-            return await _attendanceService.GetAttendancesByClassId(classId);
+            return await _attendanceService.GetAttendancesByClassId(classId, pageIndex, pageSize, sortInfos);
         }
 
-        [HttpGet("get-attendances-by-userId")]
-        public async Task<AppActionResult> GetAttendancesByUserId(string userId)
+        [HttpPost("get-attendances-by-userId")]
+        public async Task<AppActionResult> GetAttendancesByUserId(string userId, int pageIndex, int pageSize, IList<SortInfo> sortInfos)
         {
-            return await _attendanceService.GetAttendancesByUserId(userId);
+            return await _attendanceService.GetAttendancesByUserId(userId, pageIndex, pageSize, sortInfos);
         }
 
-        [HttpGet("get-attendances-by-scheduleId")]
-        public async Task<AppActionResult> GetAttendancesByScheduleId(int schduleId)
+        [HttpPost("get-attendances-by-scheduleId")]
+        public async Task<AppActionResult> GetAttendancesByScheduleId(int schduleId, int pageIndex, int pageSize, IList<SortInfo> sortInfos)
         {
-            return await _attendanceService.GetAttendancesByScheduleId(schduleId);
+            return await _attendanceService.GetAttendancesByScheduleId(schduleId, pageIndex, pageSize, sortInfos);
         }
     }
 }

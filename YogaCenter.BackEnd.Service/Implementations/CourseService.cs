@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using NPOI.SS.Formula.Functions;
+using NPOI.Util;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -120,13 +121,21 @@ namespace YogaCenter.BackEnd.Service.Implementations
             return _result;
         }
 
-        public async Task<AppActionResult> GetAll()
+        public async Task<AppActionResult> GetAll(int pageIndex, int pageSize, IList<SortInfo> sortInfos)
         {
             try
             {
-                var courseList = _unitOfWork.GetRepository<Course>().GetAll();
-                if(courseList.Result.Any()) { 
-                    _result.Data = courseList.Result;
+                var courseList = await _unitOfWork.GetRepository<Course>().GetAll();
+                if(courseList.Any()) {
+                    if (sortInfos != null)
+                    {
+                        courseList = DataPresentationHelper.ApplySorting(courseList, sortInfos);
+                    }
+                    if (pageIndex > 0 && pageSize > 0)
+                    {
+                        courseList = DataPresentationHelper.ApplyPaging(courseList, pageIndex, pageSize);
+                    }
+                    _result.Data = courseList;
                 } else
                 {
                     _result.Message.Add("Empty course list");
