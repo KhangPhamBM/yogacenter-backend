@@ -4,10 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using YogaCenter.BackEnd.Common.Dto;
+using YogaCenter.BackEnd.DAL.Models;
 
 namespace YogaCenter.BackEnd.Service.Contracts
 {
-    public interface ITicketService
+    public interface ITicketService : ISearching<Ticket>
     {
         Task<AppActionResult> CreateTicket(TicketDto ticket);
         Task<AppActionResult> UpdateTicket(TicketDto ticket);

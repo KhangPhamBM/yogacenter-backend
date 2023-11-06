@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web.WebPages;
 using YogaCenter.BackEnd.Common.Dto;
 using YogaCenter.BackEnd.DAL.Contracts;
 using YogaCenter.BackEnd.DAL.Models;
@@ -78,6 +79,50 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 else
                 {
                     _result.isSuccess = false;
+                }
+            }
+            catch (Exception ex)
+            {
+                _result.isSuccess = false;
+                _result.Message.Add(ex.Message);
+            }
+            return _result;
+        }
+
+        public async Task<AppActionResult> SearchApplyingSortingAndFiltering(BaseFilterRequest filterRequest)
+        {
+            try
+            {
+                var source = await _unitOfWork.GetRepository<Room>().GetAll();
+                if (filterRequest != null)
+                {
+                    if (filterRequest.pageIndex <= 0 || filterRequest.pageSize <= 0)
+                    {
+                        _result.Message.Add($"Invalid value of pageIndex or pageSize");
+                        _result.isSuccess = false;
+                    }
+                    else
+                    {
+                        if (!filterRequest.keyword.IsEmpty())
+                        {
+                            source = await _unitOfWork.GetRepository<Room>().GetListByExpression(c => c.RoomName.Contains(filterRequest.keyword), null);
+                        }
+                        if (filterRequest.filterInfoList != null)
+                        {
+                            source = DataPresentationHelper.ApplyFiltering(source, filterRequest.filterInfoList);
+                        }
+
+                        if (filterRequest.sortInfoList != null)
+                        {
+                            source = DataPresentationHelper.ApplySorting(source, filterRequest.sortInfoList);
+                        }
+                        source = DataPresentationHelper.ApplyPaging(source, filterRequest.pageIndex, filterRequest.pageSize);
+                        _result.Data = source;
+                    }
+                }
+                else
+                {
+                    _result.Data = source;
                 }
             }
             catch (Exception ex)

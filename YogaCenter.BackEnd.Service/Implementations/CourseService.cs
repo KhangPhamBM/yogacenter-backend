@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using NPOI.SS.Formula.Functions;
+using NPOI.Util;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -36,7 +37,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
             try
             {
                 bool isValid = true;
-                if (await _unitOfWork.GetRepository<Course>().GetByExpression(c => c.CourseName == course.CourseName) != null)
+                if (await _unitOfWork.GetRepository<Course>().GetByExpression(c => c.CourseName == course.CourseName, null) != null)
                 {
                     _result.Message.Add("The course is existed");
                     isValid = false;
@@ -120,13 +121,21 @@ namespace YogaCenter.BackEnd.Service.Implementations
             return _result;
         }
 
-        public async Task<AppActionResult> GetAll()
+        public async Task<AppActionResult> GetAll(int pageIndex, int pageSize, IList<SortInfo> sortInfos)
         {
             try
             {
-                var courseList = _unitOfWork.GetRepository<Course>().GetAll();
-                if(courseList.Result.Any()) { 
-                    _result.Data = courseList.Result;
+                var courseList = await _unitOfWork.GetRepository<Course>().GetAll();
+                if(courseList.Any()) {
+                    if (sortInfos != null)
+                    {
+                        courseList = DataPresentationHelper.ApplySorting(courseList, sortInfos);
+                    }
+                    if (pageIndex > 0 && pageSize > 0)
+                    {
+                        courseList = DataPresentationHelper.ApplyPaging(courseList, pageIndex, pageSize);
+                    }
+                    _result.Data = courseList;
                 } else
                 {
                     _result.Message.Add("Empty course list");
@@ -179,7 +188,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
         {
             try
             {
-                var source = (IQueryable<CourseDto>)_unitOfWork.GetRepository<Course>().GetByExpression(c => (bool)!c.IsDeleted);
+                var source = await _unitOfWork.GetRepository<Course>().GetListByExpression(c => (bool)!c.IsDeleted, null);
                 if (filterRequest != null)
                 {
                     if (filterRequest.pageIndex <= 0 || filterRequest.pageSize <= 0)
@@ -190,7 +199,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                     {
                         if (!filterRequest.keyword.IsEmpty())
                         {
-                            source = (IQueryable<CourseDto>)_unitOfWork.GetRepository<Course>().GetByExpression(c => (bool)!c.IsDeleted && c.CourseName.Contains(filterRequest.keyword));
+                            source = await _unitOfWork.GetRepository<Course>().GetListByExpression(c => (bool)!c.IsDeleted && c.CourseName.Contains(filterRequest.keyword), null);
                         }
                         if (filterRequest.filterInfoList != null)
                         {

@@ -12,9 +12,9 @@ namespace YogaCenter.BackEnd.Service.Contracts
     {
         Task<AppActionResult> AddListAttendance(IEnumerable<AttendanceDto> attendances); 
         Task<AppActionResult> UpdateAttendance(IEnumerable<AttendanceDto> attendances);
-        Task<AppActionResult> GetAttendancesByScheduleId(int scheduleId);
-        Task<AppActionResult> GetAttendancesByClassId(int classId);
-        Task<AppActionResult> GetAttendancesByUserId(string userId);
+        Task<AppActionResult> GetAttendancesByScheduleId(int scheduleId, int pageIndex, int pageSize, IList<SortInfo> sortInfos);
+        Task<AppActionResult> GetAttendancesByClassId(int classId, int pageIndex, int pageSize, IList<SortInfo> sortInfos);
+        Task<AppActionResult> GetAttendancesByUserId(string userId, int pageIndex, int pageSize, IList<SortInfo> sortInfos);
 
     }
 }

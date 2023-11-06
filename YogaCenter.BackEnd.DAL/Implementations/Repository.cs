@@ -22,9 +22,9 @@ namespace YogaCenter.BackEnd.DAL.Implementations
             _dbSet = context.Set<T>();
         }
 
-        public async Task<IEnumerable<T>> GetAll()
+        public async Task<IOrderedQueryable<T>> GetAll()
         {
-            return await _dbSet.AsNoTracking().ToListAsync();
+            return (IOrderedQueryable<T>)_dbSet.AsNoTracking();
         }
 
         public async Task<T> GetById(object id)
@@ -55,7 +55,7 @@ namespace YogaCenter.BackEnd.DAL.Implementations
 
         }
 
-        public async Task<IEnumerable<T>> GetListByExpression(Expression<Func<T, bool>> filter, params Expression<Func<T, object>>[] includeProperties)
+        public async Task<IOrderedQueryable<T>> GetListByExpression(Expression<Func<T, bool>> filter, params Expression<Func<T, object>>[] includeProperties)
         {
             var query = _dbSet.AsQueryable();
 
@@ -71,10 +71,10 @@ namespace YogaCenter.BackEnd.DAL.Implementations
 
             if (filter == null && includeProperties.Length > 0)
             {
-                return await query.ToListAsync();
+                return (IOrderedQueryable<T>)await query.ToListAsync();
             }
 
-            return await query.Where(filter).ToListAsync();
+            return (IOrderedQueryable<T>)query.Where(filter);
         }
 
         public async Task<T> GetByExpression(Expression<Func<T, bool>> filter, params Expression<Func<T, object>>[] includeProperties)
