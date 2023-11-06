@@ -118,7 +118,14 @@ namespace YogaCenter.BackEnd.DAL.Util
 
         }
 
+        public class AttendanceStatus
+        {
+            public static int NOT_YET = 1;
+            public static int ATTENDED = 2;
+            public static int ABSENT = 3;
 
+
+        }
         public class ResponseMessage
         {
             public static string CREATE_SUCCESSFUL = "CREATE_SUCCESSFULLY";
@@ -127,7 +134,7 @@ namespace YogaCenter.BackEnd.DAL.Util
             public static string CREATE_FAILED = "CREATE_FAILED";
             public static string UPDATE_FAILED = "UPDATE_FAILED";
             public static string DELETE_FAILED = "DELETE_FAILED";
-            public static string LOGIN_FAILED = "DELETE_FAILED";
+            public static string LOGIN_FAILED = "LOGIN_FAILED";
         }
     }
 

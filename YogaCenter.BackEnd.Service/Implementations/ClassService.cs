@@ -27,7 +27,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
         }
 
 
-        public async Task<AppActionResult> CreateClass(ClassDto classDto)
+        public async Task<AppActionResult> CreateClass(ClassRequest classDto)
         {
             try
             {
@@ -93,7 +93,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
             return _result;
         }
 
-        public async Task<AppActionResult> UpdateClass(ClassDto classDto)
+        public async Task<AppActionResult> UpdateClass(ClassRequest classDto)
         {
             try
             {
@@ -133,7 +133,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
         {
             try
             {
-                _result.Data = await _unitOfWork.GetRepository<Class>().GetAll();
+                _result.Data = _mapper.Map<IEnumerable<ClassRequest>>(await _unitOfWork.GetRepository<Class>().GetAll());
             }
             catch (Exception ex)
             {

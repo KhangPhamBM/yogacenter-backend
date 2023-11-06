@@ -15,13 +15,7 @@ namespace YogaCenter.BackEnd.API.Controllers
             _attendanceService = attendanceService;
         }
 
-        /*
-         Task<AppActionResult> AddListAttendance(IEnumerable<AttendanceDto> attendances); 
-        Task<AppActionResult> UpdateAttendance(IEnumerable<AttendanceDto> attendances);
-        Task<AppActionResult> GetAttendancesByScheduleId(int scheduleId);
-        Task<AppActionResult> GetAttendancesByClassId(int classId);
-        Task<AppActionResult> GetAttendancesByUserId(string userId);
-         */
+       
         [HttpPost("add-list-attendance")]
         public async Task<AppActionResult> AddListAttendance([FromBody] IEnumerable<AttendanceDto> attendances)
         {
@@ -34,22 +28,22 @@ namespace YogaCenter.BackEnd.API.Controllers
             return await _attendanceService.UpdateAttendance(attendances);
         }
 
-        [HttpGet("get-attendances-by-classId")]
+        [HttpGet("get-attendances-by-classId/{classId:int}")]
         public async Task<AppActionResult> GetAttendancesByClassId(int classId)
         {
             return await _attendanceService.GetAttendancesByClassId(classId);
         }
 
-        [HttpGet("get-attendances-by-userId")]
+        [HttpGet("get-attendances-by-userId/{userId:int}")]
         public async Task<AppActionResult> GetAttendancesByUserId(string userId)
         {
             return await _attendanceService.GetAttendancesByUserId(userId);
         }
 
-        [HttpGet("get-attendances-by-scheduleId")]
-        public async Task<AppActionResult> GetAttendancesByScheduleId(int schduleId)
+        [HttpGet("get-attendances-by-scheduleId/{scheduleId:int}")]
+        public async Task<AppActionResult> GetAttendancesByScheduleId(int scheduleId)
         {
-            return await _attendanceService.GetAttendancesByScheduleId(schduleId);
+            return await _attendanceService.GetAttendancesByScheduleId(scheduleId);
         }
     }
 }

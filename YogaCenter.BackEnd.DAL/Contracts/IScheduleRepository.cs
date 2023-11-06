@@ -11,6 +11,6 @@ namespace YogaCenter.BackEnd.DAL.Contracts
     public interface IScheduleRepository: IRepository<Schedule>
     {
         Task<IEnumerable<Schedule>> GetSchedulesByClassId(int classId); 
-        Task<Schedule> GetSchedule(ScheduleDto scheduleDto);
+        Task<Schedule> GetSchedule(ScheduleOfClassDto scheduleDto);
     }
 }

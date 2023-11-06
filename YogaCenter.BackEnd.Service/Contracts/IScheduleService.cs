@@ -17,5 +17,10 @@ namespace YogaCenter.BackEnd.Service.Contracts
         Task<AppActionResult> GetScheduleOfClassByDate(int classId,  DateTime date);
         Task<AppActionResult> GetScheduleOfClassByWeek(int classId, int week, int year);
         Task<AppActionResult> GetScheduleOfClassByMonth(int classId, int month, int year);
+
+
+        Task<AppActionResult> GetSchedulesByDate( DateTime date);
+        Task<AppActionResult> GetSchedulesByWeek(int week, int year);
+        Task<AppActionResult> GetSchedulesByMonth( int month, int year);
     }
 }

@@ -8,7 +8,7 @@ namespace YogaCenter.BackEnd.Common.Dto
 {
     public class ClassAttendanceDto
     {
-        public ClassDto Class { get; set; }
+        public ClassRequest Class { get; set; }
         public List<AttendanceDto> Attendances { get; set; }
     }
 }

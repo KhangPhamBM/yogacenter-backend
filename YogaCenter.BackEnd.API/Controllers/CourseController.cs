@@ -32,29 +32,29 @@ namespace YogaCenter.BackEnd.API.Controllers
         }
 
         [HttpGet]
-        [Route("Get-course-by-id")]
+        [Route("get-course-by-id/{id:int}")]
         public async Task<AppActionResult> GetCourseById(int id)
         {
             return await _courseService.GetCourseById(id);
         }
 
         [HttpGet]
-        [Route("Get-all-course")]
+        [Route("get-all-course")]
         public async Task<AppActionResult> GetAllCourse()
         {
             return await _courseService.GetAll();
         }
 
-        [HttpPost]
-        [Route("delete-course")]
+        [HttpDelete]
+        [Route("delete-course/{id:int}")]
         public async Task<AppActionResult> DeleteCourse(int id)
         {
             return await _courseService.DeleteCourse(id);
         }
 
-        [HttpGet]
-        [Route("Get-course-with-searching")]
-        public async Task<AppActionResult> GetCourseWithSearching([FromBody] BaseFilterRequest baseFilterRequest)
+        [HttpPost]
+        [Route("get-course-with-searching")]
+        public async Task<AppActionResult> GetCourseWithSearching( BaseFilterRequest baseFilterRequest)
         {
             return await _courseService.SearchApplyingSortingAndFiltering(baseFilterRequest);
         }

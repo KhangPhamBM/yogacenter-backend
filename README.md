@@ -25,11 +25,17 @@ The Yoga Center Management System backend API is built using the following techn
 ### Swagger: <a> https://yogacentermanagement.azurewebsites.net/ </a>
 
 ## Screen-shots
+![Swagger Page](https://github.com/duong-hong-quan/yogacenter-backend/blob/master/screenshots/Swagger.png)
+![Code Demo](https://github.com/duong-hong-quan/yogacenter-backend/blob/master/screenshots/CodeDemo.png)
+![DB Diagram](https://github.com/duong-hong-quan/yogacenter-backend/blob/master/screenshots/DbDiagram.png)
 
+## UI (User interface)
 ![Home Page](https://github.com/duong-hong-quan/yogacenter-backend/blob/master/screenshots/HomePage.png)
 ![ Detail](https://github.com/duong-hong-quan/yogacenter-backend/blob/master/screenshots/CourseDetail.png)
 ![Blog](https://github.com/duong-hong-quan/yogacenter-backend/blob/master/screenshots/Blog.png)
 ![Admin Page](https://github.com/duong-hong-quan/yogacenter-backend/blob/master/screenshots/Admin.png)
+
+
 
 ## Acknowledgements
 We would like to acknowledge the following individuals and projects for their contributions and inspiration to the Takeaway Management System:

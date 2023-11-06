@@ -248,14 +248,50 @@ namespace YogaCenter.BackEnd.DAL.Migrations
                         .HasColumnType("int")
                         .HasColumnOrder(2);
 
-                    b.Property<bool>("isAttended")
-                        .HasColumnType("bit");
+                    b.Property<int>("AttendanceStatusId")
+                        .HasColumnType("int");
 
                     b.HasKey("ClassDetailId", "ScheduleId");
+
+                    b.HasIndex("AttendanceStatusId");
 
                     b.HasIndex("ScheduleId");
 
                     b.ToTable("Attendances");
+                });
+
+            modelBuilder.Entity("YogaCenter.BackEnd.DAL.Models.AttendanceStatus", b =>
+                {
+                    b.Property<int>("AttendanceStatusId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AttendanceStatusId"), 1L, 1);
+
+                    b.Property<string>("AttendanceStatusName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("AttendanceStatusId");
+
+                    b.ToTable("AttendanceStatuses");
+
+                    b.HasData(
+                        new
+                        {
+                            AttendanceStatusId = 1,
+                            AttendanceStatusName = "NOT YET"
+                        },
+                        new
+                        {
+                            AttendanceStatusId = 2,
+                            AttendanceStatusName = "Attended"
+                        },
+                        new
+                        {
+                            AttendanceStatusId = 3,
+                            AttendanceStatusName = "Absent"
+                        });
                 });
 
             modelBuilder.Entity("YogaCenter.BackEnd.DAL.Models.Class", b =>
@@ -806,6 +842,12 @@ namespace YogaCenter.BackEnd.DAL.Migrations
 
             modelBuilder.Entity("YogaCenter.BackEnd.DAL.Models.Attendance", b =>
                 {
+                    b.HasOne("YogaCenter.BackEnd.DAL.Models.AttendanceStatus", "AttendanceStatus")
+                        .WithMany()
+                        .HasForeignKey("AttendanceStatusId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("YogaCenter.BackEnd.DAL.Models.ClassDetail", "ClassDetail")
                         .WithMany()
                         .HasForeignKey("ClassDetailId")
@@ -817,6 +859,8 @@ namespace YogaCenter.BackEnd.DAL.Migrations
                         .HasForeignKey("ScheduleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("AttendanceStatus");
 
                     b.Navigation("ClassDetail");
 

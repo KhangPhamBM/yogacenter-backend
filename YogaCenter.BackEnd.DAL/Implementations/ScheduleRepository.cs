@@ -19,7 +19,7 @@ namespace YogaCenter.BackEnd.DAL.Implementations
             _db = context;
         }
 
-        public async Task<Schedule> GetSchedule(ScheduleDto scheduleDto)
+        public async Task<Schedule> GetSchedule(ScheduleOfClassDto scheduleDto)
         {
           return await _db.Schedules.SingleOrDefaultAsync(s=> s.Date == scheduleDto.Date && s.TimeFrameId == scheduleDto.TimeFrameId && s.ClassId == scheduleDto.ClassId && s.ClassId == scheduleDto.ClassId);
         }

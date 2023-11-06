@@ -54,8 +54,8 @@ namespace YogaCenter.BackEnd.API.Controllers
             return await _accountService.ChangePassword(dto);
         }
 
-        [HttpGet("get-accounts-with-searching")]
-        public async Task<AppActionResult> GetAccountWithSearching([FromBody] BaseFilterRequest baseFilterRequest)
+        [HttpPost("get-accounts-with-searching")]
+        public async Task<AppActionResult> GetAccountWithSearching( BaseFilterRequest baseFilterRequest)
         {
             return await _accountService.SearchApplyingSortingAndFiltering(baseFilterRequest);
         }

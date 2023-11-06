@@ -19,7 +19,10 @@ namespace YogaCenter.BackEnd.DAL.Models
         public int ScheduleId { get; set; }
         [ForeignKey("ScheduleId")]
         public Schedule Schedule { get; set; }
-        public bool isAttended { get; set; }
+        public int AttendanceStatusId { get; set; }
+        [ForeignKey("AttendanceStatusId")]
+        public AttendanceStatus AttendanceStatus { get; set; }
+
 
     }
 }

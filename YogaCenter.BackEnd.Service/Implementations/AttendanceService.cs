@@ -46,6 +46,11 @@ namespace YogaCenter.BackEnd.Service.Implementations
                         _result.Message.Add($"The schedule with id {attendance.ScheduleId} not found ");
                         isValid = false;
                     }
+                    if (await _unitOfWork.GetRepository<AttendanceStatus>().GetById(attendance.AttendanceStatusId) == null)
+                    {
+                        _result.Message.Add($"The attendance status with id {attendance.AttendanceStatusId} not found ");
+                        isValid = false;
+                    }
                 }
 
                 if (isValid)
@@ -77,7 +82,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
         {
             try
             {
-                _result.Data = await _unitOfWork.GetRepository<Attendance>().GetListByExpression(c => c.ClassDetail.ClassId == classId);
+                _result.Data = await _unitOfWork.GetRepository<Attendance>().GetListByExpression(c => c.ClassDetail.ClassId == classId, c => c.ClassDetail.User, c=> c.Schedule, c => c.AttendanceStatus);
 
             }
             catch (Exception ex)
@@ -92,7 +97,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
         {
             try
             {
-                _result.Data = await _unitOfWork.GetRepository<Attendance>().GetListByExpression(c => c.ScheduleId == scheduleId);
+                _result.Data = await _unitOfWork.GetRepository<Attendance>().GetListByExpression(c => c.ScheduleId == scheduleId, c => c.ClassDetail.User, c => c.Schedule, c => c.AttendanceStatus);
 
             }
             catch (Exception ex)
@@ -108,7 +113,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
         {
             try
             {
-                _result.Data = await _unitOfWork.GetRepository<Attendance>().GetListByExpression(c => c.ClassDetail.UserId == userId);
+                _result.Data = await _unitOfWork.GetRepository<Attendance>().GetListByExpression(c => c.ClassDetail.UserId == userId, c => c.ClassDetail.User, c => c.Schedule, c => c.AttendanceStatus);
 
             }
             catch (Exception ex)
@@ -135,6 +140,11 @@ namespace YogaCenter.BackEnd.Service.Implementations
                     if (await _unitOfWork.GetRepository<Schedule>().GetById(attendance.ScheduleId) == null)
                     {
                         _result.Message.Add($"The schedule with id {attendance.ScheduleId} not found ");
+                        isValid = false;
+                    }
+                    if (await _unitOfWork.GetRepository<AttendanceStatus>().GetById(attendance.AttendanceStatusId) == null)
+                    {
+                        _result.Message.Add($"The attendance status with id {attendance.AttendanceStatusId} not found ");
                         isValid = false;
                     }
                 }

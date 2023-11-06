@@ -79,10 +79,14 @@ namespace YogaCenter.BackEnd.DAL.Implementations
 
         public async Task<T> GetByExpression(Expression<Func<T, bool>> filter, params Expression<Func<T, object>>[] includeProperties)
         {
-            foreach (var includeProperty in includeProperties)
+            if(includeProperties != null)
             {
-                 _dbSet.Include(includeProperty);
+                foreach (var includeProperty in includeProperties)
+                {
+                    _dbSet.Include(includeProperty);
+                }
             }
+          
             return await _dbSet.SingleOrDefaultAsync(filter);
         }
 
