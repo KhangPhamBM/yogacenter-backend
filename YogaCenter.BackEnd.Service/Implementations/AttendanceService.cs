@@ -78,11 +78,47 @@ namespace YogaCenter.BackEnd.Service.Implementations
             return _result;
         }
 
-        public async Task<AppActionResult> GetAttendancesByClassId(int classId)
+        public async Task<AppActionResult> GetAttendancesByClassId(int classId, int pageIndex, int pageSize, IList<SortInfo> sortInfos)
+        {
+            {
+                try
+                {
+                    var attendances = await _unitOfWork.GetRepository<Attendance>().GetListByExpression(c => c.ClassDetail.ClassId == classId, c => c.ClassDetail.User, c => c.Schedule, c => c.AttendanceStatus);
+                    {
+                        attendances = DataPresentationHelper.ApplySorting(attendances, sortInfos);
+                    }
+                    if (pageIndex > 0 && pageSize > 0)
+                    {
+                        attendances = DataPresentationHelper.ApplyPaging(attendances, pageIndex, pageSize);
+                    }
+                    _result.Data = attendances;
+                }
+                catch (Exception ex)
+                {
+                    _result.isSuccess = false;
+                    _result.Message.Add(ex.Message);
+                }
+                return _result;
+            }
+
+
+
+
+        }
+        public async Task<AppActionResult> GetAttendancesByScheduleId(int scheduleId, int pageIndex, int pageSize, IList<SortInfo> sortInfos)
         {
             try
             {
-                _result.Data = await _unitOfWork.GetRepository<Attendance>().GetListByExpression(c => c.ClassDetail.ClassId == classId, c => c.ClassDetail.User, c=> c.Schedule, c => c.AttendanceStatus);
+                var attendances = await _unitOfWork.GetRepository<Attendance>().GetListByExpression(c => c.ScheduleId == scheduleId, c => c.ClassDetail.User, c => c.Schedule, c => c.AttendanceStatus);
+                if (sortInfos != null)
+                {
+                    attendances = DataPresentationHelper.ApplySorting(attendances, sortInfos);
+                }
+                if (pageIndex > 0 && pageSize > 0)
+                {
+                    attendances = DataPresentationHelper.ApplyPaging(attendances, pageIndex, pageSize);
+                }
+                _result.Data = attendances;
 
             }
             catch (Exception ex)
@@ -91,30 +127,23 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 _result.Message.Add(ex.Message);
             }
             return _result;
-        }
-
-        public async Task<AppActionResult> GetAttendancesByScheduleId(int scheduleId)
-        {
-            try
-            {
-                _result.Data = await _unitOfWork.GetRepository<Attendance>().GetListByExpression(c => c.ScheduleId == scheduleId, c => c.ClassDetail.User, c => c.Schedule, c => c.AttendanceStatus);
-
-            }
-            catch (Exception ex)
-            {
-                _result.isSuccess = false;
-                _result.Message.Add(ex.Message);
-            }
-            return _result;
 
         }
 
-        public async Task<AppActionResult> GetAttendancesByUserId(string userId)
+        public async Task<AppActionResult> GetAttendancesByUserId(string userId, int pageIndex, int pageSize, IList<SortInfo> sortInfos)
         {
             try
             {
-                _result.Data = await _unitOfWork.GetRepository<Attendance>().GetListByExpression(c => c.ClassDetail.UserId == userId, c => c.ClassDetail.User, c => c.Schedule, c => c.AttendanceStatus);
-
+                var attendances = await _unitOfWork.GetRepository<Attendance>().GetListByExpression(c => c.ClassDetail.UserId == userId, c => c.ClassDetail.User, c => c.Schedule, c => c.AttendanceStatus);
+                if (sortInfos != null)
+                {
+                    attendances = DataPresentationHelper.ApplySorting(attendances, sortInfos);
+                }
+                if (pageIndex > 0 && pageSize > 0)
+                {
+                    attendances = DataPresentationHelper.ApplyPaging(attendances, pageIndex, pageSize);
+                }
+                _result.Data = attendances;
             }
             catch (Exception ex)
             {
@@ -170,7 +199,8 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 _result.Message.Add(ex.Message);
             }
             return _result;
-          
+
         }
+
     }
 }

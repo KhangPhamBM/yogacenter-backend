@@ -41,7 +41,7 @@ namespace YogaCenter.BackEnd.DAL.Implementations
         public async Task Update(T entity)
         {
             _dbSet.Update(entity);
-          
+
         }
 
         public async Task DeleteById(object id)
@@ -60,7 +60,7 @@ namespace YogaCenter.BackEnd.DAL.Implementations
             var query = _dbSet.AsQueryable();
 
             // Apply eager loading
-            if(includeProperties != null)
+            if (includeProperties != null)
             {
                 foreach (var includeProperty in includeProperties)
                 {
@@ -79,14 +79,13 @@ namespace YogaCenter.BackEnd.DAL.Implementations
 
         public async Task<T> GetByExpression(Expression<Func<T, bool>> filter, params Expression<Func<T, object>>[] includeProperties)
         {
-            if(includeProperties != null)
+            if (includeProperties != null)
             {
                 foreach (var includeProperty in includeProperties)
                 {
                     _dbSet.Include(includeProperty);
                 }
             }
-          
             return await _dbSet.SingleOrDefaultAsync(filter);
         }
 

@@ -38,11 +38,11 @@ namespace YogaCenter.BackEnd.API.Controllers
             return await _courseService.GetCourseById(id);
         }
 
-        [HttpGet]
+        [HttpPost]
         [Route("get-all-course")]
-        public async Task<AppActionResult> GetAllCourse()
+        public async Task<AppActionResult> GetAllCourse(int pageIndex, int pageSize, IList<SortInfo> sortInfos)
         {
-            return await _courseService.GetAll();
+            return await _courseService.GetAll(pageIndex, pageSize, sortInfos);
         }
 
         [HttpDelete]

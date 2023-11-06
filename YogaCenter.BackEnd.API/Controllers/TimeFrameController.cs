@@ -34,7 +34,7 @@ namespace YogaCenter.BackEnd.API.Controllers
             return await _timeFrameService.GetTimeFrameById(id);
         }
         [HttpPost]
-        [Route("Get-timeframe-with-searching")]
+        [Route("get-timeframe-with-searching")]
         public async Task<AppActionResult> GetTimeFrameWithSearching(BaseFilterRequest baseFilterRequest)
         {
             return await _timeFrameService.SearchApplyingSortingAndFiltering(baseFilterRequest);

@@ -88,7 +88,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
             return _result;
         }
 
-        public async Task<AppActionResult> GetClassDetailsByClassId(int classId)
+        public async Task<AppActionResult> GetClassDetailsByClassId(int classId, int pageIndex, int pageSize, IList<SortInfo> sortInfos)
         {
             try
             {
@@ -100,15 +100,23 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 }
                 if (isValid)
                 {
-                    var details = await _unitOfWork.GetRepository<ClassDetail>().GetListByExpression(cd => cd.ClassId == classId);
+                    var details  = await _unitOfWork.GetRepository<ClassDetail>().GetListByExpression(cd => cd.ClassId == classId, null);
                     if (details != null)
                     {
+                        if (sortInfos != null)
+                        {
+                            details = DataPresentationHelper.ApplySorting(details, sortInfos);
+                        }
+                        if (pageIndex > 0 && pageSize > 0)
+                        {
+                            details = DataPresentationHelper.ApplyPaging(details, pageIndex, pageSize);
+                        }
                         _result.Data = details;
                     }
                     else
                     {
                         _result.isSuccess = false;
-                        _result.Message.Add("The class detail with id {detail.ClassDetailId} not found");
+                        _result.Message.Add($"The class detail with class id {classId} not found");
                     }
                 }
             }

@@ -15,37 +15,37 @@ namespace YogaCenter.BackEnd.DAL.Util
         {
             if (source == null || source.Count() == 0)
             {
-                return source; 
+                return source;
             }
-                Expression<Func<T, bool>> combinedExpression = t => true; 
-                if (filterList != null)
+            Expression<Func<T, bool>> combinedExpression = t => true;
+            if (filterList != null)
+            {
+                foreach (var filterInfo in filterList)
                 {
-                    foreach (var filterInfo in filterList)
-                    {
-                        Expression<Func<T, bool>> subFilter = null;
-                        /*if (!filterInfo.isValueFilter)
-                            subFilter = CreateRangeFilterExpression<T>(filterInfo);
-                        else */
-                            subFilter = CreateRangeFilterExpression<T>(filterInfo);
+                    Expression<Func<T, bool>> subFilter = null;
+                    /*if (!filterInfo.isValueFilter)
+                        subFilter = CreateRangeFilterExpression<T>(filterInfo);
+                    else */
+                    subFilter = CreateRangeFilterExpression<T>(filterInfo);
 
-                        if (subFilter != null)
-                        {
-                            var invokedExpr = Expression.Invoke(subFilter, combinedExpression.Parameters);
-                            combinedExpression = Expression.Lambda<Func<T, bool>>(
-                                Expression.AndAlso(invokedExpr, combinedExpression.Body),
-                                combinedExpression.Parameters);
-                        }
+                    if (subFilter != null)
+                    {
+                        var invokedExpr = Expression.Invoke(subFilter, combinedExpression.Parameters);
+                        combinedExpression = Expression.Lambda<Func<T, bool>>(
+                            Expression.AndAlso(invokedExpr, combinedExpression.Body),
+                            combinedExpression.Parameters);
                     }
-                    IOrderedQueryable<T> result = (IOrderedQueryable<T>)source.Where(combinedExpression);
-                    return result;
                 }
+                IOrderedQueryable<T> result = (IOrderedQueryable<T>)source.Where(combinedExpression);
+                return result;
+            }
             return source;
         }
 
         public static IOrderedQueryable<T> ApplyPaging<T>(IOrderedQueryable<T> source, int pageIndex, int pageSize)
         {
-             int toSkip = (pageIndex - 1) * pageSize;
-             return (IOrderedQueryable<T>)source.Skip(toSkip).Take(pageSize);
+            int toSkip = (pageIndex - 1) * pageSize;
+            return (IOrderedQueryable<T>)source.Skip(toSkip).Take(pageSize);
         }
 
         private static Expression<Func<T, bool>> CreateRangeFilterExpression<T>(FilterInfo filterInfoToRange)

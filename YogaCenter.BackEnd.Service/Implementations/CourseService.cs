@@ -20,7 +20,8 @@ using YogaCenter.BackEnd.Service.Contracts;
 
 namespace YogaCenter.BackEnd.Service.Implementations
 {
-    public class CourseService : ICourseService { 
+    public class CourseService : ICourseService
+    { 
 
         private readonly IUnitOfWork _unitOfWork;
         private IMapper _mapper;
@@ -126,7 +127,8 @@ namespace YogaCenter.BackEnd.Service.Implementations
             try
             {
                 var courseList = await _unitOfWork.GetRepository<Course>().GetAll();
-                if(courseList.Any()) {
+                if (courseList.Any())
+                {
                     if (sortInfos != null)
                     {
                         courseList = DataPresentationHelper.ApplySorting(courseList, sortInfos);
@@ -136,7 +138,8 @@ namespace YogaCenter.BackEnd.Service.Implementations
                         courseList = DataPresentationHelper.ApplyPaging(courseList, pageIndex, pageSize);
                     }
                     _result.Data = courseList;
-                } else
+                }
+                else
                 {
                     _result.Message.Add("Empty course list");
                 }
@@ -225,5 +228,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
             }
             return _result;
         }
+
+       
     }
 }

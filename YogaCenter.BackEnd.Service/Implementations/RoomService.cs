@@ -89,6 +89,38 @@ namespace YogaCenter.BackEnd.Service.Implementations
             return _result;
         }
 
+
+        public async Task<AppActionResult> UpdateRoom(RoomDto room)
+        {
+            try
+            {
+                bool isValid = true;
+                if (await _unitOfWork.GetRepository<Room>().GetById(room.RoomId) == null)
+                {
+                    isValid = false;
+                    _result.Message.Add($"The room with name {room.RoomId} not found");
+                }
+
+                if (isValid)
+                {
+                    await _unitOfWork.GetRepository<Room>().Update(_mapper.Map<Room>(room));
+                    _unitOfWork.SaveChange();
+                    _result.Message.Add(SD.ResponseMessage.UPDATE_SUCCESSFUL);
+
+                }
+                else
+                {
+                    _result.isSuccess = false;
+                }
+            }
+            catch (Exception ex)
+            {
+                _result.isSuccess = false;
+                _result.Message.Add(ex.Message);
+            }
+            return _result;
+        }
+
         public async Task<AppActionResult> SearchApplyingSortingAndFiltering(BaseFilterRequest filterRequest)
         {
             try
@@ -123,37 +155,6 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 else
                 {
                     _result.Data = source;
-                }
-            }
-            catch (Exception ex)
-            {
-                _result.isSuccess = false;
-                _result.Message.Add(ex.Message);
-            }
-            return _result;
-        }
-
-        public async Task<AppActionResult> UpdateRoom(RoomDto room)
-        {
-            try
-            {
-                bool isValid = true;
-                if (await _unitOfWork.GetRepository<Room>().GetById(room.RoomId) == null)
-                {
-                    isValid = false;
-                    _result.Message.Add($"The room with name {room.RoomId} not found");
-                }
-
-                if (isValid)
-                {
-                    await _unitOfWork.GetRepository<Room>().Update(_mapper.Map<Room>(room));
-                    _unitOfWork.SaveChange();
-                    _result.Message.Add(SD.ResponseMessage.UPDATE_SUCCESSFUL);
-
-                }
-                else
-                {
-                    _result.isSuccess = false;
                 }
             }
             catch (Exception ex)

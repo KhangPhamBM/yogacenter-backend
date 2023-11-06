@@ -18,5 +18,6 @@ namespace YogaCenter.BackEnd.Service.Contracts
         Task<AppActionResult> GetAllAccount(int pageIndex, int pageSize, IList<SortInfo> sortInfos);
         Task<AppActionResult> SearchApplyingSortingAndFiltering(BaseFilterRequest filterRequest);
 
+
     }
 }
