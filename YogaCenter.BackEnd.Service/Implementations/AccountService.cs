@@ -223,7 +223,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 var list = await _unitOfWork.GetRepository<ApplicationUser>().GetAll();
                 foreach (var account in list)
                 {
-                    var userRole = await _unitOfWork.GetRepository<IdentityUserRole<string>>().GetListByExpression(s => s.UserId == account.Id);
+                    var userRole = await _unitOfWork.GetRepository<IdentityUserRole<string>>().GetListByExpression(s => s.UserId == account.Id, null);
                     var listRole = new List<IdentityRole>();
                     foreach (var role in userRole)
                     {

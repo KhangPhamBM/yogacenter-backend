@@ -134,7 +134,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
         {
             try
             {
-                var classes = _mapper.Map<IOrderedQueryable<ClassDto>>(await _unitOfWork.GetRepository<Class>().GetAll());
+                var classes = await _unitOfWork.GetRepository<Class>().GetAll();
                 if (sortInfos != null)
                 {
                     classes = DataPresentationHelper.ApplySorting(classes, sortInfos);
