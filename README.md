@@ -18,16 +18,16 @@ The Yoga Center Management System offers a range of powerful features to enhance
 The Yoga Center Management System backend API is built using the following technologies:
  - .NET Core: The framework for building the API.
  - Entity Framework: Object-Relational Mapping (ORM) tool for database management.
+ - Identity Framework
  - VNPAY && Momo: Integration for online payment processing.
  - Worker Services: Background tasks and services.
 
-[![Build and deploy .NET Core application to Web App YogaCenterManagement](https://github.com/duong-hong-quan/YogaCenterAPIV2/actions/workflows/YogaCenterManagement.yml/badge.svg)](https://github.com/duong-hong-quan/YogaCenterAPIV2/actions/workflows/YogaCenterManagement.yml)
-### Swagger: <a> https://yogacentermanagement.azurewebsites.net/ </a>
+
 
 ## Screen-shots
-![Swagger Page](https://github.com/duong-hong-quan/yogacenter-backend/blob/master/screenshots/Swagger.png)
-![Code Demo](https://github.com/duong-hong-quan/yogacenter-backend/blob/master/screenshots/CodeDemo.png)
-![DB Diagram](https://github.com/duong-hong-quan/yogacenter-backend/blob/master/screenshots/DbDiagram.png)
+![Swagger Page](https://github.com/duong-hong-quan/yogacenter-backend/blob/master/screenshots/Swagger.PNG)
+![Code Demo](https://github.com/duong-hong-quan/yogacenter-backend/blob/master/screenshots/CodeDemo.PNG)
+![DB Diagram](https://github.com/duong-hong-quan/yogacenter-backend/blob/master/screenshots/DbDiagram.PNG)
 
 ## UI (User interface)
 ![Home Page](https://github.com/duong-hong-quan/yogacenter-backend/blob/master/screenshots/HomePage.png)
