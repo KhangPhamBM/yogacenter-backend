@@ -14,10 +14,11 @@ namespace YogaCenter.BackEnd.DAL.Data
 {
     public class YogaCenterContext : IdentityDbContext<ApplicationUser>
     {
+      
         public YogaCenterContext(DbContextOptions options) : base(options)
         {
         }
-        public DbSet<Attendance> Attendances { get; set; }
+        public DbSet<Attendance> Attendances { get; set; } 
         public DbSet<AttendanceStatus> AttendanceStatuses { get; set; }
 
         public DbSet<Class> Classes { get; set; }

@@ -31,8 +31,7 @@ namespace YogaCenter.BackEnd.API.Controllers
             return await _courseService.UpdateCourse(course);
         }
 
-        [HttpGet]
-        [Route("get-course-by-id/{id:int}")]
+        [HttpGet("get-course-by-id/{id:int}")]
         public async Task<AppActionResult> GetCourseById(int id)
         {
             return await _courseService.GetCourseById(id);
@@ -45,15 +44,13 @@ namespace YogaCenter.BackEnd.API.Controllers
             return await _courseService.GetAll(pageIndex, pageSize, sortInfos);
         }
 
-        [HttpDelete]
-        [Route("delete-course/{id:int}")]
+        [HttpDelete("delete-course/{id:int}")]
         public async Task<AppActionResult> DeleteCourse(int id)
         {
             return await _courseService.DeleteCourse(id);
         }
 
-        [HttpPost]
-        [Route("get-course-with-searching")]
+        [HttpPost("get-course-with-searching")]
         public async Task<AppActionResult> GetCourseWithSearching( BaseFilterRequest baseFilterRequest)
         {
             return await _courseService.SearchApplyingSortingAndFiltering(baseFilterRequest);

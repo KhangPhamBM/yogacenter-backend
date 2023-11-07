@@ -13,7 +13,6 @@
 
   <ItemGroup>
     <Folder Include="Common\Dto\" />
-    <Folder Include="Services\" />
   </ItemGroup>
 
   <ItemGroup>

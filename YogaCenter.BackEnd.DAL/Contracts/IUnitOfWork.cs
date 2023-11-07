@@ -12,6 +12,5 @@ namespace YogaCenter.BackEnd.DAL.Contracts
 
        void SaveChange();
 
-
     }
 }
