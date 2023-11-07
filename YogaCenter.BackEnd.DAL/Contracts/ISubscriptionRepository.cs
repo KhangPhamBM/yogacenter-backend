@@ -10,8 +10,7 @@ namespace YogaCenter.BackEnd.DAL.Contracts
 {
     public interface ISubscriptionRepository: IRepository<Subscription>
     {
-        Task<IEnumerable<Subscription>> getSubscriptionByUserIdAndClassId(string userId, string ClassId);
+        Task<IEnumerable<Subscription>> getSubscriptionByUserIdAndClassId(string userId, int ClassId);
         Task<IEnumerable<Subscription>> getSubcriptionByUserId(string userId);
-
     }
 }

@@ -14,10 +14,13 @@ namespace YogaCenter.BackEnd.DAL.Data
 {
     public class YogaCenterContext : IdentityDbContext<ApplicationUser>
     {
+      
         public YogaCenterContext(DbContextOptions options) : base(options)
         {
         }
-        public DbSet<Attendance> Attendances { get; set; }
+        public DbSet<Attendance> Attendances { get; set; } 
+        public DbSet<AttendanceStatus> AttendanceStatuses { get; set; }
+
         public DbSet<Class> Classes { get; set; }
         public DbSet<ClassDetail> ClassDetails { get; set; }
         public DbSet<Course> Courses { get; set; }
@@ -50,7 +53,24 @@ namespace YogaCenter.BackEnd.DAL.Data
             builder.Entity<SubscriptionStatus>().HasData(
               new SubscriptionStatus { SubscriptionStatusId = SD.Subscription.FAILED, SubscriptionStatusName = "Failed" });
 
-
+            builder.Entity<AttendanceStatus>().HasData(
+                new AttendanceStatus
+                {
+                    AttendanceStatusId = 1,
+                    AttendanceStatusName = "NOT YET"
+                }) ;
+            builder.Entity<AttendanceStatus>().HasData(
+                new AttendanceStatus
+                {
+                    AttendanceStatusId = 2,
+                    AttendanceStatusName = "Attended"
+                });
+            builder.Entity<AttendanceStatus>().HasData(
+              new AttendanceStatus
+              {
+                  AttendanceStatusId = 3,
+                  AttendanceStatusName = "Absent"
+              });
 
             builder.Entity<TimeFrame>().HasData(
               new TimeFrame { TimeFrameId = SD.TimeFrame.TIMEFRAME_7H, TimeFrameName = "7H00 - 9H00" });

@@ -22,9 +22,9 @@ namespace YogaCenter.BackEnd.DAL.Implementations
             _dbSet = context.Set<T>();
         }
 
-        public async Task<IEnumerable<T>> GetAll()
+        public async Task<IOrderedQueryable<T>> GetAll()
         {
-            return await _dbSet.AsNoTracking().ToListAsync();
+            return (IOrderedQueryable<T>)_dbSet.AsNoTracking();
         }
 
         public async Task<T> GetById(object id)
@@ -41,7 +41,7 @@ namespace YogaCenter.BackEnd.DAL.Implementations
         public async Task Update(T entity)
         {
             _dbSet.Update(entity);
-          
+
         }
 
         public async Task DeleteById(object id)
@@ -55,31 +55,44 @@ namespace YogaCenter.BackEnd.DAL.Implementations
 
         }
 
-        public async Task<IEnumerable<T>> GetListByExpression(Expression<Func<T, bool>> filter, params Expression<Func<T, object>>[] includeProperties)
+        public async Task<IOrderedQueryable<T>> GetListByExpression(Expression<Func<T, bool>> filter, params Expression<Func<T, object>>[] includeProperties)
         {
             var query = _dbSet.AsQueryable();
 
             // Apply eager loading
-            foreach (var includeProperty in includeProperties)
+            if (includeProperties != null)
             {
-                query = query.Include(includeProperty);
+                foreach (var includeProperty in includeProperties)
+                {
+                    query = query.Include(includeProperty);
+                }
+
             }
 
             if (filter == null && includeProperties.Length > 0)
             {
-                return await query.ToListAsync();
+                return (IOrderedQueryable<T>)await query.ToListAsync();
             }
 
-            return await query.Where(filter).ToListAsync();
+            return (IOrderedQueryable<T>)query.Where(filter);
         }
 
         public async Task<T> GetByExpression(Expression<Func<T, bool>> filter, params Expression<Func<T, object>>[] includeProperties)
         {
-            foreach (var includeProperty in includeProperties)
+            if (includeProperties != null)
             {
-                 _dbSet.Include(includeProperty);
+                foreach (var includeProperty in includeProperties)
+                {
+                    _dbSet.Include(includeProperty);
+                }
             }
             return await _dbSet.SingleOrDefaultAsync(filter);
+        }
+
+        public async Task<IEnumerable<T>> InsertRange(IEnumerable<T> entities)
+        {
+            _dbSet.AddRange(entities);
+            return entities;
         }
     }
 }

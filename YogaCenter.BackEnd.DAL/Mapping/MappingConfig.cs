@@ -18,16 +18,23 @@ namespace YogaCenter.BackEnd.DAL.Mapping
                 config.CreateMap<AttendanceDto, Attendance>()
                 .ForMember(desc => desc.ScheduleId, act => act.MapFrom(src => src.ScheduleId))
                 .ForMember(desc => desc.ClassDetailId, act => act.MapFrom(src => src.ClassDetailId))
-                .ForMember(desc => desc.isAttended, act => act.MapFrom(src => src.isAttended))
+                .ForMember(desc => desc.AttendanceStatusId, act => act.MapFrom(src => src.AttendanceStatusId))
                 .ReverseMap();
 
-                config.CreateMap<ClassDto, Class>()
+                config.CreateMap<ClassRequest, Class>()
                   .ForMember(desc => desc.ClassId, act => act.MapFrom(src => src.ClassId))
                   .ForMember(desc => desc.ClassName, act => act.MapFrom(src => src.ClassName))
                   .ForMember(desc => desc.CourseId, act => act.MapFrom(src => src.CourseId))
                   .ForMember(desc => desc.IsDeleted, act => act.MapFrom(src => src.IsDeleted))
                   .ForMember(desc => desc.EndDate, act => act.MapFrom(src => src.EndDate))
                   .ReverseMap();
+                config.CreateMap<ClassDto, Class>()
+                 .ForMember(desc => desc.ClassId, act => act.MapFrom(src => src.ClassId))
+                 .ForMember(desc => desc.ClassName, act => act.MapFrom(src => src.ClassName))
+                 .ForMember(desc => desc.CourseId, act => act.MapFrom(src => src.CourseId))
+                 .ForMember(desc => desc.IsDeleted, act => act.MapFrom(src => src.IsDeleted))
+                 .ForMember(desc => desc.EndDate, act => act.MapFrom(src => src.EndDate))
+                 .ReverseMap();
 
                 config.CreateMap<ClassDetailDto, ClassDetail>()
                 .ForMember(desc => desc.ClassDetailId, act => act.MapFrom(src => src.ClassDetailId))
@@ -64,13 +71,8 @@ namespace YogaCenter.BackEnd.DAL.Mapping
                 .ForMember(desc => desc.RoomName, act => act.MapFrom(src => src.RoomName))
                 .ReverseMap();
 
-                config.CreateMap<ScheduleDto, Schedule>()
-                .ForMember(desc => desc.RoomId, act => act.MapFrom(src => src.RoomId))
-                .ForMember(desc => desc.ScheduleId, act => act.MapFrom(src => src.ScheduleId))
-                .ForMember(desc => desc.TimeFrameId, act => act.MapFrom(src => src.TimeFrameId))
-                .ForMember(desc => desc.ClassId, act => act.MapFrom(src => src.ClassId))
-                .ForMember(desc => desc.Date, act => act.MapFrom(src => src.Date))
-                .ReverseMap();
+
+
 
                 config.CreateMap<SubscriptionDto, Subscription>()
                 .ForMember(desc => desc.SubscriptionStatusId, act => act.MapFrom(src => src.SubscriptionStatusId))
@@ -106,6 +108,29 @@ namespace YogaCenter.BackEnd.DAL.Mapping
                 .ForMember(desc => desc.TimeFrameId, act => act.MapFrom(src => src.TimeFrameId))
                 .ForMember(desc => desc.TimeFrameName, act => act.MapFrom(src => src.TimeFrameName))
                 .ReverseMap();
+
+                config.CreateMap<ScheduleOfClassDto, Schedule>()
+             .ForMember(desc => desc.RoomId, act => act.MapFrom(src => src.RoomId))
+             .ForMember(desc => desc.ScheduleId, act => act.MapFrom(src => src.ScheduleId))
+             .ForMember(desc => desc.TimeFrameId, act => act.MapFrom(src => src.TimeFrameId))
+             .ForMember(desc => desc.ClassId, act => act.MapFrom(src => src.ClassId))
+             .ForMember(desc => desc.Date, act => act.MapFrom(src => src.Date))
+             .ForMember(desc => desc.Room, act => act.MapFrom(src => src.RoomDto))
+             .ForMember(desc => desc.TimeFrame, act => act.MapFrom(src => src.TimeFrameDto))
+
+
+             .ReverseMap();
+
+                config.CreateMap<ScheduleDto, Schedule>()
+          .ForMember(desc => desc.RoomId, act => act.MapFrom(src => src.RoomId))
+          .ForMember(desc => desc.ScheduleId, act => act.MapFrom(src => src.ScheduleId))
+          .ForMember(desc => desc.TimeFrameId, act => act.MapFrom(src => src.TimeFrameId))
+          .ForMember(desc => desc.ClassId, act => act.MapFrom(src => src.ClassId))
+          .ForMember(desc => desc.Date, act => act.MapFrom(src => src.Date))
+        
+
+
+          .ReverseMap();
             });
             return mappingConfig;
         }

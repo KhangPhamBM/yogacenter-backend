@@ -21,6 +21,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using YogaCenter.BackEnd.DAL.Util;
 using YogaCenter.BackEnd.DAL.Common;
+using System.Web.WebPages;
 
 namespace YogaCenter.BackEnd.Service.Implementations
 {
@@ -51,7 +52,6 @@ namespace YogaCenter.BackEnd.Service.Implementations
             _jwtService = jwtService;
             _tokenDto = new();
         }
-
 
         public async Task<AppActionResult> Login(LoginRequestDto loginRequest)
         {
@@ -134,12 +134,12 @@ namespace YogaCenter.BackEnd.Service.Implementations
                     var resultCreateUser = await _userManager.CreateAsync(user, signUpRequest.Password);
                     if (resultCreateUser.Succeeded)
                     {
-                        _result.Message.Add($"{SD.ResponseMessage.CREATE_SUCCESS} USER");
+                        _result.Message.Add($"{SD.ResponseMessage.CREATE_SUCCESSFUL} USER");
 
                     }
                     else
                     {
-                        _result.Message.Add($"{SD.ResponseMessage.FAILED} USER");
+                        _result.Message.Add($"{SD.ResponseMessage.CREATE_FAILED} USER");
 
                     }
                     var resultCreateRole = await _userManager.AddToRoleAsync(user, signUpRequest.RoleName);
@@ -163,7 +163,6 @@ namespace YogaCenter.BackEnd.Service.Implementations
             }
             return _result;
         }
-
         public async Task<AppActionResult> UpdateAccount(ApplicationUser applicationUser)
         {
             bool isValid = true;
@@ -179,7 +178,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 {
                     await _unitOfWork.GetRepository<ApplicationUser>().Update(applicationUser);
                     _unitOfWork.SaveChange();
-                    _result.Message.Add(SD.ResponseMessage.UPDATE_SUCCESS);
+                    _result.Message.Add(SD.ResponseMessage.UPDATE_SUCCESSFUL);
                 }
             }
             catch (Exception ex)
@@ -191,7 +190,6 @@ namespace YogaCenter.BackEnd.Service.Implementations
 
             return _result;
         }
-
         public async Task<AppActionResult> GetAccountByUserId(string id)
         {
             bool isValid = true;
@@ -217,8 +215,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
             }
             return _result;
         }
-
-        public async Task<AppActionResult> GetAllAccount()
+        public async Task<AppActionResult> GetAllAccount(int pageIndex, int pageSize, IList<SortInfo> sortInfos)
         {
             try
             {
@@ -226,28 +223,33 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 var list = await _unitOfWork.GetRepository<ApplicationUser>().GetAll();
                 foreach (var account in list)
                 {
-                    var userRole = await _unitOfWork.GetRepository<IdentityUserRole<string>>().GetListByExpression(s => s.UserId == account.Id);
+                    var userRole = await _unitOfWork.GetRepository<IdentityUserRole<string>>().GetListByExpression(s => s.UserId == account.Id, null);
                     var listRole = new List<IdentityRole>();
                     foreach (var role in userRole)
                     {
                         var item = await _unitOfWork.GetRepository<IdentityRole>().GetById(role.RoleId);
                         listRole.Add(item);
-
                     }
                     accounts.Add(new AccountResponse { User = account, Role = listRole });
                 }
-                _result.Data = accounts;
-
+                var data = accounts.AsQueryable().OrderBy(x => x.User.Id);
+                if (sortInfos != null)
+                {
+                    data = DataPresentationHelper.ApplySorting(data, sortInfos);
+                }
+                if (pageIndex > 0 && pageSize > 0)
+                {
+                    data = DataPresentationHelper.ApplyPaging(data, pageIndex, pageSize);
+                }
+                _result.Data = data;
             }
             catch (Exception ex)
             {
                 _result.isSuccess = false;
                 _result.Message.Add(ex.Message);
-
             }
             return _result;
         }
-
         public async Task<AppActionResult> ChangePassword(ChangePasswordDto changePasswordDto)
         {
             bool isValid = true;
@@ -264,13 +266,55 @@ namespace YogaCenter.BackEnd.Service.Implementations
                     var result = await _userManager.ChangePasswordAsync(user, changePasswordDto.OldPassword, changePasswordDto.NewPassword);
                     if (result.Succeeded)
                     {
-                        _result.Message.Add(SD.ResponseMessage.UPDATE_SUCCESS);
+                        _result.Message.Add(SD.ResponseMessage.UPDATE_SUCCESSFUL);
                     }
                     else
                     {
-                        _result.Message.Add(SD.ResponseMessage.FAILED);
-
+                        _result.Message.Add(SD.ResponseMessage.CREATE_FAILED);
                     }
+                }
+            }
+            catch (Exception ex)
+            {
+                _result.isSuccess = false;
+                _result.Message.Add(ex.Message);
+            }
+            return _result;
+        }
+        public async Task<AppActionResult> SearchApplyingSortingAndFiltering(BaseFilterRequest filterRequest)
+        {
+            try
+            {
+                var source = (IOrderedQueryable<ApplicationUser>)await _unitOfWork.GetRepository<ApplicationUser>().GetByExpression(a => (bool)a.isDeleted, null);
+                if (filterRequest != null)
+                {
+                    if (filterRequest.pageIndex <= 0 || filterRequest.pageSize <= 0)
+                    {
+                        _result.Message.Add($"Invalid value of pageIndex or pageSize");
+                        _result.isSuccess = false;
+                    }
+                    else
+                    {
+                        if (!filterRequest.keyword.IsEmpty())
+                        {
+                            source = (IOrderedQueryable<ApplicationUser>)await _unitOfWork.GetRepository<ApplicationUser>().GetByExpression(c => (bool)!c.isDeleted && c.UserName.Contains(filterRequest.keyword), null);
+                        }
+                        if (filterRequest.filterInfoList != null)
+                        {
+                            source = DataPresentationHelper.ApplyFiltering(source, filterRequest.filterInfoList);
+                        }
+
+                        if (filterRequest.sortInfoList != null)
+                        {
+                            source = DataPresentationHelper.ApplySorting(source, filterRequest.sortInfoList);
+                        }
+                        source = DataPresentationHelper.ApplyPaging(source, filterRequest.pageIndex, filterRequest.pageSize);
+                        _result.Data = source;
+                    }
+                }
+                else
+                {
+                    _result.Data = source;
                 }
             }
             catch (Exception ex)

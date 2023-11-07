@@ -55,8 +55,6 @@ namespace YogaCenter.BackEnd.Service.Implementations
                        new Claim("AccountId", user.Id)
                     };
                     claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
-
-
                     var authenKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:Key"]));
                     var token = new JwtSecurityToken(
                         issuer: _configuration["JWT:Issuer"],
@@ -68,9 +66,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                     return new JwtSecurityTokenHandler().WriteToken(token);
                 }
             }
-
             return string.Empty;
-
         }
         public async Task<TokenDto> GetNewToken(string refreshToken, string accountId)
         {
@@ -79,21 +75,21 @@ namespace YogaCenter.BackEnd.Service.Implementations
             {
                 var roles = await _userManager.GetRolesAsync(user);
                 var claims = new List<Claim>
-            {
-            new Claim (ClaimTypes.Email, user.Email),
-            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-            new Claim("AccountId", user.Id)
-               };
+                {
+                    new Claim (ClaimTypes.Email, user.Email),
+                    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                    new Claim("AccountId", user.Id)
+                };
                 claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
                 var authenKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:Key"]));
                 var token = new JwtSecurityToken
-                    (
+                (
                     issuer: _configuration["JWT:Issuer"],
                     audience: _configuration["JWT:Audience"],
                     expires: DateTime.Now.AddDays(1),
                     claims: claims,
                     signingCredentials: new SigningCredentials(authenKey, SecurityAlgorithms.HmacSha512Signature)
-                    );
+                );
 
                 _tokenDto.Token = new JwtSecurityTokenHandler().WriteToken(token);
                 if (user.RefreshTokenExpiryTime <= DateTime.Now)

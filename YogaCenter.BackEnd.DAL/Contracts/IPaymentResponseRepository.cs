@@ -9,5 +9,11 @@ namespace YogaCenter.BackEnd.DAL.Contracts
 {
     public interface IPaymentResponseRepository: IRepository<PaymentRespone>
     {
+        Task<IEnumerable<PaymentRespone>> GetPaymentResponsesByUserId(string UserId);
+        Task<IEnumerable<PaymentRespone>> GetPaymentResponsesByYear(int year);
+        Task<IEnumerable<PaymentRespone>> GetPaymentResponsesByMonth(int year,int month);
+
+
+
     }
 }

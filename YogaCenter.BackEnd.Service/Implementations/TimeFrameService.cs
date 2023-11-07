@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web.WebPages;
 using YogaCenter.BackEnd.Common.Dto;
 using YogaCenter.BackEnd.DAL.Contracts;
 using YogaCenter.BackEnd.DAL.Models;
@@ -59,7 +60,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 {
                     await _unitOfWork.GetRepository<TimeFrame>().Insert(_mapper.Map<TimeFrame>(timeFrameDto));
                     _unitOfWork.SaveChange();
-                    _result.Message.Add(SD.ResponseMessage.CREATE_SUCCESS);
+                    _result.Message.Add(SD.ResponseMessage.CREATE_SUCCESSFUL);
                 }
                 else
                 {
@@ -101,6 +102,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
             return _result;
         }
 
+
         public async Task<AppActionResult> UpdateTimeFrame(TimeFrameDto timeFrameDto)
         {
             try
@@ -115,7 +117,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 {
                     await _unitOfWork.GetRepository<TimeFrame>().Update(_mapper.Map<TimeFrame>(timeFrameDto));
                     _unitOfWork.SaveChange();
-                    _result.Message.Add(SD.ResponseMessage.UPDATE_SUCCESS);
+                    _result.Message.Add(SD.ResponseMessage.UPDATE_SUCCESSFUL);
                 }
                 else
                 {
@@ -129,6 +131,50 @@ namespace YogaCenter.BackEnd.Service.Implementations
             }
             return _result;
 
+        }
+
+        public async Task<AppActionResult> SearchApplyingSortingAndFiltering(BaseFilterRequest filterRequest)
+        {
+            try
+            {
+                var source = await _unitOfWork.GetRepository<TimeFrame>().GetAll();
+                if (filterRequest != null)
+                {
+                    if (filterRequest.pageIndex <= 0 || filterRequest.pageSize <= 0)
+                    {
+                        _result.Message.Add($"Invalid value of pageIndex or pageSize");
+                        _result.isSuccess = false;
+                    }
+                    else
+                    {
+                        if (!filterRequest.keyword.IsEmpty())
+                        {
+                            source = await _unitOfWork.GetRepository<TimeFrame>().GetListByExpression(c => c.TimeFrameName.Contains(filterRequest.keyword), null);
+                        }
+                        if (filterRequest.filterInfoList != null)
+                        {
+                            source = DataPresentationHelper.ApplyFiltering(source, filterRequest.filterInfoList);
+                        }
+
+                        if (filterRequest.sortInfoList != null)
+                        {
+                            source = DataPresentationHelper.ApplySorting(source, filterRequest.sortInfoList);
+                        }
+                        source = DataPresentationHelper.ApplyPaging(source, filterRequest.pageIndex, filterRequest.pageSize);
+                        _result.Data = source;
+                    }
+                }
+                else
+                {
+                    _result.Data = source;
+                }
+            }
+            catch (Exception ex)
+            {
+                _result.isSuccess = false;
+                _result.Message.Add(ex.Message);
+            }
+            return _result;
         }
     }
 }

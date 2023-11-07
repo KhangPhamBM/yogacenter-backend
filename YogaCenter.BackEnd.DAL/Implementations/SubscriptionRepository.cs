@@ -24,9 +24,10 @@ namespace YogaCenter.BackEnd.DAL.Implementations
             return subscriptionList;
         }
 
-        public Task<IEnumerable<Subscription>> getSubscriptionByUserIdAndClassId(string userId, string ClassId)
+        public async Task<IEnumerable<Subscription>> getSubscriptionByUserIdAndClassId(string userId, int ClassId)
         {
-            throw new NotImplementedException();
+            var subscriptionList = _context.Subscriptions.Where(s => s.UserId == userId && s.ClassId == ClassId).ToList();
+            return subscriptionList;
         }
 
     }

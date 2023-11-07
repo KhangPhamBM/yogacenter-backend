@@ -8,14 +8,15 @@ using YogaCenter.BackEnd.DAL.Models;
 
 namespace YogaCenter.BackEnd.Service.Contracts
 {
-    public interface IAccountService
+    public interface IAccountService: ISearching<ApplicationUser>
     {
         Task<AppActionResult> Login(LoginRequestDto loginRequest);
         Task<AppActionResult> CreateAccount(SignUpRequestDto signUpRequest);
         Task<AppActionResult> UpdateAccount(ApplicationUser applicationUser);
         Task<AppActionResult> ChangePassword(ChangePasswordDto changePasswordDto);
         Task<AppActionResult> GetAccountByUserId(string id);
-        Task<AppActionResult> GetAllAccount();
+        Task<AppActionResult> GetAllAccount(int pageIndex, int pageSize, IList<SortInfo> sortInfos);
+        Task<AppActionResult> SearchApplyingSortingAndFiltering(BaseFilterRequest filterRequest);
 
 
     }

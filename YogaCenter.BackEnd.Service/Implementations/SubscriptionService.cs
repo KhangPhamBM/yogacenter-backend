@@ -43,7 +43,6 @@ namespace YogaCenter.BackEnd.Service.Implementations
 
                 if (await _unitOfWork.GetRepository<Class>().GetById(Subscription.Subscription.ClassId) == null)
                 {
-
                     _result.Message.Add("The class not found");
                     isValid = false;
                 }
@@ -61,7 +60,6 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 }
                 if (await _unitOfWork.GetRepository<ApplicationUser>().GetById(Subscription.Subscription.UserId) == null)
                 {
-
                     _result.Message.Add("The user not found");
                     isValid = false;
                 }
@@ -71,7 +69,6 @@ namespace YogaCenter.BackEnd.Service.Implementations
                     _result.Message.Add("The subscription status not found");
                     isValid = false;
                 }
-
                 if (isValid)
                 {
                     Subscription.Subscription.SubscriptionId = Guid.NewGuid().ToString();
@@ -90,7 +87,6 @@ namespace YogaCenter.BackEnd.Service.Implementations
                             try
                             {
                                 _result.Data = await _paymentService.CreatePaymentUrlVNPay(_mapper.Map<SubscriptionDto>(subscription), context);
-
                             }
                             catch (Exception ex)
                             {
@@ -101,14 +97,12 @@ namespace YogaCenter.BackEnd.Service.Implementations
                             try
                             {
                                 _result.Data = await _paymentService.CreatePaymentUrlMomo(_mapper.Map<SubscriptionDto>(subscription));
-
                             }
                             catch (Exception ex)
                             {
                                 _result.Message.Add($"{ex.Message}");
                             }
                             break;
-
                         default:
                             _result.Data = "";
                             break;
@@ -245,7 +239,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 {
                     await _unitOfWork.GetRepository<Subscription>().Update(_mapper.Map<Subscription>(Subscription));
                     _unitOfWork.SaveChange();
-                    _result.Message.Add(SD.ResponseMessage.UPDATE_SUCCESS);
+                    _result.Message.Add(SD.ResponseMessage.UPDATE_SUCCESSFUL);
                 }
                 else
                 {
@@ -310,7 +304,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                     subscription.SubscriptionStatusId = status;
                     await _unitOfWork.GetRepository<Subscription>().Update(subscription);
                     _unitOfWork.SaveChange();
-                    _result.Message.Add(SD.ResponseMessage.UPDATE_SUCCESS);
+                    _result.Message.Add(SD.ResponseMessage.UPDATE_SUCCESSFUL);
                 }
                 else
                 {

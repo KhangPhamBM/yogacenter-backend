@@ -43,15 +43,22 @@ namespace YogaCenter.BackEnd.API.Controllers
 
         }
 
-        [HttpGet("get-all-account")]
-        public async Task<AppActionResult> GetAllAccount()
+        [HttpPost("get-all-account")]
+        public async Task<AppActionResult> GetAllAccount(int pageIndex, int pageSize, IList<SortInfo> sortInfos)
         {
-            return await _accountService.GetAllAccount();
+            return await _accountService.GetAllAccount(pageIndex, pageSize, sortInfos);
         }
         [HttpPut("change-password")]
         public async Task<AppActionResult> ChangePassword(ChangePasswordDto dto)
         {
             return await _accountService.ChangePassword(dto);
         }
+
+        [HttpPost("get-accounts-with-searching")]
+        public async Task<AppActionResult> GetAccountWithSearching( BaseFilterRequest baseFilterRequest)
+        {
+            return await _accountService.SearchApplyingSortingAndFiltering(baseFilterRequest);
+        }
+
     }
 }

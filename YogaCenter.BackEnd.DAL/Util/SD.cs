@@ -118,16 +118,23 @@ namespace YogaCenter.BackEnd.DAL.Util
 
         }
 
+        public class AttendanceStatus
+        {
+            public static int NOT_YET = 1;
+            public static int ATTENDED = 2;
+            public static int ABSENT = 3;
 
+
+        }
         public class ResponseMessage
         {
-            public static string LOGIN_FAILED = "WRONG PASSWORD OR USERNAME";
-
-            public static string CREATE_SUCCESS = "CREATE_SUCCESS";
-            public static string UPDATE_SUCCESS = "UPDATE_SUCCESS";
-            public static string DELETE_SUCCESS = "DELETE_SUCCESS";
-            public static string FAILED = "FAILED";
-
+            public static string CREATE_SUCCESSFUL = "CREATE_SUCCESSFULLY";
+            public static string UPDATE_SUCCESSFUL = "UPDATE_SUCCESSFULLY";
+            public static string DELETE_SUCCESSFUL = "DELETE_SUCCESSFULLY";
+            public static string CREATE_FAILED = "CREATE_FAILED";
+            public static string UPDATE_FAILED = "UPDATE_FAILED";
+            public static string DELETE_FAILED = "DELETE_FAILED";
+            public static string LOGIN_FAILED = "LOGIN_FAILED";
         }
     }
 

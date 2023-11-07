@@ -1,4 +1,9 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿
+
+
+
+
+using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -87,12 +92,12 @@ namespace YogaCenter.BackEnd.Service.Implementations
 
                     if (result.Succeeded)
                     {
-                        _result.Message.Add($"{SD.ResponseMessage.CREATE_SUCCESS} ROLE");
+                        _result.Message.Add($"{SD.ResponseMessage.CREATE_SUCCESSFUL} ROLE");
 
                     }
                     else
                     {
-                        _result.Message.Add($"{SD.ResponseMessage.FAILED} ROLE");
+                        _result.Message.Add($"{SD.ResponseMessage.CREATE_FAILED} ROLE");
 
                     }
                 }
@@ -174,12 +179,12 @@ namespace YogaCenter.BackEnd.Service.Implementations
                     var result = await _roleManager.UpdateAsync(role);
                     if (result.Succeeded)
                     {
-                        _result.Message.Add($"{SD.ResponseMessage.UPDATE_SUCCESS} ROLE");
+                        _result.Message.Add($"{SD.ResponseMessage.UPDATE_SUCCESSFUL} ROLE");
 
                     }
                     else
                     {
-                        _result.Message.Add($"{SD.ResponseMessage.FAILED} ROLE");
+                        _result.Message.Add($"{SD.ResponseMessage.UPDATE_FAILED} ROLE");
 
                     }
                 }

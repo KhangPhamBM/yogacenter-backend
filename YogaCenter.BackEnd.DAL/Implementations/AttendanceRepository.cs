@@ -1,9 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using YogaCenter.BackEnd.Common.Dto;
 using YogaCenter.BackEnd.DAL.Contracts;
 using YogaCenter.BackEnd.DAL.Data;
 using YogaCenter.BackEnd.DAL.Models;
@@ -20,18 +22,17 @@ namespace YogaCenter.BackEnd.DAL.Implementations
 
         public async Task<Dictionary<int, IEnumerable<Attendance>>> GetAttendancesByClassId(int classId)
         {
-            var scheduleList = await _unitOfWork.GetRepository<Class>().GetListByExpression(s => s.ClassId == classId);
-            if (scheduleList.Any())
+            var scheduleList = _unitOfWork.GetRepository<Schedule>().GetListByExpression(s => s.ClassId == classId);
+            var attendances = new Dictionary<int, IEnumerable<Attendance>>();
+            if (scheduleList.Result.Any())
             {
-                var attandenceList = new Dictionary<int, IEnumerable<Attendance>>();
-                foreach (var schedule in scheduleList)
+                foreach (var schedule in scheduleList.Result)
                 {
-                    //var attendanceOfEachSchedule = await _unitOfWork.GetRepository<Attendance>().GetListByExpression(a => a.ScheduleId == schedule.ScheduleId;
-                    //attandenceList.Add((int)schedule.ScheduleId, attendanceOfEachSchedule);
+                    var attendance = _unitOfWork.GetRepository<Attendance>().GetListByExpression(a => a.ScheduleId == schedule.ScheduleId);
+                    attendances.Add((int)schedule.ClassId, (IEnumerable<Attendance>)await attendance);
                 }
-                return attandenceList;
             }
-            return new Dictionary<int, IEnumerable<Attendance>>();
+            return attendances;
         }
 
         public async Task<IEnumerable<Attendance>> GetAttendancesByScheduleId(int scheduleId)
@@ -52,6 +53,6 @@ namespace YogaCenter.BackEnd.DAL.Implementations
                 return attandenceList;
            }
             return new Dictionary<int, IEnumerable<Attendance>>();
-        }
+       }
     }
 }

@@ -44,7 +44,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 if (isValid)
                 {
                     await _unitOfWork.GetRepository<PaymentRespone>().Insert(_mapper.Map<PaymentRespone>(paymentRespone));
-                    _result.Message.Add(SD.ResponseMessage.CREATE_SUCCESS);
+                    _result.Message.Add(SD.ResponseMessage.CREATE_SUCCESSFUL);
                 }
                 else
                 {

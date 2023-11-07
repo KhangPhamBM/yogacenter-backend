@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using YogaCenter.BackEnd.Common.Dto;
 using YogaCenter.BackEnd.Service.Contracts;
+using YogaCenter.BackEnd.Service.Implementations;
 
 namespace YogaCenter.BackEnd.API.Controllers
 {
@@ -33,6 +34,10 @@ namespace YogaCenter.BackEnd.API.Controllers
             return await _roomService.GetRoomById(id);
         }
 
-
+        [HttpPost("Get-room-with-searching")]
+        public async Task<AppActionResult> GetRoomWithSearching(BaseFilterRequest baseFilterRequest)
+        {
+            return await _roomService.SearchApplyingSortingAndFiltering(baseFilterRequest);
+        }
     }
 }

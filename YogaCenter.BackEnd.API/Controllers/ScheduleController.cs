@@ -18,7 +18,7 @@ namespace YogaCenter.BackEnd.API.Controllers
             _scheduleService = scheduleService;
             _responeDto = new AppActionResult();
         }
-        [HttpGet("get-schedule-by-classId/{classId}")]
+        [HttpGet("get-schedule-by-classId/{classId:int}")]
         public async Task<AppActionResult> GetScheduleByClassId(int classId)
         {
            return await _scheduleService.GetScheduleByClassId(classId);    
@@ -26,9 +26,9 @@ namespace YogaCenter.BackEnd.API.Controllers
        
         [HttpGet("get-schedule-by-userId/{userId}")]
 
-        public async Task<AppActionResult> GetSchedulesByUserId(string UserId)
+        public async Task<AppActionResult> GetSchedulesByUserId(string userId)
         {
-            return await _scheduleService.GetSchedulesByUserId(UserId);
+            return await _scheduleService.GetSchedulesByUserId(userId);
         }
 
         [HttpPut("update-schedule")]
@@ -44,5 +44,44 @@ namespace YogaCenter.BackEnd.API.Controllers
         {
             return await _scheduleService.GenerateScheduleForClass(scheduleDto);
         }
+
+
+        [HttpGet("get-schedule-of-class-by-date")]
+        public async Task<AppActionResult> GetScheduleOfClassByDate(int classId, DateTime date)
+        {
+            return await _scheduleService.GetScheduleOfClassByDate(classId, date);           
+        }
+
+        [HttpGet("get-schedule-of-class-by-week")]
+        public async Task<AppActionResult> GetScheduleOfClassByWeek(int classId, int week, int year)
+        {
+            return await _scheduleService.GetScheduleOfClassByWeek(classId, week, year);
+        }
+
+        [HttpGet("get-schedule-of-class-by-month")]
+        public async Task<AppActionResult> GetScheduleOfClassByMonth(int classId, int month, int year)
+        {
+            return await _scheduleService.GetScheduleOfClassByMonth(classId, month, year);
+        }
+
+
+        [HttpGet("get-schedules-by-date")]
+        public async Task<AppActionResult> GetScheduleByDate(DateTime date)
+        {
+            return await _scheduleService.GetSchedulesByDate(date);
+        }
+
+        [HttpGet("get-schedules-by-week")]
+        public async Task<AppActionResult> GetSchedulesByWeek(int week, int year)
+        {
+            return await _scheduleService.GetSchedulesByWeek( week, year);
+        }
+
+        [HttpGet("get-schedules-by-month")]
+        public async Task<AppActionResult> GetSchedulesByMonth(int month, int year)
+        {
+            return await _scheduleService.GetSchedulesByMonth( month, year);
+        }
+
     }
 }

@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using YogaCenter.BackEnd.Common.Dto;
 using YogaCenter.BackEnd.Service.Contracts;
+using YogaCenter.BackEnd.Service.Implementations;
 
 namespace YogaCenter.BackEnd.API.Controllers
 {
@@ -31,6 +32,12 @@ namespace YogaCenter.BackEnd.API.Controllers
         public async Task<AppActionResult> GetTimeFrameById(int id)
         {
             return await _timeFrameService.GetTimeFrameById(id);
+        }
+        [HttpPost]
+        [Route("get-timeframe-with-searching")]
+        public async Task<AppActionResult> GetTimeFrameWithSearching(BaseFilterRequest baseFilterRequest)
+        {
+            return await _timeFrameService.SearchApplyingSortingAndFiltering(baseFilterRequest);
         }
     }
 }

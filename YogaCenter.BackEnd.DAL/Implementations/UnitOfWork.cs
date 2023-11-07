@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,8 +18,6 @@ namespace YogaCenter.BackEnd.DAL.Implementations
         {
             _db = db;
         }
-
-        
 
         public IRepository<TEntity> GetRepository<TEntity>() where TEntity : class
         {

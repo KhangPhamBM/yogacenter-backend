@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using NPOI.Util;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,7 +28,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
         }
 
 
-        public async Task<AppActionResult> CreateClass(ClassDto classDto)
+        public async Task<AppActionResult> CreateClass(ClassRequest classDto)
         {
             try
             {
@@ -48,7 +49,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 {
                     await _unitOfWork.GetRepository<Class>().Insert(_mapper.Map<Class>(classDto));
                     _unitOfWork.SaveChange();
-                    _result.Message.Add(SD.ResponseMessage.CREATE_SUCCESS);
+                    _result.Message.Add(SD.ResponseMessage.CREATE_SUCCESSFUL);
                 }
                 else
                 {
@@ -93,7 +94,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
             return _result;
         }
 
-        public async Task<AppActionResult> UpdateClass(ClassDto classDto)
+        public async Task<AppActionResult> UpdateClass(ClassRequest classDto)
         {
             try
             {
@@ -114,7 +115,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 {
                     await _unitOfWork.GetRepository<Class>().Update(_mapper.Map<Class>(classDto));
                     _unitOfWork.SaveChange();
-                    _result.Message.Add(SD.ResponseMessage.UPDATE_SUCCESS);
+                    _result.Message.Add(SD.ResponseMessage.UPDATE_SUCCESSFUL);
                 }
                 else
                 {
@@ -129,7 +130,52 @@ namespace YogaCenter.BackEnd.Service.Implementations
             return _result;
         }
 
+        public async Task<AppActionResult> GetAllClass(int pageIndex, int pageSize, IList<SortInfo> sortInfos)
+        {
+            try
+            {
+                var classes = await _unitOfWork.GetRepository<Class>().GetAll();
+                if (sortInfos != null)
+                {
+                    classes = DataPresentationHelper.ApplySorting(classes, sortInfos);
+                }
+                if (pageIndex > 0 && pageSize > 0)
+                {
+                    classes = DataPresentationHelper.ApplyPaging(classes, pageIndex, pageSize);
+                }
+                _result.Data = classes;
+            }
+            catch (Exception ex)
+            {
+                _result.isSuccess = false;
+                _result.Message.Add(ex.Message);
+            }
+            return _result;
+        }
 
-
+        public async Task<AppActionResult> GetAllAvailableClass(int pageIndex, int pageSize, IList<SortInfo> sortInfos)
+        {
+            try
+            {
+                var src = await _unitOfWork.GetRepository<Class>().GetListByExpression(c => c.IsDeleted == false, null);
+                var classes =  _mapper.Map<IOrderedQueryable<ClassDto>>(src);
+                if (sortInfos != null)
+                {
+                    classes = DataPresentationHelper.ApplySorting(classes, sortInfos);
+                }
+                if (pageIndex > 0 && pageSize > 0)
+                {
+                    classes = DataPresentationHelper.ApplyPaging(classes, pageIndex, pageSize);
+                }
+                _result.Data = classes;
+            }
+            catch (Exception ex)
+            {
+                _result.isSuccess = false;
+                _result.Message.Add(ex.Message);
+            }
+            return _result;
+        }
     }
 }
+

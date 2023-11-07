@@ -33,7 +33,6 @@ namespace YogaCenter.BackEnd.Service.Implementations
         {
             try
             {
-
                 bool isValid = true;
                 if (await _unitOfWork.GetRepository<Class>().GetById(detail.ClassId) == null)
                 {
@@ -50,22 +49,36 @@ namespace YogaCenter.BackEnd.Service.Implementations
                     isValid = false;
                     _result.Message.Add($"The trainee has been registed in this class");
                 }
+                var scheduleList = await _unitOfWork.GetRepository<Schedule>().GetListByExpression(s => s.ClassId == detail.ClassId, null);
+                if (scheduleList.Count() < 1)
+                {
+                    isValid = false;
+                    _result.Message.Add($"This class doesn't have any schedules. Please create schedules for the class with id {detail.ClassId}");
+                }
 
                 if (isValid)
                 {
+                    
 
-                    await _unitOfWork.GetRepository<ClassDetail>().Insert(_mapper.Map<ClassDetail>(detail));
+                   var classDetail = await _unitOfWork.GetRepository<ClassDetail>().Insert(_mapper.Map<ClassDetail>(detail));
                     _unitOfWork.SaveChange();
+                    foreach (var schedule in scheduleList)
+                    {
+                        await _unitOfWork.GetRepository<Attendance>().Insert(new Attendance() {ClassDetailId = classDetail.ClassDetailId, ScheduleId = schedule.ScheduleId, AttendanceStatusId = SD.AttendanceStatus.NOT_YET  });
+                    }
+                    _unitOfWork.SaveChange();
+                    _result.Message.Add(SD.ResponseMessage.CREATE_SUCCESSFUL);
 
-                    _result.Message.Add(SD.ResponseMessage.CREATE_SUCCESS);
 
-
+                    if (isValid)
+                    {
+                        _result.Data = await _unitOfWork.GetRepository<ClassDetail>().GetByExpression(_classDetailRepository.GetClassDetailByUserId(detail.UserId));
+                    }
+                    else
+                    {
+                        _result.isSuccess = false;
+                    }
                 }
-                else
-                {
-                    _result.isSuccess = false;
-                }
-
             }
             catch (Exception ex)
             {
@@ -75,28 +88,37 @@ namespace YogaCenter.BackEnd.Service.Implementations
             return _result;
         }
 
-        public async Task<AppActionResult> GetClassDetailByUserId(string userId)
+        public async Task<AppActionResult> GetClassDetailsByClassId(int classId, int pageIndex, int pageSize, IList<SortInfo> sortInfos)
         {
             try
             {
-
                 bool isValid = true;
-
-                if (await _unitOfWork.GetRepository<ApplicationUser>().GetById(userId) == null)
+                if (await _unitOfWork.GetRepository<Class>().GetById(classId) == null)
                 {
                     isValid = false;
-                    _result.Message.Add($"The user with id {userId} not found");
+                    _result.Message.Add("The class with id {detail.ClassDetailId} not found");
                 }
-
                 if (isValid)
                 {
-                    _result.Data = await _unitOfWork.GetRepository<ClassDetail>().GetByExpression(_classDetailRepository.GetClassDetailByUserId(userId));
+                    var details  = await _unitOfWork.GetRepository<ClassDetail>().GetListByExpression(cd => cd.ClassId == classId, null);
+                    if (details != null)
+                    {
+                        if (sortInfos != null)
+                        {
+                            details = DataPresentationHelper.ApplySorting(details, sortInfos);
+                        }
+                        if (pageIndex > 0 && pageSize > 0)
+                        {
+                            details = DataPresentationHelper.ApplyPaging(details, pageIndex, pageSize);
+                        }
+                        _result.Data = details;
+                    }
+                    else
+                    {
+                        _result.isSuccess = false;
+                        _result.Message.Add($"The class detail with class id {classId} not found");
+                    }
                 }
-                else
-                {
-                    _result.isSuccess = false;
-                }
-
             }
             catch (Exception ex)
             {

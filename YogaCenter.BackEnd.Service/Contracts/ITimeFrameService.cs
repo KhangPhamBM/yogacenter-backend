@@ -4,10 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using YogaCenter.BackEnd.Common.Dto;
+using YogaCenter.BackEnd.DAL.Models;
 
 namespace YogaCenter.BackEnd.Service.Contracts
 {
-    public interface ITimeFrameService
+    public interface ITimeFrameService : ISearching<TimeFrame>
     {
         Task<AppActionResult> CreateTimeFrame(TimeFrameDto timeFrameDto);
         Task<AppActionResult> UpdateTimeFrame(TimeFrameDto timeFrameDto);
