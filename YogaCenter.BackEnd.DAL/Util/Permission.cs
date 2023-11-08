@@ -14,7 +14,7 @@ namespace YogaCenter.BackEnd.DAL.Util
         public const string TRAINER = "TRAINER";
 
         public const string ALL = $"{ADMIN}, {STAFF},{TRAINEE}, {TRAINER}";
-        public const string MANAGEMENT = $"{ADMIN}, {STAFF}";
+        public const string MANAGEMENT = $"{ADMIN},{STAFF}";
         public const string CLASS = $"{ADMIN}, {STAFF},{TRAINER}";
 
 

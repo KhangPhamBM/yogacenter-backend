@@ -67,7 +67,7 @@ namespace YogaCenter.BackEnd.API.Controllers
 
         [HttpPost("get-accounts-with-searching")]
         [Authorize(Roles = Permission.MANAGEMENT)]
-        public async Task<AppActionResult> GetAccountWithSearching( BaseFilterRequest baseFilterRequest)
+        public async Task<AppActionResult> GetAccountWithSearching(BaseFilterRequest baseFilterRequest)
         {
             return await _accountService.SearchApplyingSortingAndFiltering(baseFilterRequest);
         }
@@ -87,6 +87,13 @@ namespace YogaCenter.BackEnd.API.Controllers
             return await _accountService.RemoveRoleForUserId(userId, roleId);
         }
 
+        [HttpGet("get-all-role")]
+        [Authorize(Roles = Permission.MANAGEMENT)]
+
+        public async Task<AppActionResult> GetAllRole()
+        {
+            return await _accountService.GetAllRole();
+        }
 
     }
 }

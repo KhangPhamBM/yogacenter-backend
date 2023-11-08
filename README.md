@@ -38,9 +38,12 @@ The Yoga Center Management System backend API is built using the following techn
 
 
 ## Acknowledgements
-We would like to acknowledge the following individuals and projects for their contributions and inspiration to the Takeaway Management System:
+We would like to acknowledge the following individuals and projects for their contributions and inspiration to the Yoga Center System:
+### BACK END
 - [duong-hong-quan](https://github.com/duong-hong-quan)
 - [KhangPhamBM](https://github.com/KhangPhamBM)
+### FRONT END
+- [chau-ngoc-tram](https://github.com/ChauNgocTram)
 
 ## Contact Information
 For any questions, feedback, or support, please feel free to contact us:

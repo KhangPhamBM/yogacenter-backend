@@ -21,5 +21,7 @@ namespace YogaCenter.BackEnd.Service.Contracts
         Task<AppActionResult> AssignRoleForUserId(string userId, IList<string> roleId);
         Task<AppActionResult> RemoveRoleForUserId(string userId, IList<string> roleId);
 
+        Task<AppActionResult> GetAllRole();
+
     }
 }

@@ -438,5 +438,17 @@ namespace YogaCenter.BackEnd.Service.Implementations
             }
             return _result;
         }
+
+        public async Task<AppActionResult> GetAllRole()
+        {
+            try {
+                _result.Result.Data = await _unitOfWork.GetRepository<IdentityRole>().GetAll();
+            
+            }catch(Exception ex) {
+                _result.Message.Add(ex.Message);
+                _result.isSuccess = false;
+            }
+            return _result;
+        }
     }
 }
