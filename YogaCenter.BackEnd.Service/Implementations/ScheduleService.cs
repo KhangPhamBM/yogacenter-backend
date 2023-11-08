@@ -149,12 +149,12 @@ namespace YogaCenter.BackEnd.Service.Implementations
 
                         while (currentDate <= classDto.EndDate)
                         {
-                            if (await _unitOfWork.GetRepository<Schedule>().GetByExpression(s => s.RoomId == item.RoomId && s.TimeFrameId == item.TimeFrameId && s.Date == currentDate) != null)
+                            if (await _unitOfWork.GetRepository<Schedule>().GetByExpression(s => s.RoomId == item.RoomId && s.TimeFrameId == item.TimeFrameId && s.Date.Date == currentDate.Date) != null)
                             {
                                 isCollided = true;
                                 isValid = false;
 
-                                _result.Message.Add($"Collided schedule time at timeFrameId: {item.TimeFrameId}, on {currentDate.DayOfWeek}, {currentDate}, ar roomId: {item.RoomId}");
+                                _result.Message.Add($"Collided schedule time at timeFrameId: {item.TimeFrameId}, on {currentDate.DayOfWeek}, {currentDate}, at roomId: {item.RoomId}");
                             }
                             if (!isCollided)
                             {
