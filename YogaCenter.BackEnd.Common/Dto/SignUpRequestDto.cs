@@ -15,7 +15,7 @@ namespace YogaCenter.BackEnd.Common.Dto
         public bool? Gender { get; set; }
         public string PhoneNumber { get; set; }
 
-        public string RoleName { get; set; }
+        public IList<string> RoleId { get; set; }
        
     }
 }

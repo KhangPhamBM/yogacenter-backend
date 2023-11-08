@@ -52,6 +52,14 @@ namespace YogaCenter.BackEnd.Service.Implementations
                     isValid = false;
                     _result.Message.Add($"The class with id {detail.ClassDetailId} not found");
                 }
+
+                if(classDto.MaxOfTrainee == await CountTrainee(classDto))
+                {
+                    isValid = false;
+                    _result.Message.Add($"The class with id {classDto.ClassId} is having maximum trainee");
+
+                }
+
                 if (await _unitOfWork.GetRepository<ApplicationUser>().GetById(detail.UserId) == null)
                 {
                     isValid = false;
@@ -68,85 +76,10 @@ namespace YogaCenter.BackEnd.Service.Implementations
 
                 if (traineeRole != null && trainerRole != null)
                 {
-                    if (await _unitOfWork.GetRepository<IdentityUserRole<string>>().GetByExpression(r => r.RoleId == traineeRole.Id && r.UserId == detail.UserId, null) != null)
-                    {
-                         var classDetailList = await _unitOfWork.GetRepository<ClassDetail>().GetListByExpression(c => c.ClassId == detail.ClassId);
-                List<ApplicationUser> users = new List<ApplicationUser>();
-                foreach (var item in classDetailList)
-                {
-                    var user = await _unitOfWork.GetRepository<ApplicationUser>().GetById(item.UserId);
-                    users.Add(user);
-                }
-                bool haveTrainer = false;
-                foreach (var user in users)
-                {
-                    if (await _unitOfWork.GetRepository<IdentityUserRole<string>>().GetByExpression(r => r.RoleId == trainerRole.Id && r.UserId == user.Id, null) != null)
-                    {
-                        haveTrainer = true;
-
-
-                    }
-
-
-                }
-                if (!haveTrainer)
-                {
-                            isValid = false;
-
-                            _result.Message.Add($"This class don't have trainer");
-                }
-
-
-
-                        if (await _unitOfWork.GetRepository<ClassDetail>().GetByExpression(_classDetailRepository.GetByClassIdAndUserId(_mapper.Map<ClassDetail>(detail))) != null && classDto.EndDate >= DateTime.Now)
-                        {
-                            isValid = false;
-                            _result.Message.Add($"The trainee has been registed in this class with id {detail.ClassId}");
-                        }
-                    }
-                    else if (await _unitOfWork.GetRepository<IdentityUserRole<string>>().GetByExpression(r => r.RoleId == trainerRole.Id && r.UserId == detail.UserId, null) != null)
-                    {
-                        var classDetail = await _unitOfWork.GetRepository<ClassDetail>().GetByExpression(c => c.UserId == detail.UserId);
-                        var list = await _unitOfWork.GetRepository<Schedule>().GetListByExpression(s => s.ClassId == classDto.ClassId);
-                        if (classDetail != null)
-                        {
-                            var scheduleTrainee = await _unitOfWork.GetRepository<Schedule>().GetListByExpression(s => s.ClassId == classDetail.ClassId);
-                            HashSet<Schedule> schedules = new HashSet<Schedule>();
-                            foreach (var item in list)
-                                schedules.Add(item);
-                            foreach (var item2 in scheduleTrainee)
-                            {
-                                if (schedules.Contains(item2))
-                                {
-                                    isValid = false;
-                                    var timeFrame = await _unitOfWork.GetRepository<DAL.Models.TimeFrame>().GetById(item2.TimeFrameId);
-                                    _result.Message.Add($"Collided schedule time : {timeFrame?.TimeFrameName?.ToLower()}, on {item2.Date.DayOfWeek} {SD.FormatDateTime(item2.Date)}, at roomId: {item2.RoomId} & roomId {item2.RoomId}");
-
-                                }
-                            }
-
-                            /*
-                             foreach (var item in list)
-                            {
-                                foreach (var item2 in scheduleTrainee)
-                                {
-                                    if (item.TimeFrameId == item2.TimeFrameId && item.Date.Date == item2.Date)
-                                    {
-                                        isValid = false;
-                                        var timeFrame = await _unitOfWork.GetRepository<DAL.Models.TimeFrame>().GetById(item.TimeFrameId);
-                                        _result.Message.Add($"Collided schedule time : {timeFrame?.TimeFrameName?.ToLower()}, on {item.Date.DayOfWeek} {SD.FormatDateTime(item.Date)}, at roomId: {item.RoomId} & roomId {item2.RoomId}");
-
-                                    }
-                                }
-                            }
-                             */
-                        }
-                    }
+                    isValid = await IsCollidedSchedule(detail, isValid, traineeRole, trainerRole, classDto);
                 }
                 if (isValid)
                 {
-
-
                     var classDetail = await _unitOfWork.GetRepository<ClassDetail>().Insert(_mapper.Map<ClassDetail>(detail));
                     _unitOfWork.SaveChange();
                     foreach (var schedule in scheduleList)
@@ -173,6 +106,92 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 _result.Message.Add(ex.Message);
             }
             return _result;
+        }
+
+        private async Task<int> CountTrainee(Class classDto)
+        {
+            int total = 0;
+            var classDetail = await _unitOfWork.GetRepository<ClassDetail>().GetAll();
+            var traineeRole = await _unitOfWork.GetRepository<IdentityRole>().GetByExpression(r => r.NormalizedName.ToLower().Equals("trainee"));
+            var trainerRole = await _unitOfWork.GetRepository<IdentityRole>().GetByExpression(r => r.NormalizedName.ToLower().Equals("trainer"));
+            if (traineeRole == null || trainerRole == null || !classDetail.Any())
+            {
+                return 0;
+            }
+            List<ApplicationUser> users = new List<ApplicationUser>();
+            foreach (var item in classDetail)
+            {
+                var user = await _unitOfWork.GetRepository<ApplicationUser>().GetById(item.UserId);
+                users.Add(user);
+            }
+            foreach (var user in users)
+            {
+                if (await _unitOfWork.GetRepository<IdentityUserRole<string>>().GetByExpression(r => r.RoleId == traineeRole.Id && r.UserId == user.Id, null) != null)
+                {
+                     total ++;
+                }
+            }
+            return total;
+        }
+
+        private async Task<bool> IsCollidedSchedule(ClassDetailDto detail, bool isValid, IdentityRole? traineeRole, IdentityRole? trainerRole, Class? classDto)
+        {
+            if (await _unitOfWork.GetRepository<IdentityUserRole<string>>().GetByExpression(r => r.RoleId == traineeRole.Id && r.UserId == detail.UserId, null) != null)
+            {
+                var classDetailList = await _unitOfWork.GetRepository<ClassDetail>().GetListByExpression(c => c.ClassId == detail.ClassId);
+                List<ApplicationUser> users = new List<ApplicationUser>();
+                foreach (var item in classDetailList)
+                {
+                    var user = await _unitOfWork.GetRepository<ApplicationUser>().GetById(item.UserId);
+                    users.Add(user);
+                }
+                bool haveTrainer = false;
+                foreach (var user in users)
+                {
+                    if (await _unitOfWork.GetRepository<IdentityUserRole<string>>().GetByExpression(r => r.RoleId == trainerRole.Id && r.UserId == user.Id, null) != null)
+                    {
+                        haveTrainer = true;
+                    }
+                }
+                if (!haveTrainer)
+                {
+                    isValid = false;
+
+                    _result.Message.Add($"This class don't have trainer");
+                }
+                if (await _unitOfWork.GetRepository<ClassDetail>().GetByExpression(_classDetailRepository.GetByClassIdAndUserId(_mapper.Map<ClassDetail>(detail))) != null && classDto.EndDate >= DateTime.Now)
+                {
+                    isValid = false;
+                    _result.Message.Add($"The trainee has been registed in this class with id {detail.ClassId}");
+                }
+            }
+            else if (await _unitOfWork.GetRepository<IdentityUserRole<string>>().GetByExpression(r => r.RoleId == trainerRole.Id && r.UserId == detail.UserId, null) != null)
+            {
+                var classDetail = await _unitOfWork.GetRepository<ClassDetail>().GetByExpression(c => c.UserId == detail.UserId);
+                var list = await _unitOfWork.GetRepository<Schedule>().GetListByExpression(s => s.ClassId == classDto.ClassId);
+                if (classDetail != null)
+                {
+                    var scheduleTrainee = await _unitOfWork.GetRepository<Schedule>().GetListByExpression(s => s.ClassId == classDetail.ClassId);
+                    HashSet<Schedule> schedules = new HashSet<Schedule>();
+                    foreach (var item in list)
+                    {
+                        schedules.Add(item);
+                    }
+                    foreach (var schedule in scheduleTrainee)
+                    {
+                        if (schedules.Contains(schedule))
+                        {
+                            isValid = false;
+                            var timeFrame = await _unitOfWork.GetRepository<DAL.Models.TimeFrame>().GetById(schedule.TimeFrameId);
+                            _result.Message.Add($"Collided schedule time : {timeFrame?.TimeFrameName?.ToLower()}, on {schedule.Date.DayOfWeek} {SD.FormatDateTime(schedule.Date)}");
+
+                        }
+                    }
+
+                }
+            }
+
+            return isValid;
         }
 
         public async Task<AppActionResult> GetClassDetailsByClassId(int classId, int pageIndex, int pageSize, IList<SortInfo> sortInfos)

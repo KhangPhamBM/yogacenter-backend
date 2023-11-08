@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using YogaCenter.BackEnd.Common.Dto;
 using YogaCenter.BackEnd.DAL.Models;
@@ -33,6 +34,7 @@ namespace YogaCenter.BackEnd.API.Controllers
         }
 
         [HttpPut("update-schedule")]
+        [Authorize(Roles = Permission.MANAGEMENT)]
 
         public async Task<AppActionResult> UpdateSchedule(ScheduleDto scheduleDto)
         {
@@ -40,6 +42,7 @@ namespace YogaCenter.BackEnd.API.Controllers
         }
 
         [HttpPost("generate-schedule-for-class")]
+        [Authorize(Roles = Permission.STAFF)]
 
         public async Task<AppActionResult> GenerateScheduleForClass(CreateScheduleRequest scheduleDto)
         {
