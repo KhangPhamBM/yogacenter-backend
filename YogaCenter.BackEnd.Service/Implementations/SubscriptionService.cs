@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web.WebPages;
 using YogaCenter.BackEnd.Common.Dto;
 using YogaCenter.BackEnd.DAL.Contracts;
 using YogaCenter.BackEnd.DAL.Implementations;
@@ -86,7 +87,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                         case 1:
                             try
                             {
-                                _result.Data = await _paymentService.CreatePaymentUrlVNPay(_mapper.Map<SubscriptionDto>(subscription), context);
+                                _result.Result.Data = await _paymentService.CreatePaymentUrlVNPay(_mapper.Map<SubscriptionDto>(subscription), context);
                             }
                             catch (Exception ex)
                             {
@@ -96,7 +97,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                         case 2:
                             try
                             {
-                                _result.Data = await _paymentService.CreatePaymentUrlMomo(_mapper.Map<SubscriptionDto>(subscription));
+                                _result.Result.Data = await _paymentService.CreatePaymentUrlMomo(_mapper.Map<SubscriptionDto>(subscription));
                             }
                             catch (Exception ex)
                             {
@@ -104,7 +105,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                             }
                             break;
                         default:
-                            _result.Data = "";
+                            _result.Result.Data = "";
                             break;
                     }
                 }
@@ -182,7 +183,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                         case 1:
                             try
                             {
-                                _result.Data = await _paymentService.CreatePaymentUrlVNPay(_mapper.Map<SubscriptionDto>(subscription), context);
+                                _result.Result.Data = await _paymentService.CreatePaymentUrlVNPay(_mapper.Map<SubscriptionDto>(subscription), context);
 
                             }
                             catch (Exception ex)
@@ -193,7 +194,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                         case 2:
                             try
                             {
-                                _result.Data = await _paymentService.CreatePaymentUrlMomo(_mapper.Map<SubscriptionDto>(subscription));
+                                _result.Result.Data = await _paymentService.CreatePaymentUrlMomo(_mapper.Map<SubscriptionDto>(subscription));
 
                             }
                             catch (Exception ex)
@@ -203,7 +204,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                             break;
 
                         default:
-                            _result.Data = "";
+                            _result.Result.Data = "";
                             break;
                     }
                 }
@@ -267,7 +268,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 }
                 if (isValid)
                 {
-                    _result.Data = await _unitOfWork.GetRepository<Subscription>().GetByExpression(s => s.SubscriptionId == subcriptionId && s.SubscriptionStatusId == SD.Subscription.PENDING);
+                    _result.Result.Data = await _unitOfWork.GetRepository<Subscription>().GetByExpression(s => s.SubscriptionId == subcriptionId && s.SubscriptionStatusId == SD.Subscription.PENDING);
                 }
                 else
                 {
@@ -318,5 +319,52 @@ namespace YogaCenter.BackEnd.Service.Implementations
             }
             return _result;
         }
+
+        public async Task<AppActionResult> SearchApplyingSortingAndFiltering(BaseFilterRequest filterRequest)
+        {
+            try
+            {
+                var source = await _unitOfWork.GetRepository<Subscription>().GetAll();
+                int totalPage = DataPresentationHelper.CalculateTotalPageSize(source.Count(), filterRequest.pageSize);
+                if (filterRequest != null)
+                {
+                    if (filterRequest.pageIndex <= 0 || filterRequest.pageSize <= 0)
+                    {
+                        _result.Message.Add($"Invalid value of pageIndex or pageSize");
+                        _result.isSuccess = false;
+                    }
+                    else
+                    {
+                        if (!filterRequest.keyword.IsEmpty())
+                        {
+                            source = await _unitOfWork.GetRepository<Subscription>().GetListByExpression(c => c.UserId.Contains(filterRequest.keyword), null);
+                        }
+                        if (filterRequest.filterInfoList != null)
+                        {
+                            source = DataPresentationHelper.ApplyFiltering(source, filterRequest.filterInfoList);
+                        }
+                        totalPage = DataPresentationHelper.CalculateTotalPageSize(source.Count(), filterRequest.pageSize);
+                        if (filterRequest.sortInfoList != null)
+                        {
+                            source = DataPresentationHelper.ApplySorting(source, filterRequest.sortInfoList);
+                        }
+                        source = DataPresentationHelper.ApplyPaging(source, filterRequest.pageIndex, filterRequest.pageSize);
+                        _result.Result.Data = source;
+                    }
+                }
+                else
+                {
+                    _result.Result.Data = source;
+                }
+                _result.Result.TotalPage = totalPage;
+            }
+            catch (Exception ex)
+            {
+                _result.isSuccess = false;
+                _result.Message.Add(ex.Message);
+            }
+            return _result;
+        }
+
     }
 }

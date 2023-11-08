@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using YogaCenter.BackEnd.DAL.Data;
 
@@ -11,9 +12,10 @@ using YogaCenter.BackEnd.DAL.Data;
 namespace YogaCenter.BackEnd.DAL.Migrations
 {
     [DbContext(typeof(YogaCenterContext))]
-    partial class YogaCenterContextModelSnapshot : ModelSnapshot
+    [Migration("20231108090008_edit field name of class ")]
+    partial class editfieldnameofclass
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -47,36 +49,6 @@ namespace YogaCenter.BackEnd.DAL.Migrations
                         .HasFilter("[NormalizedName] IS NOT NULL");
 
                     b.ToTable("AspNetRoles", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            Id = "cb057132-f2b5-4304-89ad-181c91fb5853",
-                            ConcurrencyStamp = "47abada2-0012-4034-bafe-96dacbb95a5f",
-                            Name = "ADMIN",
-                            NormalizedName = "admin"
-                        },
-                        new
-                        {
-                            Id = "d54aaf3b-88cc-4e08-b884-08135141e550",
-                            ConcurrencyStamp = "6e3b6ece-68f4-4e54-9629-6a958d83aec2",
-                            Name = "STAFF",
-                            NormalizedName = "staff"
-                        },
-                        new
-                        {
-                            Id = "321fda66-15ad-4239-a90f-2238929bc99a",
-                            ConcurrencyStamp = "d0c47168-881a-4eaf-a4c2-20c8860a9c9d",
-                            Name = "TRAINER",
-                            NormalizedName = "trainer"
-                        },
-                        new
-                        {
-                            Id = "d440fb55-34db-4d23-b204-dc07355bd496",
-                            ConcurrencyStamp = "513a9014-f562-42fd-8104-25a8be6d129f",
-                            Name = "TRAINEE",
-                            NormalizedName = "trainee"
-                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

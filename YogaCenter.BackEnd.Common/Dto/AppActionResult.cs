@@ -8,7 +8,8 @@ namespace YogaCenter.BackEnd.Common.Dto
 {
     public class AppActionResult
     {
-        public object Data { get; set; }
+        public Result Result { get; set; } = new();
+
         public bool isSuccess { get; set; } = true;
         public List<string?> Message { get; set; } = new List<string?>();
     }

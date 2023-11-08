@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using YogaCenter.BackEnd.Common.Dto;
 using YogaCenter.BackEnd.Service.Contracts;
+using YogaCenter.BackEnd.Service.Implementations;
 
 namespace YogaCenter.BackEnd.API.Controllers
 {
@@ -34,6 +35,13 @@ namespace YogaCenter.BackEnd.API.Controllers
         public async Task<AppActionResult> GetPaymentUrl(SubscriptionRequest request)
         {
             return await _subscriptionService.GetPaymentUrl(request, HttpContext);
+        }
+
+        [HttpPost]
+        [Route("get-subscription-with-searching")]
+        public async Task<AppActionResult> GetSubscriptionWithSearching(BaseFilterRequest baseFilterRequest)
+        {
+            return await _subscriptionService.SearchApplyingSortingAndFiltering(baseFilterRequest);
         }
 
     }

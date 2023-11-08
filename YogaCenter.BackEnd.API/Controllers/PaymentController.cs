@@ -28,7 +28,7 @@ namespace YogaCenter.BackEnd.API.Controllers
             try
             {
                 AppActionResult subscription = await _subscriptionService.GetSubscriptionByIdWithPendingStatus(momo.extraData);
-                if(subscription.Data != null)
+                if(subscription.Result != null)
                 {
                     if (momo.resultCode == 0 )
                     {

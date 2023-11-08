@@ -38,7 +38,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
 
         public async Task<AppActionResult> GetScheduleByClassId(int id)
         {
-            _result.Data = await _unitOfWork.GetRepository<Schedule>().GetListByExpression(c => c.ClassId == id, c => c.TimeFrame, c => c.Room, c => c.Class);
+            _result.Result .Data= await _unitOfWork.GetRepository<Schedule>().GetListByExpression(c => c.ClassId == id, c => c.TimeFrame, c => c.Room, c => c.Class);
             return _result;
         }
 
@@ -55,7 +55,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 }
                 if (isValid)
                 {
-                    _result.Data = await _unitOfWork.GetRepository<Schedule>().GetListByExpression(c => c.ClassId == classDetail.ClassId, c => c.TimeFrame, c => c.Room, c => c.Class);
+                    _result.Result.Data = await _unitOfWork.GetRepository<Schedule>().GetListByExpression(c => c.ClassId == classDetail.ClassId, c => c.TimeFrame, c => c.Room, c => c.Class);
 
                 }
                 else
@@ -114,8 +114,6 @@ namespace YogaCenter.BackEnd.Service.Implementations
         public async Task<AppActionResult> GenerateScheduleForClass(CreateScheduleRequest request)
         {
             bool isValid = true;
-            bool isCollided = false;
-
             try
             {
                 if (await _unitOfWork.GetRepository<Class>().GetById(request.ClassId) == null)
@@ -137,51 +135,48 @@ namespace YogaCenter.BackEnd.Service.Implementations
                         _result.Message.Add($"The room with id {item.RoomId} not found");
                     }
                 }
-                var classDto = await _unitOfWork.GetRepository<Class>().GetById(request.ClassId);
-                List<ScheduleOfClassDto> schedules = new List<ScheduleOfClassDto>();
-                foreach (var item in request.Schedules)
-                {
-                    DateTime currentDate = (DateTime)classDto.StartDate;
-                    int diff = (item.DayOfWeek - currentDate.DayOfWeek + 7) % 7;
-                    currentDate = currentDate.AddDays(diff);
-                    while (currentDate <= classDto.EndDate)
-                    {
-                        if (await _unitOfWork.GetRepository<Schedule>().GetByExpression(s => s.RoomId == item.RoomId && s.TimeFrameId == item.TimeFrameId && s.Date == currentDate) != null)
-                        {
-                            isValid = false;
-                            _result.Message.Add($"Collided schedule time at timeFrameId: {item.TimeFrameId}, on {currentDate.DayOfWeek}, {currentDate}, ar roomId: {item.RoomId}");
-                        }
-                    }
-                }
+
                 if (isValid)
                 {
-
+                    var classDto = await _unitOfWork.GetRepository<Class>().GetById(request.ClassId);
+                    List<ScheduleOfClassDto> schedules = new List<ScheduleOfClassDto>();
+                    bool isCollided = false;
                     foreach (var item in request.Schedules)
                     {
                         DateTime currentDate = (DateTime)classDto.StartDate;
                         int diff = (item.DayOfWeek - currentDate.DayOfWeek + 7) % 7;
-                        currentDate = currentDate.AddDays(diff);
+                        currentDate = currentDate.AddDays(diff).Date;
 
                         while (currentDate <= classDto.EndDate)
                         {
-                            if (currentDate.DayOfWeek == item.DayOfWeek)
+                            if (await _unitOfWork.GetRepository<Schedule>().GetByExpression(s => s.RoomId == item.RoomId && s.TimeFrameId == item.TimeFrameId && s.Date.Date == currentDate.Date) != null)
                             {
-                                ScheduleOfClassDto scheduleDto = new ScheduleOfClassDto
-                                {
-                                    ClassId = classDto.ClassId,
-                                    Date = currentDate.Date,
-                                    TimeFrameId = item.TimeFrameId,
-                                    RoomId = item.RoomId
-                                };
-                                schedules.Add(scheduleDto);
-
+                                isCollided = true;
+                                isValid = false;
+                                var timeFrame = await _unitOfWork.GetRepository<TimeFrame>().GetById(item.TimeFrameId);
+                                _result.Message.Add($"Collided schedule time : {timeFrame?.TimeFrameName?.ToLower()}, on {currentDate.DayOfWeek} {SD.FormatDateTime(currentDate)}, at roomId: {item.RoomId}");
                             }
-
+                            if (!isCollided)
+                            {
+                                {
+                                    if (currentDate.DayOfWeek == item.DayOfWeek)
+                                    {
+                                        ScheduleOfClassDto scheduleDto = new ScheduleOfClassDto
+                                        {
+                                            ClassId = classDto.ClassId,
+                                            Date = currentDate.Date,
+                                            TimeFrameId = item.TimeFrameId,
+                                            RoomId = item.RoomId
+                                        };
+                                        schedules.Add(scheduleDto);
+                                    }
+                                }
+                            }
                             currentDate = currentDate.AddDays(7);
 
                         }
                     }
-                    if (isCollided)
+                    if (!isCollided)
                     {
                         schedules = schedules.OrderBy(s => s.Date).ThenBy(s => s.TimeFrameId).ToList();
 
@@ -214,7 +209,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 }
                 if (isValid)
                 {
-                    _result.Data = await _unitOfWork.GetRepository<Schedule>().GetListByExpression(s => s.ClassId == classId && s.Date.Day == date.Day, s => s.TimeFrame, s => s.Room);
+                    _result.Result.Data = await _unitOfWork.GetRepository<Schedule>().GetListByExpression(s => s.ClassId == classId && s.Date.Day == date.Day, s => s.TimeFrame, s => s.Room);
                 }
             }
             catch (Exception ex)
@@ -251,7 +246,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 if (isValid)
                 {
                     DateTime[] weekpoints = GetWeekDates(year, week);
-                    _result.Data = await _unitOfWork.GetRepository<Schedule>().GetListByExpression(s => s.ClassId == classId && s.Date <= weekpoints[1] && s.Date >= weekpoints[0] && s.Date.Year == year, s => s.TimeFrame, s => s.Room);
+                    _result.Result.Data = await _unitOfWork.GetRepository<Schedule>().GetListByExpression(s => s.ClassId == classId && s.Date <= weekpoints[1] && s.Date >= weekpoints[0] && s.Date.Year == year, s => s.TimeFrame, s => s.Room);
                 }
             }
             catch (Exception ex)
@@ -287,7 +282,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
 
                 if (isValid)
                 {
-                    _result.Data = await _unitOfWork.GetRepository<Schedule>().GetListByExpression(s => s.ClassId == classId && s.Date.Month == month && s.Date.Year == year, s => s.TimeFrame, s => s.Room);
+                    _result.Result.Data = await _unitOfWork.GetRepository<Schedule>().GetListByExpression(s => s.ClassId == classId && s.Date.Month == month && s.Date.Year == year, s => s.TimeFrame, s => s.Room);
                 }
             }
             catch (Exception ex)
@@ -325,7 +320,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                         scheduleList.Add(classDto);
 
                     }
-                    _result.Data = scheduleList;
+                    _result.Result.Data = scheduleList;
                 }
             }
             catch (Exception ex)
@@ -378,7 +373,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                         scheduleList.Add(classDto);
 
                     }
-                    _result.Data = scheduleList;
+                    _result.Result.Data = scheduleList;
                 }
             }
             catch (Exception ex)
@@ -429,7 +424,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                         scheduleList.Add(classDto);
 
                     }
-                    _result.Data = scheduleList;
+                    _result.Result.Data = scheduleList;
                 }
             }
             catch (Exception ex)

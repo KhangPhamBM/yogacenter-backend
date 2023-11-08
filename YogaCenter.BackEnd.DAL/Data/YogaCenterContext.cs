@@ -44,6 +44,19 @@ namespace YogaCenter.BackEnd.DAL.Data
             builder.Entity<Attendance>()
                .HasKey(pi => new { pi.ClassDetailId, pi.ScheduleId });
 
+            builder.Entity<IdentityRole>().HasData(
+                new IdentityRole { Id = Guid.NewGuid().ToString(), Name = Permission.ADMIN, NormalizedName = Permission.ADMIN.ToLower() });
+
+            builder.Entity<IdentityRole>().HasData(
+               new IdentityRole { Id = Guid.NewGuid().ToString(), Name = Permission.STAFF, NormalizedName = Permission.STAFF.ToLower() });
+
+            builder.Entity<IdentityRole>().HasData(
+                         new IdentityRole { Id = Guid.NewGuid().ToString(), Name = Permission.TRAINER, NormalizedName = Permission.TRAINER.ToLower() });
+
+            builder.Entity<IdentityRole>().HasData(
+                       new IdentityRole { Id = Guid.NewGuid().ToString(), Name = Permission.TRAINEE, NormalizedName = Permission.TRAINEE.ToLower() });
+
+
             builder.Entity<SubscriptionStatus>().HasData(
                 new SubscriptionStatus { SubscriptionStatusId = SD.Subscription.PENDING, SubscriptionStatusName = "Pending" });
 

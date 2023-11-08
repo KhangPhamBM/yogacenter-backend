@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -135,6 +136,46 @@ namespace YogaCenter.BackEnd.DAL.Util
             public static string UPDATE_FAILED = "UPDATE_FAILED";
             public static string DELETE_FAILED = "DELETE_FAILED";
             public static string LOGIN_FAILED = "LOGIN_FAILED";
+        }
+
+        public static string FormatDateTime(DateTime dateTime)
+        {
+            return dateTime.ToString("dd/MM/yyyy");
+        }
+
+        public static IEnumerable<WeekForYear> PrintWeeksForYear(int year)
+        {
+            List<WeekForYear> weekForYears = new List<WeekForYear>();
+            DateTime startDate = new DateTime(year, 1, 1);
+            DateTime endDate = startDate.AddDays(6);
+
+            CultureInfo cultureInfo = CultureInfo.CurrentCulture;
+
+            Console.WriteLine($"Week 1: {startDate.ToString("d", cultureInfo)} - {endDate.ToString("d", cultureInfo)}");
+            weekForYears.Add(new WeekForYear { WeekIndex = 1, Timeline = new() { StartDate = startDate.ToString("d", cultureInfo), EndDate = endDate.ToString("d", cultureInfo) } });
+
+            for (int week = 2; week < 53; week++)
+            {
+                startDate = endDate.AddDays(1);
+                endDate = startDate.AddDays(6);
+
+                Console.WriteLine($"Week {week}: {startDate.ToString("d", cultureInfo)} - {endDate.ToString("d", cultureInfo)}");
+                weekForYears.Add(new WeekForYear { WeekIndex = week, Timeline = new() { StartDate = startDate.ToString("d", cultureInfo), EndDate = endDate.ToString("d", cultureInfo) } });
+
+            }
+            return weekForYears;
+        }
+
+        public class WeekForYear
+        {
+            public int WeekIndex { get; set; }
+            public TimelineDto Timeline { get; set; }
+            public class TimelineDto
+            {
+                public string StartDate { get; set; }
+                public string EndDate { get; set; }
+
+            }
         }
     }
 
