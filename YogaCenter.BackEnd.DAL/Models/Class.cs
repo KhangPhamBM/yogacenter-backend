@@ -20,7 +20,7 @@ namespace YogaCenter.BackEnd.DAL.Models
         [ForeignKey("CourseId")]
         public Course? Course { get; set; }
         public int MinOfTrainee { get; set; }
-        public int MaxOfTrainer { get; set; }
+        public int MaxOfTrainee { get; set; }
         public bool? IsDeleted { get; set; }=false;
     }
 }

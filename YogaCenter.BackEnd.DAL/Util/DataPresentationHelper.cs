@@ -122,5 +122,12 @@ namespace YogaCenter.BackEnd.DAL.Util
 
             return orderedQuery;
         }
+
+
+        public static int CalculateTotalPageSize(int totalRecord, int pageSize)
+        {
+            return (int)Math.Ceiling(totalRecord * 1.00 / pageSize);
+
+        }
     }
 }

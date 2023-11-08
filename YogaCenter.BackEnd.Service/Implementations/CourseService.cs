@@ -106,7 +106,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
 
                 if (isValid)
                 {
-                    _result.Data = await _unitOfWork.GetRepository<Course>().GetById(id);
+                    _result.Result.Data = await _unitOfWork.GetRepository<Course>().GetById(id);
                 }
                 else
                 {
@@ -129,6 +129,8 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 var courseList = await _unitOfWork.GetRepository<Course>().GetAll();
                 if (courseList.Any())
                 {
+                    int totalPage = DataPresentationHelper.CalculateTotalPageSize(courseList.Count(), pageSize);
+
                     if (sortInfos != null)
                     {
                         courseList = DataPresentationHelper.ApplySorting(courseList, sortInfos);
@@ -137,7 +139,8 @@ namespace YogaCenter.BackEnd.Service.Implementations
                     {
                         courseList = DataPresentationHelper.ApplyPaging(courseList, pageIndex, pageSize);
                     }
-                    _result.Data = courseList;
+                    _result.Result.Data = courseList;
+                    _result.Result.TotalPage = totalPage;
                 }
                 else
                 {
@@ -192,6 +195,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
             try
             {
                 var source = await _unitOfWork.GetRepository<Course>().GetListByExpression(c => (bool)!c.IsDeleted, null);
+                int totalPage = DataPresentationHelper.CalculateTotalPageSize(source.Count(), filterRequest.pageSize);
                 if (filterRequest != null)
                 {
                     if (filterRequest.pageIndex <= 0 || filterRequest.pageSize <= 0)
@@ -200,7 +204,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                         _result.isSuccess=false;
                     } else
                     {
-                        if (!filterRequest.keyword.IsEmpty())
+                        if (!filterRequest.keyword.IsEmpty() && filterRequest.keyword != null)
                         {
                             source = await _unitOfWork.GetRepository<Course>().GetListByExpression(c => (bool)!c.IsDeleted && c.CourseName.Contains(filterRequest.keyword), null);
                         }
@@ -208,18 +212,22 @@ namespace YogaCenter.BackEnd.Service.Implementations
                         {
                             source = DataPresentationHelper.ApplyFiltering(source, filterRequest.filterInfoList);
                         }
+                        totalPage = DataPresentationHelper.CalculateTotalPageSize(source.Count(), filterRequest.pageSize);
 
                         if (filterRequest.sortInfoList != null)
                         {
                             source = DataPresentationHelper.ApplySorting(source, filterRequest.sortInfoList);
                         }
                         source = DataPresentationHelper.ApplyPaging(source, filterRequest.pageIndex, filterRequest.pageSize);
-                        _result.Data = source;
-                    }                
+                        _result.Result.Data = source;
+
+                    }
                 } else
                 {
-                    _result.Data = source;
+                    _result.Result.Data = source;
                 }
+                _result.Result.TotalPage = totalPage;
+
             }
             catch (Exception ex)
             {

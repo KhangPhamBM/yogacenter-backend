@@ -90,7 +90,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                     _unitOfWork.SaveChange();
                     _tokenDto.Token = token;
                     _tokenDto.RefreshToken = user.RefreshToken;
-                    _result.Data = _tokenDto;
+                    _result.Result.Data = _tokenDto;
                 }
             }
             catch (Exception ex)
@@ -113,13 +113,18 @@ namespace YogaCenter.BackEnd.Service.Implementations
                     isValid = false;
 
                 }
+                foreach (var role in signUpRequest.RoleId)
+                {
+                    if (await _unitOfWork.GetRepository<IdentityRole>().GetById(role) == null)
+                    {
+                        _result.Message.Add($"The role with id {role} is not existed");
+                    }
+                }
                 if (isValid)
                 {
-                    if (await _unitOfWork.GetRepository<IdentityRole>().GetByExpression(r => r.Name == signUpRequest.RoleName) == null)
-                    {
-                        await _roleManager.CreateAsync(new IdentityRole(signUpRequest.RoleName));
 
-                    }
+
+
 
                     var user = new ApplicationUser
                     {
@@ -142,17 +147,23 @@ namespace YogaCenter.BackEnd.Service.Implementations
                         _result.Message.Add($"{SD.ResponseMessage.CREATE_FAILED} USER");
 
                     }
-                    var resultCreateRole = await _userManager.AddToRoleAsync(user, signUpRequest.RoleName);
-                    if (resultCreateRole.Succeeded)
+                    foreach (var role in signUpRequest.RoleId)
                     {
-                        _result.Message.Add($"ASSIGN ROLE SUCCESSFUL");
+                        var roleDB = await _unitOfWork.GetRepository<IdentityRole>().GetById(role);
+                        var resultCreateRole = await _userManager.AddToRoleAsync(user, roleDB.NormalizedName);
+                        if (resultCreateRole.Succeeded)
+                        {
+                            _result.Message.Add($"ASSIGN ROLE SUCCESSFUL");
+
+                        }
+                        else
+                        {
+                            _result.Message.Add($"ASSIGN ROLE FAILED");
+
+                        }
 
                     }
-                    else
-                    {
-                        _result.Message.Add($"ASSIGN ROLE FAILED");
 
-                    }
                 }
 
             }
@@ -204,7 +215,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 }
                 if (isValid)
                 {
-                    _result.Data = await _unitOfWork.GetRepository<ApplicationUser>().GetById(id);
+                    _result.Result.Data = await _unitOfWork.GetRepository<ApplicationUser>().GetById(id);
 
                 }
             }
@@ -221,6 +232,8 @@ namespace YogaCenter.BackEnd.Service.Implementations
             {
                 List<AccountResponse> accounts = new List<AccountResponse>();
                 var list = await _unitOfWork.GetRepository<ApplicationUser>().GetAll();
+                int totalPage = DataPresentationHelper.CalculateTotalPageSize(list.Count(), pageSize);
+
                 foreach (var account in list)
                 {
                     var userRole = await _unitOfWork.GetRepository<IdentityUserRole<string>>().GetListByExpression(s => s.UserId == account.Id, null);
@@ -241,7 +254,9 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 {
                     data = DataPresentationHelper.ApplyPaging(data, pageIndex, pageSize);
                 }
-                _result.Data = data;
+                _result.Result.Data = data;
+                _result.Result.TotalPage = totalPage;
+
             }
             catch (Exception ex)
             {
@@ -286,6 +301,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
             try
             {
                 var source = (IOrderedQueryable<ApplicationUser>)await _unitOfWork.GetRepository<ApplicationUser>().GetByExpression(a => (bool)a.isDeleted, null);
+                int totalPage = DataPresentationHelper.CalculateTotalPageSize(source.Count(), filterRequest.pageSize);
                 if (filterRequest != null)
                 {
                     if (filterRequest.pageIndex <= 0 || filterRequest.pageSize <= 0)
@@ -303,24 +319,122 @@ namespace YogaCenter.BackEnd.Service.Implementations
                         {
                             source = DataPresentationHelper.ApplyFiltering(source, filterRequest.filterInfoList);
                         }
-
+                        totalPage = DataPresentationHelper.CalculateTotalPageSize(source.Count(), filterRequest.pageSize);
                         if (filterRequest.sortInfoList != null)
                         {
                             source = DataPresentationHelper.ApplySorting(source, filterRequest.sortInfoList);
                         }
                         source = DataPresentationHelper.ApplyPaging(source, filterRequest.pageIndex, filterRequest.pageSize);
-                        _result.Data = source;
+                        _result.Result.Data = source;
+
                     }
                 }
                 else
                 {
-                    _result.Data = source;
+                    _result.Result.Data = source;
                 }
+                _result.Result.TotalPage = totalPage;
             }
             catch (Exception ex)
             {
                 _result.isSuccess = false;
                 _result.Message.Add(ex.Message);
+            }
+            return _result;
+        }
+
+        public async Task<AppActionResult> AssignRoleForUserId(string userId, IList<string> roleId)
+        {
+            try
+            {
+                bool isValid = true;
+                var user = await _unitOfWork.GetRepository<ApplicationUser>().GetById(userId);
+                if (user == null)
+                {
+                    isValid = false;
+                    _result.Message.Add($"The user with id {userId} is not existed");
+                }
+                foreach (var role in roleId)
+                {
+                    if (await _unitOfWork.GetRepository<IdentityRole>().GetById(role) == null)
+                    {
+                        _result.Message.Add($"The role with id {role} is not existed");
+                    }
+                }
+
+                if (isValid)
+                {
+                    foreach (var role in roleId)
+                    {
+                        var roleDB = await _unitOfWork.GetRepository<IdentityRole>().GetById(role);
+                        var resultCreateRole = await _userManager.AddToRoleAsync(user, roleDB.NormalizedName);
+                        if (resultCreateRole.Succeeded)
+                        {
+                            _result.Message.Add($"ASSIGN ROLE {role} SUCCESSFUL");
+
+                        }
+                        else
+                        {
+                            _result.Message.Add($"ASSIGN ROLE {role}  FAILED");
+
+                        }
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                _result.isSuccess = false;
+                _result.Message.Add(ex.Message);
+
+            }
+            return _result;
+        }
+
+        public async Task<AppActionResult> RemoveRoleForUserId(string userId, IList<string> roleId)
+        {
+            try
+            {
+                bool isValid = true;
+                var user = await _unitOfWork.GetRepository<ApplicationUser>().GetById(userId);
+                if (user == null)
+                {
+                    isValid = false;
+                    _result.Message.Add($"The user with id {userId} is not existed");
+                }
+                foreach (var role in roleId)
+                {
+                    if (await _unitOfWork.GetRepository<IdentityRole>().GetById(role) == null)
+                    {
+                        _result.Message.Add($"The role with id {role} is not existed");
+                    }
+                }
+
+                if (isValid)
+                {
+                    foreach (var role in roleId)
+                    {
+                        var roleDB = await _unitOfWork.GetRepository<IdentityRole>().GetById(role);
+                        var resultCreateRole = await _userManager.RemoveFromRoleAsync(user, roleDB.NormalizedName);
+                        if (resultCreateRole.Succeeded)
+                        {
+                            _result.Message.Add($"REMOVE ROLE {role} SUCCESSFUL");
+
+                        }
+                        else
+                        {
+                            _result.Message.Add($"REMOVE ROLE {role}  FAILED");
+
+                        }
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                _result.isSuccess = false;
+                _result.Message.Add(ex.Message);
+
             }
             return _result;
         }

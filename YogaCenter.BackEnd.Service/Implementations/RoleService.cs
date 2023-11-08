@@ -115,7 +115,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
         {
             try
             {
-                _result.Data = await _unitOfWork.GetRepository<IdentityRole>().GetAll();
+                _result.Result.Data = await _unitOfWork.GetRepository<IdentityRole>().GetAll();
 
             }
             catch (Exception ex)

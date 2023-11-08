@@ -47,6 +47,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 }
                 if (isValid)
                 {
+                   
                     await _unitOfWork.GetRepository<Class>().Insert(_mapper.Map<Class>(classDto));
                     _unitOfWork.SaveChange();
                     _result.Message.Add(SD.ResponseMessage.CREATE_SUCCESSFUL);
@@ -79,7 +80,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 }
                 if (isValid)
                 {
-                    _result.Data = await _unitOfWork.GetRepository<Class>().GetById(classId);
+                    _result.Result.Data = await _unitOfWork.GetRepository<Class>().GetById(classId);
                 }
                 else
                 {
@@ -135,6 +136,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
             try
             {
                 var classes = await _unitOfWork.GetRepository<Class>().GetAll();
+                int totalPage = DataPresentationHelper.CalculateTotalPageSize(classes.Count(), pageSize);
                 if (sortInfos != null)
                 {
                     classes = DataPresentationHelper.ApplySorting(classes, sortInfos);
@@ -143,7 +145,8 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 {
                     classes = DataPresentationHelper.ApplyPaging(classes, pageIndex, pageSize);
                 }
-                _result.Data = classes;
+                _result.Result.Data = classes;
+                _result.Result.TotalPage = totalPage;
             }
             catch (Exception ex)
             {
@@ -157,8 +160,10 @@ namespace YogaCenter.BackEnd.Service.Implementations
         {
             try
             {
-                var src = await _unitOfWork.GetRepository<Class>().GetListByExpression(c => c.IsDeleted == false, null);
-                var classes =  _mapper.Map<IOrderedQueryable<ClassDto>>(src);
+                var classes = await _unitOfWork.GetRepository<Class>().GetListByExpression(c => c.IsDeleted == false, null);
+                int totalPage = DataPresentationHelper.CalculateTotalPageSize(classes.Count(), pageSize);
+
+                //var classes =  _mapper.Map<IOrderedQueryable<ClassDto>>(src);
                 if (sortInfos != null)
                 {
                     classes = DataPresentationHelper.ApplySorting(classes, sortInfos);
@@ -167,7 +172,8 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 {
                     classes = DataPresentationHelper.ApplyPaging(classes, pageIndex, pageSize);
                 }
-                _result.Data = classes;
+                _result.Result.Data = classes;
+                _result.Result.TotalPage = totalPage;
             }
             catch (Exception ex)
             {

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using YogaCenter.BackEnd.Common.Dto;
 using YogaCenter.BackEnd.Service.Contracts;
@@ -6,6 +7,7 @@ using YogaCenter.BackEnd.Service.Implementations;
 
 namespace YogaCenter.BackEnd.API.Controllers
 {
+    [Authorize]
     [Route("ticket")]
     [ApiController]
     public class TicketController : ControllerBase
@@ -75,7 +77,7 @@ namespace YogaCenter.BackEnd.API.Controllers
         }
 
         [HttpPost]
-        [Route("Get-ticket-with-searching")]
+        [Route("get-ticket-with-searching")]
         public async Task<AppActionResult> GetTicketWithSearching(BaseFilterRequest baseFilterRequest)
         {
             return await _ticketService.SearchApplyingSortingAndFiltering(baseFilterRequest);
