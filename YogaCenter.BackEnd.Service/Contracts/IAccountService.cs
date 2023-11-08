@@ -22,6 +22,7 @@ namespace YogaCenter.BackEnd.Service.Contracts
         Task<AppActionResult> RemoveRoleForUserId(string userId, IList<string> roleId);
 
         Task<AppActionResult> GetAllRole();
+        Task<AppActionResult> GetNewToken(string refreshToken, string userId);
 
     }
 }

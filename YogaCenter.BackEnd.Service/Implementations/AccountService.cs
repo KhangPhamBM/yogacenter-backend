@@ -441,12 +441,47 @@ namespace YogaCenter.BackEnd.Service.Implementations
 
         public async Task<AppActionResult> GetAllRole()
         {
-            try {
+            try
+            {
                 _result.Result.Data = await _unitOfWork.GetRepository<IdentityRole>().GetAll();
-            
-            }catch(Exception ex) {
+
+            }
+            catch (Exception ex)
+            {
                 _result.Message.Add(ex.Message);
                 _result.isSuccess = false;
+            }
+            return _result;
+        }
+
+        public async Task<AppActionResult> GetNewToken(string refreshToken, string userId)
+        {
+            try
+            {
+                bool isValid = true;
+                var user = await _unitOfWork.GetRepository<ApplicationUser>().GetById(userId);
+                if (user == null)
+                {
+                    isValid = false;
+                    _result.Message.Add("The user is not existed");
+
+                }
+                else if (user.RefreshToken != refreshToken)
+                {
+                    isValid = false;
+                    _result.Message.Add("The refresh token is not exacted");
+                }
+
+                if (isValid)
+                {
+                    _result.Result.Data = await _jwtService.GetNewToken(refreshToken, userId);
+
+                }
+            }
+            catch (Exception ex)
+            {
+                _result.isSuccess = false;
+                _result.Message.Add(ex.Message);
             }
             return _result;
         }
