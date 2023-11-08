@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace YogaCenter.BackEnd.DAL.Models
 {
-    public class Schedule
+    public class Schedule : IEquatable<Schedule>
     {
         [Key]
         public int ScheduleId { get; set; }
@@ -24,5 +24,20 @@ namespace YogaCenter.BackEnd.DAL.Models
         public Room? Room { get; set; } 
 
         public DateTime Date { get; set; }
+
+        public override bool Equals(object obj)
+        {
+            return Equals(obj as Schedule);
+        }
+
+        public bool Equals(Schedule schedule)
+        {
+            return this.Date.Equals(schedule.Date) && this.TimeFrameId == schedule.TimeFrameId;
+        }
+
+        public override int GetHashCode()
+        {
+            return (int)(RoomId * Date.Hour * TimeFrameId % int.MaxValue);
+        }
     }
 }
