@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using YogaCenter.BackEnd.Common.Dto;
 using YogaCenter.BackEnd.DAL.Models;
+using YogaCenter.BackEnd.DAL.Util;
 using YogaCenter.BackEnd.Service.Contracts;
 
 namespace YogaCenter.BackEnd.API.Controllers
@@ -81,6 +82,14 @@ namespace YogaCenter.BackEnd.API.Controllers
         public async Task<AppActionResult> GetSchedulesByMonth(int month, int year)
         {
             return await _scheduleService.GetSchedulesByMonth( month, year);
+        }
+
+        [HttpGet("get-week-by-year/{year:int}")]
+        public async Task<AppActionResult> GetWeekByYear(int year)
+        {
+            AppActionResult actionResult = new AppActionResult();
+            actionResult.Result.Data = SD.PrintWeeksForYear(year);
+            return actionResult;
         }
 
     }

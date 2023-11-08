@@ -259,7 +259,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
 
                 if (isValid)
                 {
-                    _result.Data = await _unitOfWork.GetRepository<TicketType>().GetById(id);
+                    _result.Result.Data = await _unitOfWork.GetRepository<TicketType>().GetById(id);
 
                 }
 
@@ -288,7 +288,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
 
                 if (isValid)
                 {
-                    _result.Data = await _unitOfWork.GetRepository<TicketStatus>().GetById(id);
+                    _result.Result.Data = await _unitOfWork.GetRepository<TicketStatus>().GetById(id);
 
                 }
             }
@@ -334,12 +334,12 @@ namespace YogaCenter.BackEnd.Service.Implementations
                             source = DataPresentationHelper.ApplySorting(source, filterRequest.sortInfoList);
                         }
                         source = DataPresentationHelper.ApplyPaging(source, filterRequest.pageIndex, filterRequest.pageSize);
-                        _result.Data = source;
+                        _result.Result.Data = source;
                     }
                 }
                 else
                 {
-                    _result.Data = source;
+                    _result.Result.Data = source;
                 }
             }
             catch (Exception ex)

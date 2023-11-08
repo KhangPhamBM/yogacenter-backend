@@ -72,7 +72,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
 
                 if (isValid)
                 {
-                    _result.Data = await _unitOfWork.GetRepository<Room>().GetById(RoomId);
+                    _result.Result.Data = await _unitOfWork.GetRepository<Room>().GetById(RoomId);
 
 
                 }
@@ -149,12 +149,12 @@ namespace YogaCenter.BackEnd.Service.Implementations
                             source = DataPresentationHelper.ApplySorting(source, filterRequest.sortInfoList);
                         }
                         source = DataPresentationHelper.ApplyPaging(source, filterRequest.pageIndex, filterRequest.pageSize);
-                        _result.Data = source;
+                        _result.Result.Data = source;
                     }
                 }
                 else
                 {
-                    _result.Data = source;
+                    _result.Result.Data = source;
                 }
             }
             catch (Exception ex)

@@ -86,7 +86,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                         case 1:
                             try
                             {
-                                _result.Data = await _paymentService.CreatePaymentUrlVNPay(_mapper.Map<SubscriptionDto>(subscription), context);
+                                _result.Result.Data = await _paymentService.CreatePaymentUrlVNPay(_mapper.Map<SubscriptionDto>(subscription), context);
                             }
                             catch (Exception ex)
                             {
@@ -96,7 +96,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                         case 2:
                             try
                             {
-                                _result.Data = await _paymentService.CreatePaymentUrlMomo(_mapper.Map<SubscriptionDto>(subscription));
+                                _result.Result.Data = await _paymentService.CreatePaymentUrlMomo(_mapper.Map<SubscriptionDto>(subscription));
                             }
                             catch (Exception ex)
                             {
@@ -104,7 +104,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                             }
                             break;
                         default:
-                            _result.Data = "";
+                            _result.Result.Data = "";
                             break;
                     }
                 }
@@ -182,7 +182,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                         case 1:
                             try
                             {
-                                _result.Data = await _paymentService.CreatePaymentUrlVNPay(_mapper.Map<SubscriptionDto>(subscription), context);
+                                _result.Result.Data = await _paymentService.CreatePaymentUrlVNPay(_mapper.Map<SubscriptionDto>(subscription), context);
 
                             }
                             catch (Exception ex)
@@ -193,7 +193,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                         case 2:
                             try
                             {
-                                _result.Data = await _paymentService.CreatePaymentUrlMomo(_mapper.Map<SubscriptionDto>(subscription));
+                                _result.Result.Data = await _paymentService.CreatePaymentUrlMomo(_mapper.Map<SubscriptionDto>(subscription));
 
                             }
                             catch (Exception ex)
@@ -203,7 +203,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                             break;
 
                         default:
-                            _result.Data = "";
+                            _result.Result.Data = "";
                             break;
                     }
                 }
@@ -267,7 +267,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 }
                 if (isValid)
                 {
-                    _result.Data = await _unitOfWork.GetRepository<Subscription>().GetByExpression(s => s.SubscriptionId == subcriptionId && s.SubscriptionStatusId == SD.Subscription.PENDING);
+                    _result.Result.Data = await _unitOfWork.GetRepository<Subscription>().GetByExpression(s => s.SubscriptionId == subcriptionId && s.SubscriptionStatusId == SD.Subscription.PENDING);
                 }
                 else
                 {

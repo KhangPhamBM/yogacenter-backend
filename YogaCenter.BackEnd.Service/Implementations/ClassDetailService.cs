@@ -72,7 +72,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
 
                     if (isValid)
                     {
-                        _result.Data = await _unitOfWork.GetRepository<ClassDetail>().GetByExpression(_classDetailRepository.GetClassDetailByUserId(detail.UserId));
+                        _result.Result.Data = await _unitOfWork.GetRepository<ClassDetail>().GetByExpression(_classDetailRepository.GetClassDetailByUserId(detail.UserId));
                     }
                     else
                     {
@@ -111,7 +111,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                         {
                             details = DataPresentationHelper.ApplyPaging(details, pageIndex, pageSize);
                         }
-                        _result.Data = details;
+                        _result.Result.Data = details;
                     }
                     else
                     {
