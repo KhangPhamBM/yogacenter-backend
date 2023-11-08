@@ -34,7 +34,7 @@ namespace YogaCenter.BackEnd.API.Controllers
             return await _roomService.GetRoomById(id);
         }
 
-        [HttpPost("Get-room-with-searching")]
+        [HttpPost("get-room-with-searching")]
         public async Task<AppActionResult> GetRoomWithSearching(BaseFilterRequest baseFilterRequest)
         {
             return await _roomService.SearchApplyingSortingAndFiltering(baseFilterRequest);

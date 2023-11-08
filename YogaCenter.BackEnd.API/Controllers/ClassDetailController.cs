@@ -24,7 +24,7 @@ namespace YogaCenter.BackEnd.API.Controllers
            return await _classDetail.RegisterClass(classDto); 
         }
 
-        [HttpGet("get-class-details-by-classId/{classId:int}")]
+        [HttpPost("get-class-details-by-classId/{classId:int}")]
         public async Task<AppActionResult> GetClassDetailsByClassId(int classId, int pageIndex, int pageSize, IList<SortInfo> sortInfos)
         {
             return await _classDetail.GetClassDetailsByClassId(classId, pageIndex, pageSize, sortInfos);

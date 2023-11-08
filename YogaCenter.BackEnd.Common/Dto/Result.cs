@@ -6,8 +6,9 @@ using System.Threading.Tasks;
 
 namespace YogaCenter.BackEnd.Common.Dto
 {
-    public class RequestDto
+    public class Result
     {
-        public object data { get; set; }    
+        public object Data { get; set; }
+        public int TotalPage { get; set; } = 0;
     }
 }

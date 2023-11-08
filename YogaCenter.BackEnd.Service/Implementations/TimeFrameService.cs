@@ -87,7 +87,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 }
                 if (isValid)
                 {
-                    _result.Data = await _unitOfWork.GetRepository<TimeFrame>().GetById(timeframeId);
+                    _result.Result.Data = await _unitOfWork.GetRepository<TimeFrame>().GetById(timeframeId);
                 }
                 else
                 {
@@ -161,12 +161,12 @@ namespace YogaCenter.BackEnd.Service.Implementations
                             source = DataPresentationHelper.ApplySorting(source, filterRequest.sortInfoList);
                         }
                         source = DataPresentationHelper.ApplyPaging(source, filterRequest.pageIndex, filterRequest.pageSize);
-                        _result.Data = source;
+                        _result.Result.Data = source;
                     }
                 }
                 else
                 {
-                    _result.Data = source;
+                    _result.Result.Data = source;
                 }
             }
             catch (Exception ex)

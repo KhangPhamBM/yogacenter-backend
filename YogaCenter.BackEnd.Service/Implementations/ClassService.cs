@@ -47,6 +47,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 }
                 if (isValid)
                 {
+                   
                     await _unitOfWork.GetRepository<Class>().Insert(_mapper.Map<Class>(classDto));
                     _unitOfWork.SaveChange();
                     _result.Message.Add(SD.ResponseMessage.CREATE_SUCCESSFUL);
@@ -79,7 +80,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 }
                 if (isValid)
                 {
-                    _result.Data = await _unitOfWork.GetRepository<Class>().GetById(classId);
+                    _result.Result.Data = await _unitOfWork.GetRepository<Class>().GetById(classId);
                 }
                 else
                 {
@@ -143,7 +144,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 {
                     classes = DataPresentationHelper.ApplyPaging(classes, pageIndex, pageSize);
                 }
-                _result.Data = classes;
+                _result.Result.Data = classes;
             }
             catch (Exception ex)
             {
@@ -167,7 +168,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 {
                     classes = DataPresentationHelper.ApplyPaging(classes, pageIndex, pageSize);
                 }
-                _result.Data = classes;
+                _result.Result.Data = classes;
             }
             catch (Exception ex)
             {

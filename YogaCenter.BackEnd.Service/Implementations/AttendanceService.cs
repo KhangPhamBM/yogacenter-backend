@@ -91,7 +91,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                     {
                         attendances = DataPresentationHelper.ApplyPaging(attendances, pageIndex, pageSize);
                     }
-                    _result.Data = attendances;
+                    _result.Result.Data = attendances;
                 }
                 catch (Exception ex)
                 {
@@ -118,7 +118,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 {
                     attendances = DataPresentationHelper.ApplyPaging(attendances, pageIndex, pageSize);
                 }
-                _result.Data = attendances;
+                _result.Result.Data = attendances;
 
             }
             catch (Exception ex)
@@ -143,7 +143,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 {
                     attendances = DataPresentationHelper.ApplyPaging(attendances, pageIndex, pageSize);
                 }
-                _result.Data = attendances;
+                _result.Result.Data = attendances;
             }
             catch (Exception ex)
             {

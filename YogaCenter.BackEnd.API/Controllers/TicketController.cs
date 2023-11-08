@@ -75,7 +75,7 @@ namespace YogaCenter.BackEnd.API.Controllers
         }
 
         [HttpPost]
-        [Route("Get-ticket-with-searching")]
+        [Route("get-ticket-with-searching")]
         public async Task<AppActionResult> GetTicketWithSearching(BaseFilterRequest baseFilterRequest)
         {
             return await _ticketService.SearchApplyingSortingAndFiltering(baseFilterRequest);

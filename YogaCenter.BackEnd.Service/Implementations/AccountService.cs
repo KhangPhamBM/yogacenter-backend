@@ -90,7 +90,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                     _unitOfWork.SaveChange();
                     _tokenDto.Token = token;
                     _tokenDto.RefreshToken = user.RefreshToken;
-                    _result.Data = _tokenDto;
+                    _result.Result.Data = _tokenDto;
                 }
             }
             catch (Exception ex)
@@ -204,7 +204,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 }
                 if (isValid)
                 {
-                    _result.Data = await _unitOfWork.GetRepository<ApplicationUser>().GetById(id);
+                    _result.Result.Data = await _unitOfWork.GetRepository<ApplicationUser>().GetById(id);
 
                 }
             }
@@ -241,7 +241,9 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 {
                     data = DataPresentationHelper.ApplyPaging(data, pageIndex, pageSize);
                 }
-                _result.Data = data;
+                _result.Result.Data = data;
+                _result.Result.TotalPage = DataPresentationHelper.CaculateTotalPageSize(list.Count(), pageSize);
+
             }
             catch (Exception ex)
             {
@@ -286,6 +288,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
             try
             {
                 var source = (IOrderedQueryable<ApplicationUser>)await _unitOfWork.GetRepository<ApplicationUser>().GetByExpression(a => (bool)a.isDeleted, null);
+
                 if (filterRequest != null)
                 {
                     if (filterRequest.pageIndex <= 0 || filterRequest.pageSize <= 0)
@@ -309,12 +312,16 @@ namespace YogaCenter.BackEnd.Service.Implementations
                             source = DataPresentationHelper.ApplySorting(source, filterRequest.sortInfoList);
                         }
                         source = DataPresentationHelper.ApplyPaging(source, filterRequest.pageIndex, filterRequest.pageSize);
-                        _result.Data = source;
+                        _result.Result.Data = source;
+                        _result.Result.TotalPage = DataPresentationHelper.CaculateTotalPageSize(source.Count(), filterRequest.pageSize);
+
                     }
                 }
                 else
                 {
-                    _result.Data = source;
+                    _result.Result.Data = source;
+                    _result.Result.TotalPage = DataPresentationHelper.CaculateTotalPageSize(source.Count(), filterRequest.pageSize);
+
                 }
             }
             catch (Exception ex)
