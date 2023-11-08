@@ -26,7 +26,7 @@ namespace YogaCenter.BackEnd.DAL.Implementations
 
         public Expression<Func<ClassDetail, bool>> GetByClassIdAndUserId(ClassDetail classDetail)
         {
-            return (c => c.UserId == classDetail.UserId && c.ClassId == classDetail.ClassId);
+            return (c => c.UserId == classDetail.UserId && c.ClassId == classDetail.ClassId );
         }
 
         public  Expression<Func<ClassDetail, bool>> GetClassDetailByUserId(string UserId)

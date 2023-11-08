@@ -8,7 +8,7 @@ using YogaCenter.BackEnd.DAL.Models;
 
 namespace YogaCenter.BackEnd.Service.Contracts
 {
-    public interface IAttendanceService
+    public interface IAttendanceService 
     {
         Task<AppActionResult> AddListAttendance(IEnumerable<AttendanceDto> attendances); 
         Task<AppActionResult> UpdateAttendance(IEnumerable<AttendanceDto> attendances);
