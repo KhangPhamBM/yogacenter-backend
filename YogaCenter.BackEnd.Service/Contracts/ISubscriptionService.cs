@@ -5,10 +5,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using YogaCenter.BackEnd.Common.Dto;
+using YogaCenter.BackEnd.DAL.Models;
 
 namespace YogaCenter.BackEnd.Service.Contracts
 {
-    public interface ISubscriptionService
+    public interface ISubscriptionService : ISearching<Subscription>
     {
         Task<AppActionResult> CreateSubscription(SubscriptionRequest Subscription, HttpContext context);
         Task<AppActionResult> GetPaymentUrl(SubscriptionRequest Subscription, HttpContext context);

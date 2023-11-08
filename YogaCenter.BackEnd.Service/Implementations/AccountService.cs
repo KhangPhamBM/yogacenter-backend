@@ -221,6 +221,8 @@ namespace YogaCenter.BackEnd.Service.Implementations
             {
                 List<AccountResponse> accounts = new List<AccountResponse>();
                 var list = await _unitOfWork.GetRepository<ApplicationUser>().GetAll();
+                int totalPage = DataPresentationHelper.CalculateTotalPageSize(list.Count(), pageSize);
+
                 foreach (var account in list)
                 {
                     var userRole = await _unitOfWork.GetRepository<IdentityUserRole<string>>().GetListByExpression(s => s.UserId == account.Id, null);
@@ -242,7 +244,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                     data = DataPresentationHelper.ApplyPaging(data, pageIndex, pageSize);
                 }
                 _result.Result.Data = data;
-                _result.Result.TotalPage = DataPresentationHelper.CaculateTotalPageSize(list.Count(), pageSize);
+                _result.Result.TotalPage = totalPage;
 
             }
             catch (Exception ex)
@@ -288,7 +290,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
             try
             {
                 var source = (IOrderedQueryable<ApplicationUser>)await _unitOfWork.GetRepository<ApplicationUser>().GetByExpression(a => (bool)a.isDeleted, null);
-
+                int totalPage = DataPresentationHelper.CalculateTotalPageSize(source.Count(), filterRequest.pageSize);
                 if (filterRequest != null)
                 {
                     if (filterRequest.pageIndex <= 0 || filterRequest.pageSize <= 0)
@@ -306,23 +308,21 @@ namespace YogaCenter.BackEnd.Service.Implementations
                         {
                             source = DataPresentationHelper.ApplyFiltering(source, filterRequest.filterInfoList);
                         }
-
+                        totalPage = DataPresentationHelper.CalculateTotalPageSize(source.Count(), filterRequest.pageSize);
                         if (filterRequest.sortInfoList != null)
                         {
                             source = DataPresentationHelper.ApplySorting(source, filterRequest.sortInfoList);
                         }
                         source = DataPresentationHelper.ApplyPaging(source, filterRequest.pageIndex, filterRequest.pageSize);
                         _result.Result.Data = source;
-                        _result.Result.TotalPage = DataPresentationHelper.CaculateTotalPageSize(source.Count(), filterRequest.pageSize);
 
                     }
                 }
                 else
                 {
                     _result.Result.Data = source;
-                    _result.Result.TotalPage = DataPresentationHelper.CaculateTotalPageSize(source.Count(), filterRequest.pageSize);
-
                 }
+                _result.Result.TotalPage = totalPage;
             }
             catch (Exception ex)
             {

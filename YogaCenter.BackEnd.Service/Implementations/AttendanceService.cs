@@ -84,6 +84,8 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 try
                 {
                     var attendances = await _unitOfWork.GetRepository<Attendance>().GetListByExpression(c => c.ClassDetail.ClassId == classId, c => c.ClassDetail.User, c => c.Schedule, c => c.AttendanceStatus);
+                    int totalPage = DataPresentationHelper.CalculateTotalPageSize(attendances.Count(), pageSize);
+                    if (sortInfos != null)
                     {
                         attendances = DataPresentationHelper.ApplySorting(attendances, sortInfos);
                     }
@@ -92,6 +94,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                         attendances = DataPresentationHelper.ApplyPaging(attendances, pageIndex, pageSize);
                     }
                     _result.Result.Data = attendances;
+                    _result.Result.TotalPage = totalPage;
                 }
                 catch (Exception ex)
                 {
@@ -110,6 +113,8 @@ namespace YogaCenter.BackEnd.Service.Implementations
             try
             {
                 var attendances = await _unitOfWork.GetRepository<Attendance>().GetListByExpression(c => c.ScheduleId == scheduleId, c => c.ClassDetail.User, c => c.Schedule, c => c.AttendanceStatus);
+                int totalPage = DataPresentationHelper.CalculateTotalPageSize(attendances.Count(), pageSize);
+
                 if (sortInfos != null)
                 {
                     attendances = DataPresentationHelper.ApplySorting(attendances, sortInfos);
@@ -119,7 +124,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                     attendances = DataPresentationHelper.ApplyPaging(attendances, pageIndex, pageSize);
                 }
                 _result.Result.Data = attendances;
-
+                _result.Result.TotalPage = totalPage;
             }
             catch (Exception ex)
             {
@@ -135,6 +140,8 @@ namespace YogaCenter.BackEnd.Service.Implementations
             try
             {
                 var attendances = await _unitOfWork.GetRepository<Attendance>().GetListByExpression(c => c.ClassDetail.UserId == userId, c => c.ClassDetail.User, c => c.Schedule, c => c.AttendanceStatus);
+                int totalPage = DataPresentationHelper.CalculateTotalPageSize(attendances.Count(), pageSize);
+
                 if (sortInfos != null)
                 {
                     attendances = DataPresentationHelper.ApplySorting(attendances, sortInfos);
@@ -144,6 +151,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                     attendances = DataPresentationHelper.ApplyPaging(attendances, pageIndex, pageSize);
                 }
                 _result.Result.Data = attendances;
+                _result.Result.TotalPage = totalPage;
             }
             catch (Exception ex)
             {

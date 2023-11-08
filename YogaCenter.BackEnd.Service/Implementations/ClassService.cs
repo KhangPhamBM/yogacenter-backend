@@ -136,6 +136,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
             try
             {
                 var classes = await _unitOfWork.GetRepository<Class>().GetAll();
+                int totalPage = DataPresentationHelper.CalculateTotalPageSize(classes.Count(), pageSize);
                 if (sortInfos != null)
                 {
                     classes = DataPresentationHelper.ApplySorting(classes, sortInfos);
@@ -145,6 +146,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                     classes = DataPresentationHelper.ApplyPaging(classes, pageIndex, pageSize);
                 }
                 _result.Result.Data = classes;
+                _result.Result.TotalPage = totalPage;
             }
             catch (Exception ex)
             {
@@ -158,8 +160,10 @@ namespace YogaCenter.BackEnd.Service.Implementations
         {
             try
             {
-                var src = await _unitOfWork.GetRepository<Class>().GetListByExpression(c => c.IsDeleted == false, null);
-                var classes =  _mapper.Map<IOrderedQueryable<ClassDto>>(src);
+                var classes = await _unitOfWork.GetRepository<Class>().GetListByExpression(c => c.IsDeleted == false, null);
+                int totalPage = DataPresentationHelper.CalculateTotalPageSize(classes.Count(), pageSize);
+
+                //var classes =  _mapper.Map<IOrderedQueryable<ClassDto>>(src);
                 if (sortInfos != null)
                 {
                     classes = DataPresentationHelper.ApplySorting(classes, sortInfos);
@@ -169,6 +173,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                     classes = DataPresentationHelper.ApplyPaging(classes, pageIndex, pageSize);
                 }
                 _result.Result.Data = classes;
+                _result.Result.TotalPage = totalPage;
             }
             catch (Exception ex)
             {

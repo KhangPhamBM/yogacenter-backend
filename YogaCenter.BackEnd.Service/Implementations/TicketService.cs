@@ -311,6 +311,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
             try
             {
                 var source = await _unitOfWork.GetRepository<Ticket>().GetAll();
+                int totalPage = DataPresentationHelper.CalculateTotalPageSize(source.Count(), filterRequest.pageSize);
                 if (filterRequest != null)
                 {
                     if (filterRequest.pageIndex <= 0 || filterRequest.pageSize <= 0)
@@ -328,6 +329,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                         {
                             source = DataPresentationHelper.ApplyFiltering(source, filterRequest.filterInfoList);
                         }
+                        totalPage = DataPresentationHelper.CalculateTotalPageSize(source.Count(), filterRequest.pageSize);
 
                         if (filterRequest.sortInfoList != null)
                         {
@@ -341,6 +343,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 {
                     _result.Result.Data = source;
                 }
+                _result.Result.TotalPage = totalPage;
             }
             catch (Exception ex)
             {

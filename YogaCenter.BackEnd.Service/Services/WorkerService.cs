@@ -34,7 +34,7 @@ namespace YogaCenter.BackEnd.Service.Services
                     TimeZoneInfo vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
                     DateTime vietnamTime = TimeZoneInfo.ConvertTime(DateTime.Now, vietnamTimeZone);
                     _logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
-                    var endedClasses = await _db.Classes.Where((c => c.EndDate >= vietnamTime && c.IsDeleted == false)).ToListAsync();
+                    var endedClasses = await _db.Classes.Where((c => c.EndDate <= vietnamTime && c.IsDeleted == false)).ToListAsync();
                    foreach (var endedClass in endedClasses)
                     {
                         endedClass.IsDeleted = true;

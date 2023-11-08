@@ -103,6 +103,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                     var details  = await _unitOfWork.GetRepository<ClassDetail>().GetListByExpression(cd => cd.ClassId == classId, null);
                     if (details != null)
                     {
+                        int totalPage = DataPresentationHelper.CalculateTotalPageSize(details.Count(), pageSize);
                         if (sortInfos != null)
                         {
                             details = DataPresentationHelper.ApplySorting(details, sortInfos);
@@ -112,6 +113,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                             details = DataPresentationHelper.ApplyPaging(details, pageIndex, pageSize);
                         }
                         _result.Result.Data = details;
+                        _result.Result.TotalPage = totalPage;
                     }
                     else
                     {

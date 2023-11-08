@@ -124,7 +124,7 @@ namespace YogaCenter.BackEnd.DAL.Util
         }
 
 
-        public static int CaculateTotalPageSize(int totalRecord, int pageSize)
+        public static int CalculateTotalPageSize(int totalRecord, int pageSize)
         {
             return (int)Math.Ceiling(totalRecord * 1.00 / pageSize);
 
