@@ -88,12 +88,17 @@ namespace YogaCenter.BackEnd.API.Controllers
         }
 
         [HttpGet("get-all-role")]
-        [Authorize(Roles = Permission.MANAGEMENT)]
 
         public async Task<AppActionResult> GetAllRole()
         {
             return await _accountService.GetAllRole();
         }
 
+        [HttpPost("get-new-token")]
+        public async Task<AppActionResult> GetNewToken([FromBody]string refreshToken,  string userId)
+        {
+            return await _accountService.GetNewToken(refreshToken,userId);
+
+        }
     }
 }
