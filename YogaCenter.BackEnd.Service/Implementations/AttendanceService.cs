@@ -201,6 +201,5 @@ namespace YogaCenter.BackEnd.Service.Implementations
             return _result;
 
         }
-
     }
 }
