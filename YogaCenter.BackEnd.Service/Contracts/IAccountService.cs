@@ -18,6 +18,11 @@ namespace YogaCenter.BackEnd.Service.Contracts
         Task<AppActionResult> GetAllAccount(int pageIndex, int pageSize, IList<SortInfo> sortInfos);
         Task<AppActionResult> SearchApplyingSortingAndFiltering(BaseFilterRequest filterRequest);
 
+        Task<AppActionResult> AssignRoleForUserId(string userId, IList<string> roleId);
+        Task<AppActionResult> RemoveRoleForUserId(string userId, IList<string> roleId);
+
+        Task<AppActionResult> GetAllRole();
+        Task<AppActionResult> GetNewToken(string refreshToken, string userId);
 
     }
 }

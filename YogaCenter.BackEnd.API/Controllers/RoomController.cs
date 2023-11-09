@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using YogaCenter.BackEnd.Common.Dto;
+using YogaCenter.BackEnd.DAL.Util;
 using YogaCenter.BackEnd.Service.Contracts;
 using YogaCenter.BackEnd.Service.Implementations;
 
@@ -18,12 +20,16 @@ namespace YogaCenter.BackEnd.API.Controllers
         }
 
         [HttpPost("create-room")]
+        [Authorize(Roles = Permission.MANAGEMENT)]
+
         public async Task<AppActionResult> CreateRoom(RoomDto roomDto)
         {
             return await _roomService.CreateRoom(roomDto);
         }
 
         [HttpPut("update-room")]
+        [Authorize(Roles = Permission.MANAGEMENT)]
+
         public async Task<AppActionResult> UpdateRoom(RoomDto roomDto)
         {
             return await _roomService.UpdateRoom(roomDto);

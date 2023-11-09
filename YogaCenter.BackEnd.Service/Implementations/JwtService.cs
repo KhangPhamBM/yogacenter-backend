@@ -21,7 +21,6 @@ namespace YogaCenter.BackEnd.Service.Implementations
         private readonly IUnitOfWork _unitOfWork;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IConfiguration _configuration;
-        private readonly TokenDto _tokenDto;
 
 
         public JwtService(IUnitOfWork unitOfWork, UserManager<ApplicationUser> userManager, IConfiguration configuration)
@@ -29,7 +28,6 @@ namespace YogaCenter.BackEnd.Service.Implementations
             _unitOfWork = unitOfWork;
             _userManager = userManager;
             _configuration = configuration;
-            _tokenDto = new TokenDto();
         }
 
         public string GenerateRefreshToken()
@@ -70,8 +68,11 @@ namespace YogaCenter.BackEnd.Service.Implementations
         }
         public async Task<TokenDto> GetNewToken(string refreshToken, string accountId)
         {
+            string accessTokenNew = "";
+            string refreshTokenNew = "";
             var user = await _unitOfWork.GetRepository<ApplicationUser>().GetByExpression(u => u.Id.ToLower() == accountId);
-            if (user.RefreshToken == refreshToken)
+
+            if (user !=null &&  user.RefreshToken == refreshToken)
             {
                 var roles = await _userManager.GetRolesAsync(user);
                 var claims = new List<Claim>
@@ -91,20 +92,21 @@ namespace YogaCenter.BackEnd.Service.Implementations
                     signingCredentials: new SigningCredentials(authenKey, SecurityAlgorithms.HmacSha512Signature)
                 );
 
-                _tokenDto.Token = new JwtSecurityTokenHandler().WriteToken(token);
+                accessTokenNew = new JwtSecurityTokenHandler().WriteToken(token);
                 if (user.RefreshTokenExpiryTime <= DateTime.Now)
                 {
                     user.RefreshToken = GenerateRefreshToken();
                     user.RefreshTokenExpiryTime = DateTime.Now.AddDays(1);
                     _unitOfWork.SaveChange();
-                    _tokenDto.RefreshToken = user.RefreshToken;
+                    refreshTokenNew = user.RefreshToken;
                 }
                 else
                 {
-                    _tokenDto.RefreshToken = refreshToken;
+                    refreshTokenNew = refreshToken;
                 }
+
             }
-            return _tokenDto;
+            return  new TokenDto { Token = accessTokenNew, RefreshToken = refreshTokenNew};
 
         }
 
