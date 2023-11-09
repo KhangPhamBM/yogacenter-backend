@@ -153,8 +153,8 @@ namespace YogaCenter.BackEnd.Service.Implementations
                             {
                                 isCollided = true;
                                 isValid = false;
-                                var timeFrame = await _unitOfWork.GetRepository<TimeFrame>().GetById(item.TimeFrameId);
-                                _result.Message.Add($"Collided schedule time : {timeFrame?.TimeFrameName?.ToLower()}, on {currentDate.DayOfWeek} {SD.FormatDateTime(currentDate)}, at roomId: {item.RoomId}");
+
+                                _result.Message.Add($"Collided schedule time at timeFrameId: {item.TimeFrameId}, on {currentDate.DayOfWeek}, {currentDate}, ar roomId: {item.RoomId}");
                             }
                             if (!isCollided)
                             {
