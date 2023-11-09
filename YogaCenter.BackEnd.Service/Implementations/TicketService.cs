@@ -352,5 +352,21 @@ namespace YogaCenter.BackEnd.Service.Implementations
             }
             return _result;
         }
+
+        public async Task<AppActionResult> GetAllTicket()
+        {
+            try
+            {
+
+                _result.Result.Data = await _unitOfWork.GetRepository<Ticket>().GetAll();
+            }
+            catch (Exception ex)
+            {
+                _result.isSuccess = false;
+                _result.Message.Add(ex.Message);
+
+            }
+            return _result;
+        }
     }
 }

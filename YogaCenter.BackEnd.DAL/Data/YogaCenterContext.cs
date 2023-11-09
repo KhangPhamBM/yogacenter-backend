@@ -14,11 +14,11 @@ namespace YogaCenter.BackEnd.DAL.Data
 {
     public class YogaCenterContext : IdentityDbContext<ApplicationUser>
     {
-      
+
         public YogaCenterContext(DbContextOptions options) : base(options)
         {
         }
-        public DbSet<Attendance> Attendances { get; set; } 
+        public DbSet<Attendance> Attendances { get; set; }
         public DbSet<AttendanceStatus> AttendanceStatuses { get; set; }
 
         public DbSet<Class> Classes { get; set; }
@@ -34,15 +34,15 @@ namespace YogaCenter.BackEnd.DAL.Data
         public DbSet<TicketType> TicketTypes { get; set; }
         public DbSet<TimeFrame> TimeFrames { get; set; }
         public DbSet<Room> Rooms { get; set; }
-       
-
-
+     
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
             builder.Entity<Attendance>()
                .HasKey(pi => new { pi.ClassDetailId, pi.ScheduleId });
+
+        
 
             builder.Entity<IdentityRole>().HasData(
                 new IdentityRole { Id = Guid.NewGuid().ToString(), Name = Permission.ADMIN, NormalizedName = Permission.ADMIN.ToLower() });
@@ -71,7 +71,7 @@ namespace YogaCenter.BackEnd.DAL.Data
                 {
                     AttendanceStatusId = 1,
                     AttendanceStatusName = "NOT YET"
-                }) ;
+                });
             builder.Entity<AttendanceStatus>().HasData(
                 new AttendanceStatus
                 {
