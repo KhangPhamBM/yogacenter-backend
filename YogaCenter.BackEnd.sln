@@ -11,6 +11,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YogaCenter.BackEnd.Service"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YogaCenter.BackEnd.Common", "YogaCenter.BackEnd.Common\YogaCenter.BackEnd.Common.csproj", "{A521F23A-B9B9-4AE0-8FE8-4B6C28413AB4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "YogaCenter.BackEnd.Realtime", "YogaCenter.BackEnd.Realtime\YogaCenter.BackEnd.Realtime.csproj", "{2BEC1AA5-2ED9-4FC9-98E5-B32E820259E5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{A521F23A-B9B9-4AE0-8FE8-4B6C28413AB4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A521F23A-B9B9-4AE0-8FE8-4B6C28413AB4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A521F23A-B9B9-4AE0-8FE8-4B6C28413AB4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2BEC1AA5-2ED9-4FC9-98E5-B32E820259E5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2BEC1AA5-2ED9-4FC9-98E5-B32E820259E5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2BEC1AA5-2ED9-4FC9-98E5-B32E820259E5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2BEC1AA5-2ED9-4FC9-98E5-B32E820259E5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

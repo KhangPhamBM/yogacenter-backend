@@ -1,7 +1,8 @@
-using AutoMapper;
+﻿using AutoMapper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.ComponentModel;
@@ -11,6 +12,7 @@ using YogaCenter.BackEnd.DAL.Data;
 using YogaCenter.BackEnd.DAL.Implementations;
 using YogaCenter.BackEnd.DAL.Mapping;
 using YogaCenter.BackEnd.DAL.Models;
+using YogaCenter.BackEnd.Realtime;
 using YogaCenter.BackEnd.Service.Contracts;
 using YogaCenter.BackEnd.Service.Implementations;
 using YogaCenter.BackEnd.Service.Services;
@@ -78,15 +80,22 @@ builder.Services.AddScoped<ITimeFrameService, TimeFrameService>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IRoleService, RoleService>();
+
+builder.Services.AddScoped<IMessageService, MessageService>();
+
+
 builder.Services.AddScoped<WorkerService>();
 
 builder.Services.AddHostedService<WorkerService>();
 
 builder.Services.AddControllers();
+builder.Services.AddSignalR();
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(option =>
 {
+
     option.AddSecurityDefinition(name: JwtBearerDefaults.AuthenticationScheme, securityScheme: new OpenApiSecurityScheme
     {
         Name = "Authorization",
@@ -109,6 +118,24 @@ builder.Services.AddSwaggerGen(option =>
         }, new string[]{}
     }
     });
+    option.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Version = "v1",
+        Title = "Yoga Center API",
+        Description = "©Copyright: Hồng Quân & Minh Khang",
+        TermsOfService = new Uri("https://example.com/terms"),
+        Contact = new OpenApiContact
+        {
+            Name = "Example Contact",
+            Url = new Uri("https://example.com/contact")
+        },
+        License = new OpenApiLicense
+        {
+            Name = "Example License",
+            Url = new Uri("https://example.com/license")
+        }
+    });
+   
 });
 builder.Services
     .AddIdentity<ApplicationUser, IdentityRole>()
@@ -149,6 +176,7 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 
 app.UseAuthorization();
+app.MapHub<ChatHub>("/chat");
 
 app.MapControllers();
 

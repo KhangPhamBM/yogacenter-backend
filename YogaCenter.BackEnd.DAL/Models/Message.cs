@@ -16,9 +16,10 @@ namespace YogaCenter.BackEnd.DAL.Models
         public int ClassDetailId { get; set; }
         [ForeignKey(nameof(ClassDetailId))]
         public ClassDetail ClassDetail { get; set; }
-        public string message { get; set; }
+        public string MessageContent { get; set; }
 
         public DateTime SendTime { get; set; }
+        public bool isDeleted { get; set; } = false;
 
     }
 }
