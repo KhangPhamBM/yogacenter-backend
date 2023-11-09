@@ -447,5 +447,6 @@ namespace YogaCenter.BackEnd.Service.Implementations
             return new DateTime[] { firstDateOfWeek, lastDateOfWeek };
         }
 
+        
     }
 }

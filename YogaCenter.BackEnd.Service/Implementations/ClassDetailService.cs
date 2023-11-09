@@ -36,27 +36,26 @@ namespace YogaCenter.BackEnd.Service.Implementations
             try
             {
                 bool isValid = true;
-
                 var traineeRole = await _unitOfWork.GetRepository<IdentityRole>().GetByExpression(r => r.NormalizedName.ToLower().Equals("trainee"));
                 var trainerRole = await _unitOfWork.GetRepository<IdentityRole>().GetByExpression(r => r.NormalizedName.ToLower().Equals("trainer"));
+
                 if (traineeRole == null || trainerRole == null)
                 {
                     isValid = false;
                     _result.Message.Add("Please insert role");
                 }
 
-
                 var classDto = await _unitOfWork.GetRepository<Class>().GetById(detail.ClassId);
                 if (classDto == null)
                 {
                     isValid = false;
-                    _result.Message.Add($"The class with id {detail.ClassDetailId} not found");
+                    _result.Message.Add($"The class with id {detail.ClassId} not found");
                 }
 
                 if(classDto.MaxOfTrainee == await CountTrainee(classDto))
                 {
                     isValid = false;
-                    _result.Message.Add($"The class with id {classDto.ClassId} is having maximum trainee");
+                    _result.Message.Add($"The class with id {classDto.ClassId} has reached maximum number of trainees");
 
                 }
 
@@ -168,22 +167,26 @@ namespace YogaCenter.BackEnd.Service.Implementations
             else if (await _unitOfWork.GetRepository<IdentityUserRole<string>>().GetByExpression(r => r.RoleId == trainerRole.Id && r.UserId == detail.UserId, null) != null)
             {
                 var classDetail = await _unitOfWork.GetRepository<ClassDetail>().GetByExpression(c => c.UserId == detail.UserId);
+                //Schedule of class that trainer is intended to lecture
                 var list = await _unitOfWork.GetRepository<Schedule>().GetListByExpression(s => s.ClassId == classDto.ClassId);
                 if (classDetail != null)
                 {
-                    var scheduleTrainee = await _unitOfWork.GetRepository<Schedule>().GetListByExpression(s => s.ClassId == classDetail.ClassId);
+                    //Current Schedule of that trainer 
+                    var scheduleTrainer = await _unitOfWork.GetRepository<Schedule>().GetListByExpression(s => s.ClassId == classDetail.ClassId);
+                    //Dictionary<String, Schedule> schedules = new Dictionary<String, Schedule>();
                     HashSet<Schedule> schedules = new HashSet<Schedule>();
                     foreach (var item in list)
                     {
                         schedules.Add(item);
                     }
-                    foreach (var schedule in scheduleTrainee)
+                    foreach (var schedule in scheduleTrainer)
                     {
                         if (schedules.Contains(schedule))
                         {
                             isValid = false;
                             var timeFrame = await _unitOfWork.GetRepository<DAL.Models.TimeFrame>().GetById(schedule.TimeFrameId);
-                            _result.Message.Add($"Collided schedule time : {timeFrame?.TimeFrameName?.ToLower()}, on {schedule.Date.DayOfWeek} {SD.FormatDateTime(schedule.Date)}");
+                            //var collidedSchedule = schedules.GetValueOrDefault(GetScheduleKey(schedule));
+                            _result.Message.Add($"Collided schedule time : {timeFrame?.TimeFrameName?.ToLower()}, on {schedule.Date.DayOfWeek} {SD.FormatDateTime(schedule.Date)} at class: {schedule.ClassId}");
 
                         }
                     }
@@ -236,6 +239,15 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 _result.Message.Add(ex.Message);
             }
             return _result;
+        }
+
+        private string GetScheduleKey(Schedule schedule)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append(schedule.Date.Date.ToString());
+            sb.Append('_');
+            sb.Append(schedule.TimeFrameId.ToString());
+            return sb.ToString();
         }
     }
 }
