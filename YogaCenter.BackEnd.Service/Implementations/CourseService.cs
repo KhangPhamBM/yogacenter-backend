@@ -129,6 +129,8 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 var courseList = await _unitOfWork.GetRepository<Course>().GetAll();
                 if (courseList.Any())
                 {
+                    if(pageIndex <= 0) pageIndex = 1;
+                    if (pageSize <= 0) pageSize = SD.MAX_RECORD_PER_PAGE;
                     int totalPage = DataPresentationHelper.CalculateTotalPageSize(courseList.Count(), pageSize);
 
                     if (sortInfos != null)
@@ -195,7 +197,11 @@ namespace YogaCenter.BackEnd.Service.Implementations
             try
             {
                 var source = await _unitOfWork.GetRepository<Course>().GetListByExpression(c => (bool)!c.IsDeleted, null);
-                int totalPage = DataPresentationHelper.CalculateTotalPageSize(source.Count(), filterRequest.pageSize);
+                int pageIndex = filterRequest.pageIndex;
+                if (pageIndex <= 0) pageIndex = 1;
+                int pageSize = filterRequest.pageSize;
+                if (pageSize <= 0) pageSize = SD.MAX_RECORD_PER_PAGE;
+                int totalPage = DataPresentationHelper.CalculateTotalPageSize(source.Count(), pageSize);
                 if (filterRequest != null)
                 {
                     if (filterRequest.pageIndex <= 0 || filterRequest.pageSize <= 0)

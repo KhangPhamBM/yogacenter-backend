@@ -209,6 +209,8 @@ namespace YogaCenter.BackEnd.Service.Implementations
                     var details = await _unitOfWork.GetRepository<ClassDetail>().GetListByExpression(cd => cd.ClassId == classId, null);
                     if (details != null)
                     {
+                        if (pageIndex <= 0) pageIndex = 1;
+                        if (pageSize <= 0) pageSize = SD.MAX_RECORD_PER_PAGE;
                         int totalPage = DataPresentationHelper.CalculateTotalPageSize(details.Count(), pageSize);
                         if (sortInfos != null)
                         {
