@@ -82,5 +82,11 @@ namespace YogaCenter.BackEnd.API.Controllers
         {
             return await _ticketService.SearchApplyingSortingAndFiltering(baseFilterRequest);
         }
+
+        [HttpGet("get-all-ticket")]
+        public async Task<AppActionResult> GetAllTicket()
+        { 
+            return await _ticketService.GetAllTicket();
+        }
     }
 }

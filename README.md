@@ -18,10 +18,10 @@ The Yoga Center Management System offers a range of powerful features to enhance
 The Yoga Center Management System backend API is built using the following technologies:
  - .NET Core: The framework for building the API.
  - Entity Framework: Object-Relational Mapping (ORM) tool for database management.
- - Identity Framework
+ - Identity Framework: Manages users, passwords, profile data, roles, claims, tokens, email confirmation, and more.
  - VNPAY && Momo: Integration for online payment processing.
  - Worker Services: Background tasks and services.
-
+ - SignalR: ASP.NET SignalR is a library for ASP.NET developers that simplifies the process of adding real-time web functionality to applications.
 
 
 ## Screen-shots
