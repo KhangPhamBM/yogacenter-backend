@@ -2,6 +2,7 @@
 using NPOI.Util;
 using System;
 using System.Collections.Generic;
+using System.Drawing.Imaging;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -136,6 +137,8 @@ namespace YogaCenter.BackEnd.Service.Implementations
             try
             {
                 var classes = await _unitOfWork.GetRepository<Class>().GetAll();
+                if (pageIndex <= 0) pageIndex = 1;
+                if (pageSize <= 0) pageSize = SD.MAX_RECORD_PER_PAGE;
                 int totalPage = DataPresentationHelper.CalculateTotalPageSize(classes.Count(), pageSize);
                 if (sortInfos != null)
                 {
@@ -161,6 +164,8 @@ namespace YogaCenter.BackEnd.Service.Implementations
             try
             {
                 var classes = await _unitOfWork.GetRepository<Class>().GetListByExpression(c => c.IsDeleted == false, null);
+                if (pageIndex <= 0) pageIndex = 1;
+                if (pageSize <= 0) pageSize = SD.MAX_RECORD_PER_PAGE;
                 int totalPage = DataPresentationHelper.CalculateTotalPageSize(classes.Count(), pageSize);
 
                 //var classes =  _mapper.Map<IOrderedQueryable<ClassDto>>(src);

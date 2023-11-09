@@ -232,6 +232,8 @@ namespace YogaCenter.BackEnd.Service.Implementations
             {
                 List<AccountResponse> accounts = new List<AccountResponse>();
                 var list = await _unitOfWork.GetRepository<ApplicationUser>().GetAll();
+                if(pageIndex <= 0) pageIndex = 1;
+                if (pageSize <= 0) pageSize = SD.MAX_RECORD_PER_PAGE;
                 int totalPage = DataPresentationHelper.CalculateTotalPageSize(list.Count(), pageSize);
 
                 foreach (var account in list)
@@ -301,7 +303,9 @@ namespace YogaCenter.BackEnd.Service.Implementations
             try
             {
                 var source = (IOrderedQueryable<ApplicationUser>)await _unitOfWork.GetRepository<ApplicationUser>().GetByExpression(a => (bool)a.isDeleted, null);
-                int totalPage = DataPresentationHelper.CalculateTotalPageSize(source.Count(), filterRequest.pageSize);
+                int pageSize = filterRequest.pageSize;
+                if (filterRequest.pageSize <= 0) pageSize = SD.MAX_RECORD_PER_PAGE;
+                int totalPage = DataPresentationHelper.CalculateTotalPageSize(source.Count(), pageSize);
                 if (filterRequest != null)
                 {
                     if (filterRequest.pageIndex <= 0 || filterRequest.pageSize <= 0)

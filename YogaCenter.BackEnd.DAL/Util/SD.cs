@@ -11,6 +11,7 @@ namespace YogaCenter.BackEnd.DAL.Util
     public class SD
     {
         private static SD instance;
+        public static int MAX_RECORD_PER_PAGE = Int16.MaxValue;
         public static SD getInstance()
         {
             if (instance == null)
@@ -177,6 +178,8 @@ namespace YogaCenter.BackEnd.DAL.Util
 
             }
         }
+
+        
     }
 
 }
