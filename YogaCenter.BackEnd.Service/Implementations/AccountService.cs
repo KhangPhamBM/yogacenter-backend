@@ -21,7 +21,6 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using YogaCenter.BackEnd.DAL.Util;
 using YogaCenter.BackEnd.DAL.Common;
-using System.Web.WebPages;
 
 namespace YogaCenter.BackEnd.Service.Implementations
 {
@@ -315,7 +314,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                     }
                     else
                     {
-                        if (!filterRequest.keyword.IsEmpty())
+                        if (filterRequest.keyword != "")
                         {
                             source = (IOrderedQueryable<ApplicationUser>)await _unitOfWork.GetRepository<ApplicationUser>().GetByExpression(c => (bool)!c.isDeleted && c.UserName.Contains(filterRequest.keyword), null);
                         }

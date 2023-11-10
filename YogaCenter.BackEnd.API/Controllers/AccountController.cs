@@ -51,7 +51,7 @@ namespace YogaCenter.BackEnd.API.Controllers
         }
 
         [HttpPost("get-all-account")]
-        [Authorize(Roles = Permission.MANAGEMENT)]
+      //  [Authorize(Roles = Permission.MANAGEMENT)]
 
         public async Task<AppActionResult> GetAllAccount(int pageIndex, int pageSize, IList<SortInfo> sortInfos)
         {

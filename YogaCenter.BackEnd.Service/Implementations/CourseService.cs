@@ -10,8 +10,6 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
-using System.Web.Mvc;
-using System.Web.WebPages;
 using YogaCenter.BackEnd.Common.Dto;
 using YogaCenter.BackEnd.DAL.Contracts;
 using YogaCenter.BackEnd.DAL.Models;
@@ -210,7 +208,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                         _result.isSuccess=false;
                     } else
                     {
-                        if (!filterRequest.keyword.IsEmpty() && filterRequest.keyword != null)
+                        if (filterRequest.keyword != "" && filterRequest.keyword != null)
                         {
                             source = await _unitOfWork.GetRepository<Course>().GetListByExpression(c => (bool)!c.IsDeleted && c.CourseName.Contains(filterRequest.keyword), null);
                         }
