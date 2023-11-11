@@ -23,6 +23,7 @@ The Yoga Center Management System backend API is built using the following techn
  - Worker Services: Background tasks and services.
  - SignalR: ASP.NET SignalR is a library for ASP.NET developers that simplifies the process of adding real-time web functionality to applications.
  - DinkToPDF: Create a report and export it to PDF.
+ - OfficeOpenXml: The library support for processing data from Excel file
 
 ## Screen-shots
 ![Swagger Page](https://github.com/duong-hong-quan/yogacenter-backend/blob/master/screenshots/Swagger.PNG)
