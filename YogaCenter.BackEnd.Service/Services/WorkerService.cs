@@ -25,7 +25,6 @@ namespace YogaCenter.BackEnd.Service.Services
         }
         protected async override Task ExecuteAsync(CancellationToken stoppingToken)
         {
-
             while (!stoppingToken.IsCancellationRequested)
             {
                 using (var scope = _serviceProvider.CreateScope())
@@ -42,9 +41,8 @@ namespace YogaCenter.BackEnd.Service.Services
                     }
                     _db.SaveChanges();
                 }
+                await Task.Delay(TimeSpan.FromDays(1), stoppingToken);
 
-
-                await Task.Delay(TimeSpan.FromSeconds(5), stoppingToken);
             }
         }
     }

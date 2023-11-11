@@ -21,7 +21,6 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using YogaCenter.BackEnd.DAL.Util;
 using YogaCenter.BackEnd.DAL.Common;
-using System.Web.WebPages;
 
 namespace YogaCenter.BackEnd.Service.Implementations
 {
@@ -35,22 +34,25 @@ namespace YogaCenter.BackEnd.Service.Implementations
         private readonly IConfiguration _configuration;
         private readonly TokenDto _tokenDto;
         private readonly IJwtService _jwtService;
+        private readonly IEmailService _emailService;
 
         public AccountService(
             IUnitOfWork unitOfWork,
             UserManager<ApplicationUser> userManager,
             RoleManager<IdentityRole> roleManager,
             SignInManager<ApplicationUser> signInManager,
-            IJwtService jwtService
+            IJwtService jwtService,
+            IEmailService emailService
             )
         {
             _unitOfWork = unitOfWork;
-            _result = new AppActionResult();
+            _result = new();
             _userManager = userManager;
             _roleManager = roleManager;
             _signInManager = signInManager;
             _jwtService = jwtService;
             _tokenDto = new();
+            _emailService = emailService;
         }
 
         public async Task<AppActionResult> Login(LoginRequestDto loginRequest)
@@ -58,11 +60,18 @@ namespace YogaCenter.BackEnd.Service.Implementations
             bool isValid = true;
             try
             {
-                if (await _unitOfWork.GetRepository<ApplicationUser>().GetByExpression(u => u.Email.ToLower() == loginRequest.Email.ToLower() && u.isDeleted == false) == null)
+                var user = await _unitOfWork.GetRepository<ApplicationUser>().GetByExpression(u => u.Email.ToLower() == loginRequest.Email.ToLower() && u.IsDeleted == false);
+                if (user == null)
                 {
                     isValid = false;
                     _result.Message.Add($"The user with username {loginRequest.Email} not found");
                 }
+                else if (user.IsVerified == false)
+                {
+                    isValid = false;
+                    _result.Message.Add("The account is not verified !");
+                }
+
                 var result = await _signInManager.PasswordSignInAsync(loginRequest.Email, loginRequest.Password, false, false);
                 if (!result.Succeeded)
                 {
@@ -74,12 +83,10 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 {
                     string token = await _jwtService.GenerateAccessToken(loginRequest);
 
-                    var user = await _unitOfWork.GetRepository<ApplicationUser>().GetByExpression(u => u.Email.ToLower() == loginRequest.Email.ToLower());
                     if (user.RefreshToken == null)
                     {
                         user.RefreshToken = _jwtService.GenerateRefreshToken();
                         user.RefreshTokenExpiryTime = DateTime.Now.AddDays(1);
-
                     }
                     if (user.RefreshTokenExpiryTime <= DateTime.Now)
                     {
@@ -125,7 +132,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
 
 
 
-
+                    string verifyCode = Guid.NewGuid().ToString("N").Substring(0, 6);
                     var user = new ApplicationUser
                     {
                         Email = signUpRequest.Email,
@@ -133,13 +140,17 @@ namespace YogaCenter.BackEnd.Service.Implementations
                         FirstName = signUpRequest.FirstName,
                         LastName = signUpRequest.LastName,
                         PhoneNumber = signUpRequest.PhoneNumber,
-                        Gender = signUpRequest.Gender
+                        Gender = signUpRequest.Gender,
+                        VerifyCode = verifyCode
+
 
                     };
                     var resultCreateUser = await _userManager.CreateAsync(user, signUpRequest.Password);
                     if (resultCreateUser.Succeeded)
                     {
+                        _result.Result.Data = user;
                         _result.Message.Add($"{SD.ResponseMessage.CREATE_SUCCESSFUL} USER");
+                        _emailService.SendEmail(user.Email, SD.SubjectMail.VERIFY_ACCOUNT, verifyCode);
 
                     }
                     else
@@ -232,7 +243,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
             {
                 List<AccountResponse> accounts = new List<AccountResponse>();
                 var list = await _unitOfWork.GetRepository<ApplicationUser>().GetAll();
-                if(pageIndex <= 0) pageIndex = 1;
+                if (pageIndex <= 0) pageIndex = 1;
                 if (pageSize <= 0) pageSize = SD.MAX_RECORD_PER_PAGE;
                 int totalPage = DataPresentationHelper.CalculateTotalPageSize(list.Count(), pageSize);
 
@@ -272,14 +283,14 @@ namespace YogaCenter.BackEnd.Service.Implementations
             bool isValid = true;
             try
             {
-                if (await _unitOfWork.GetRepository<ApplicationUser>().GetByExpression(c => c.Email == changePasswordDto.Email && c.isDeleted == false) == null)
+                if (await _unitOfWork.GetRepository<ApplicationUser>().GetByExpression(c => c.Email == changePasswordDto.Email && c.IsDeleted == false) == null)
                 {
                     isValid = false;
                     _result.Message.Add($"The user with email {changePasswordDto.Email} not found");
                 }
                 if (isValid)
                 {
-                    var user = await _unitOfWork.GetRepository<ApplicationUser>().GetByExpression(c => c.Email == changePasswordDto.Email && c.isDeleted == false);
+                    var user = await _unitOfWork.GetRepository<ApplicationUser>().GetByExpression(c => c.Email == changePasswordDto.Email && c.IsDeleted == false);
                     var result = await _userManager.ChangePasswordAsync(user, changePasswordDto.OldPassword, changePasswordDto.NewPassword);
                     if (result.Succeeded)
                     {
@@ -302,7 +313,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
         {
             try
             {
-                var source = (IOrderedQueryable<ApplicationUser>)await _unitOfWork.GetRepository<ApplicationUser>().GetByExpression(a => (bool)a.isDeleted, null);
+                var source = (IOrderedQueryable<ApplicationUser>)await _unitOfWork.GetRepository<ApplicationUser>().GetByExpression(a => (bool)a.IsDeleted, null);
                 int pageSize = filterRequest.pageSize;
                 if (filterRequest.pageSize <= 0) pageSize = SD.MAX_RECORD_PER_PAGE;
                 int totalPage = DataPresentationHelper.CalculateTotalPageSize(source.Count(), pageSize);
@@ -315,9 +326,9 @@ namespace YogaCenter.BackEnd.Service.Implementations
                     }
                     else
                     {
-                        if (!filterRequest.keyword.IsEmpty())
+                        if (filterRequest.keyword != "")
                         {
-                            source = (IOrderedQueryable<ApplicationUser>)await _unitOfWork.GetRepository<ApplicationUser>().GetByExpression(c => (bool)!c.isDeleted && c.UserName.Contains(filterRequest.keyword), null);
+                            source = (IOrderedQueryable<ApplicationUser>)await _unitOfWork.GetRepository<ApplicationUser>().GetByExpression(c => (bool)!c.IsDeleted && c.UserName.Contains(filterRequest.keyword), null);
                         }
                         if (filterRequest.filterInfoList != null)
                         {
@@ -479,6 +490,110 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 if (isValid)
                 {
                     _result.Result.Data = await _jwtService.GetNewToken(refreshToken, userId);
+
+                }
+            }
+            catch (Exception ex)
+            {
+                _result.isSuccess = false;
+                _result.Message.Add(ex.Message);
+            }
+            return _result;
+        }
+
+        public async Task<AppActionResult> ForgotPassword(ForgotPasswordDto dto)
+        {
+            try
+            {
+                bool isValid = true;
+                var user = await _unitOfWork.GetRepository<ApplicationUser>().GetByExpression(a => a.Email == dto.Email && a.IsDeleted == false && a.IsVerified == true);
+                if (user == null)
+                {
+                    isValid = false;
+                    _result.Message.Add("The user is not existed or is not verified");
+                }
+                else if (user.VerifyCode != dto.RecoveryCode)
+                {
+                    isValid = false;
+                    _result.Message.Add("The verification code is wrong.");
+
+                }
+
+                if (isValid)
+                {
+                    await _userManager.RemovePasswordAsync(user);
+                    var result = await _userManager.AddPasswordAsync(user, dto.NewPassword);
+                    if (result.Succeeded)
+                    {
+                        _result.Message.Add("Change password successful");
+                    }
+                    else
+                    {
+                        _result.Message.Add("Change password failed");
+
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _result.isSuccess = false;
+                _result.Message.Add(ex.Message);
+            }
+            return _result;
+        }
+
+        public async Task<AppActionResult> ActiveAccount(string email, string verifyCode)
+        {
+            try
+            {
+                bool isValid = true;
+                var user = await _unitOfWork.GetRepository<ApplicationUser>().GetByExpression(a => a.Email == email && a.IsDeleted == false && a.IsVerified == false);
+                if (user == null)
+                {
+                    isValid = false;
+                    _result.Message.Add("The user is not existed ");
+                }
+                else if (user.VerifyCode != verifyCode)
+                {
+                    isValid = false;
+                    _result.Message.Add("The verification code is wrong.");
+
+                }
+
+                if (isValid)
+                {
+                    user.IsVerified = true;
+                    _unitOfWork.SaveChange();
+                    _result.Message.Add("Active successfully");
+                }
+            }
+            catch (Exception ex)
+            {
+                _result.isSuccess = false;
+                _result.Message.Add(ex.Message);
+            }
+            return _result;
+        }
+
+        public async Task<AppActionResult> SendEmailForgotPassword(string email)
+        {
+            try
+            {
+                bool isValid = true;
+                var user = await _unitOfWork.GetRepository<ApplicationUser>().GetByExpression(a => a.Email == email && a.IsDeleted == false && a.IsVerified == true);
+                if (user == null)
+                {
+                    isValid = false;
+                    _result.Message.Add("The user is not existed or is not verified");
+                }
+
+
+                if (isValid)
+                {
+                    string code = Guid.NewGuid().ToString("N").Substring(0, 6);
+                    user.VerifyCode = code;
+                    _unitOfWork.SaveChange();
+                    _emailService.SendEmail(email, SD.SubjectMail.PASSCODE_FORGOT_PASSWORD, code);
 
                 }
             }

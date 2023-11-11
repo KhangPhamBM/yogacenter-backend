@@ -5,7 +5,6 @@ using System.Linq;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
-using System.Web.WebPages;
 using YogaCenter.BackEnd.Common.Dto;
 using YogaCenter.BackEnd.DAL.Contracts;
 using YogaCenter.BackEnd.DAL.Models;
@@ -323,7 +322,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                     }
                     else
                     {
-                        if (!filterRequest.keyword.IsEmpty())
+                        if (filterRequest.keyword != "")
                         {
                             source = await _unitOfWork.GetRepository<Ticket>().GetListByExpression(c => c.Note.Contains(filterRequest.keyword), null);
                         }

@@ -38,7 +38,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
             bool isValid = true;
             try
             {
-                if (await _unitOfWork.GetRepository<ApplicationUser>().GetByExpression(u => u.Id == userId && u.isDeleted == false) == null)
+                if (await _unitOfWork.GetRepository<ApplicationUser>().GetByExpression(u => u.Id == userId && u.IsDeleted == false) == null)
                 {
                     isValid = false;
                     _result.Message.Add($"The user with id {userId} not found");
@@ -131,7 +131,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
             bool isValid = true;
             try
             {
-                if (await _unitOfWork.GetRepository<ApplicationUser>().GetByExpression(u => u.Id == userId && u.isDeleted == false) == null)
+                if (await _unitOfWork.GetRepository<ApplicationUser>().GetByExpression(u => u.Id == userId && u.IsDeleted == false) == null)
                 {
                     isValid = false;
                     _result.Message.Add($"The user with id {userId} not found");
