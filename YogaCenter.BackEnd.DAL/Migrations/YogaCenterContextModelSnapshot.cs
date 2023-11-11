@@ -51,29 +51,29 @@ namespace YogaCenter.BackEnd.DAL.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "7fd8d8ed-f289-469e-8b18-f899a84de0bd",
-                            ConcurrencyStamp = "5a10837e-46fa-4042-af71-3b5017d293f5",
+                            Id = "29192ce8-caa4-4c2a-95f9-90cee75b50f8",
+                            ConcurrencyStamp = "dceaa390-c82a-4e07-9df7-5610be1a2aed",
                             Name = "ADMIN",
                             NormalizedName = "admin"
                         },
                         new
                         {
-                            Id = "69c73da1-9a01-40f9-b9d7-ae2e126108d1",
-                            ConcurrencyStamp = "89cdd34a-17f1-4d9f-855f-0befe322e6ed",
+                            Id = "a361f267-ae16-40f9-9e0c-5a51737b723b",
+                            ConcurrencyStamp = "2536e9cb-6e08-46b0-9162-64656d31470a",
                             Name = "STAFF",
                             NormalizedName = "staff"
                         },
                         new
                         {
-                            Id = "76f43a29-5e58-40ec-b8b8-7a71a10b7c45",
-                            ConcurrencyStamp = "b94b4bf2-2c6e-4b1a-97f0-ebdb23c8c48f",
+                            Id = "7eef2b64-2027-4f18-8c94-3a1562112ca7",
+                            ConcurrencyStamp = "2f34f12c-6158-482d-9fc9-b2a11213a2e0",
                             Name = "TRAINER",
                             NormalizedName = "trainer"
                         },
                         new
                         {
-                            Id = "3a66e9c3-ae2f-4f2f-8ea3-b4fe8fb703dc",
-                            ConcurrencyStamp = "4f3d3252-e188-470c-b320-3224337b5aa0",
+                            Id = "990f4ae2-8172-4c83-bfb3-03be9b392876",
+                            ConcurrencyStamp = "9b5e53d3-0a50-4995-aa81-40d5558eed4e",
                             Name = "TRAINEE",
                             NormalizedName = "trainee"
                         });
@@ -210,6 +210,12 @@ namespace YogaCenter.BackEnd.DAL.Migrations
                     b.Property<bool?>("Gender")
                         .HasColumnType("bit");
 
+                    b.Property<bool?>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<bool?>("IsVerified")
+                        .HasColumnType("bit");
+
                     b.Property<string>("LastName")
                         .HasColumnType("nvarchar(max)");
 
@@ -252,8 +258,8 @@ namespace YogaCenter.BackEnd.DAL.Migrations
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
 
-                    b.Property<bool?>("isDeleted")
-                        .HasColumnType("bit");
+                    b.Property<string>("VerifyCode")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 

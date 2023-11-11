@@ -51,7 +51,7 @@ namespace YogaCenter.BackEnd.API.Controllers
         }
 
         [HttpPost("get-all-account")]
-      //  [Authorize(Roles = Permission.MANAGEMENT)]
+        //  [Authorize(Roles = Permission.MANAGEMENT)]
 
         public async Task<AppActionResult> GetAllAccount(int pageIndex, int pageSize, IList<SortInfo> sortInfos)
         {
@@ -87,18 +87,31 @@ namespace YogaCenter.BackEnd.API.Controllers
             return await _accountService.RemoveRoleForUserId(userId, roleId);
         }
 
-        [HttpGet("get-all-role")]
-
-        public async Task<AppActionResult> GetAllRole()
-        {
-            return await _accountService.GetAllRole();
-        }
 
         [HttpPost("get-new-token")]
-        public async Task<AppActionResult> GetNewToken([FromBody]string refreshToken,  string userId)
+        public async Task<AppActionResult> GetNewToken([FromBody] string refreshToken, string userId)
         {
-            return await _accountService.GetNewToken(refreshToken,userId);
+            return await _accountService.GetNewToken(refreshToken, userId);
 
+        }
+        [HttpPut("forgot-password")]
+
+        public async Task<AppActionResult> ForgotPassword(ForgotPasswordDto dto)
+        {
+            return await _accountService.ForgotPassword(dto);
+        }
+        [HttpPut("active-account")]
+
+        public async Task<AppActionResult> ActiveAccount(string email, string verifyCode)
+        {
+
+            return await _accountService.ActiveAccount(email, verifyCode);
+        }
+        [HttpPost("send-email-forgot-password/{email}")]
+
+        public async Task<AppActionResult> SendEmailForgotPassword(string email)
+        {
+            return await _accountService.SendEmailForgotPassword(email);
         }
     }
 }

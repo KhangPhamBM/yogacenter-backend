@@ -20,29 +20,13 @@ namespace YogaCenter.BackEnd.API.Controllers
             _roleService = roleService;
         }
 
-        [Authorize(Roles = Permission.ADMIN)]
+       
         [HttpGet("get-all-role")]
         public async Task<AppActionResult> GetAllRole()
         {
             return await _roleService.GetAllRole();
         }
 
-        [HttpPost("create-role")]
-        [Authorize(Roles = Permission.ADMIN)]
-
-        public async Task<AppActionResult> CreateRole(string roleName)
-        {
-            return await _roleService.CreateRole(roleName);
-        }
-
-        [HttpPut("update-role")]
-        [Authorize(Roles = Permission.ADMIN)]
-
-        public async Task<AppActionResult> UpdateRole(IdentityRole role)
-        {
-            return await _roleService.UpdateRole(role);
-
-        }
         [HttpPost("assign-role-for-user")]
         [Authorize(Roles = Permission.STAFF)]
 

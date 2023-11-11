@@ -1,5 +1,6 @@
 ﻿using DinkToPdf;
 using DinkToPdf.Contracts;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using OfficeOpenXml;
 using Org.BouncyCastle.Asn1.Ocsp;
@@ -172,6 +173,44 @@ namespace YogaCenter.BackEnd.Service.Implementations
                     FileDownloadName = "template.xlsx"
                 };
             }
+        }
+        public ActionResult<List<List<string>>> UploadExcel( IFormFile file)
+        {
+            try
+            {
+                
+
+                using (var stream = new MemoryStream())
+                {
+                    file.CopyTo(stream);
+                    using (var package = new ExcelPackage(stream))
+                    {
+                        ExcelWorksheet worksheet = package.Workbook.Worksheets[0];
+
+                        int rowCount = worksheet.Dimension.Rows;
+                        int colCount = worksheet.Dimension.Columns;
+
+                        List<List<string>> data = new List<List<string>>();
+
+                        for (int row = 1; row <= rowCount; row++)
+                        {
+                            List<string> rowData = new List<string>();
+                            for (int col = 1; col <= colCount; col++)
+                            {
+                                object cellValue = worksheet.Cells[row, col].Value;
+                                rowData.Add(cellValue != null ? cellValue.ToString() : string.Empty);
+                            }
+                            data.Add(rowData);
+                        }
+
+                        return data;
+                    }
+                }
+            }catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            return null;
         }
 
 

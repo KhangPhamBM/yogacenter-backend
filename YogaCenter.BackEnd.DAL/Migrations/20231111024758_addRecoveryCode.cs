@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace YogaCenter.BackEnd.DAL.Migrations
 {
-    public partial class addFieldCustomIF : Migration
+    public partial class addRecoveryCode : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -32,7 +32,9 @@ namespace YogaCenter.BackEnd.DAL.Migrations
                     FirstName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     LastName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Gender = table.Column<bool>(type: "bit", nullable: true),
-                    isDeleted = table.Column<bool>(type: "bit", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: true),
+                    IsVerified = table.Column<bool>(type: "bit", nullable: true),
+                    VerifyCode = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     RefreshToken = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     RefreshTokenExpiryTime = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
@@ -52,6 +54,19 @@ namespace YogaCenter.BackEnd.DAL.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AspNetUsers", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "AttendanceStatuses",
+                columns: table => new
+                {
+                    AttendanceStatusId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    AttendanceStatusName = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AttendanceStatuses", x => x.AttendanceStatusId);
                 });
 
             migrationBuilder.CreateTable(
@@ -158,8 +173,7 @@ namespace YogaCenter.BackEnd.DAL.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     RoleId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     ClaimType = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ClaimValue = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Discriminator = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    ClaimValue = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -180,8 +194,7 @@ namespace YogaCenter.BackEnd.DAL.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     ClaimType = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ClaimValue = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Discriminator = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    ClaimValue = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -201,8 +214,7 @@ namespace YogaCenter.BackEnd.DAL.Migrations
                     LoginProvider = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     ProviderKey = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     ProviderDisplayName = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Discriminator = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -220,8 +232,7 @@ namespace YogaCenter.BackEnd.DAL.Migrations
                 columns: table => new
                 {
                     UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    RoleId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Discriminator = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    RoleId = table.Column<string>(type: "nvarchar(450)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -247,8 +258,7 @@ namespace YogaCenter.BackEnd.DAL.Migrations
                     UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     LoginProvider = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Value = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Discriminator = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Value = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -272,7 +282,7 @@ namespace YogaCenter.BackEnd.DAL.Migrations
                     ClassName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CourseId = table.Column<int>(type: "int", nullable: true),
                     MinOfTrainee = table.Column<int>(type: "int", nullable: false),
-                    MaxOfTrainer = table.Column<int>(type: "int", nullable: false),
+                    MaxOfTrainee = table.Column<int>(type: "int", nullable: false),
                     IsDeleted = table.Column<bool>(type: "bit", nullable: true)
                 },
                 constraints: table =>
@@ -399,16 +409,44 @@ namespace YogaCenter.BackEnd.DAL.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Messages",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    ClassDetailId = table.Column<int>(type: "int", nullable: false),
+                    MessageContent = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    SendTime = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    isDeleted = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Messages", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Messages_ClassDetails_ClassDetailId",
+                        column: x => x.ClassDetailId,
+                        principalTable: "ClassDetails",
+                        principalColumn: "ClassDetailId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Attendances",
                 columns: table => new
                 {
                     ClassDetailId = table.Column<int>(type: "int", nullable: false),
                     ScheduleId = table.Column<int>(type: "int", nullable: false),
-                    isAttended = table.Column<bool>(type: "bit", nullable: false)
+                    AttendanceStatusId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Attendances", x => new { x.ClassDetailId, x.ScheduleId });
+                    table.ForeignKey(
+                        name: "FK_Attendances_AttendanceStatuses_AttendanceStatusId",
+                        column: x => x.AttendanceStatusId,
+                        principalTable: "AttendanceStatuses",
+                        principalColumn: "AttendanceStatusId",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Attendances_ClassDetails_ClassDetailId",
                         column: x => x.ClassDetailId,
@@ -447,6 +485,27 @@ namespace YogaCenter.BackEnd.DAL.Migrations
                         column: x => x.SubscriptionId,
                         principalTable: "Subscriptions",
                         principalColumn: "SubscriptionId");
+                });
+
+            migrationBuilder.InsertData(
+                table: "AspNetRoles",
+                columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
+                values: new object[,]
+                {
+                    { "29192ce8-caa4-4c2a-95f9-90cee75b50f8", "dceaa390-c82a-4e07-9df7-5610be1a2aed", "ADMIN", "admin" },
+                    { "7eef2b64-2027-4f18-8c94-3a1562112ca7", "2f34f12c-6158-482d-9fc9-b2a11213a2e0", "TRAINER", "trainer" },
+                    { "990f4ae2-8172-4c83-bfb3-03be9b392876", "9b5e53d3-0a50-4995-aa81-40d5558eed4e", "TRAINEE", "trainee" },
+                    { "a361f267-ae16-40f9-9e0c-5a51737b723b", "2536e9cb-6e08-46b0-9162-64656d31470a", "STAFF", "staff" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "AttendanceStatuses",
+                columns: new[] { "AttendanceStatusId", "AttendanceStatusName" },
+                values: new object[,]
+                {
+                    { 1, "NOT YET" },
+                    { 2, "Attended" },
+                    { 3, "Absent" }
                 });
 
             migrationBuilder.InsertData(
@@ -566,6 +625,11 @@ namespace YogaCenter.BackEnd.DAL.Migrations
                 filter: "[NormalizedUserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Attendances_AttendanceStatusId",
+                table: "Attendances",
+                column: "AttendanceStatusId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Attendances_ScheduleId",
                 table: "Attendances",
                 column: "ScheduleId");
@@ -584,6 +648,11 @@ namespace YogaCenter.BackEnd.DAL.Migrations
                 name: "IX_Classes_CourseId",
                 table: "Classes",
                 column: "CourseId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Messages_ClassDetailId",
+                table: "Messages",
+                column: "ClassDetailId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_PaymentRespones_PaymentTypeId",
@@ -657,6 +726,9 @@ namespace YogaCenter.BackEnd.DAL.Migrations
                 name: "Attendances");
 
             migrationBuilder.DropTable(
+                name: "Messages");
+
+            migrationBuilder.DropTable(
                 name: "PaymentRespones");
 
             migrationBuilder.DropTable(
@@ -666,10 +738,13 @@ namespace YogaCenter.BackEnd.DAL.Migrations
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
-                name: "ClassDetails");
+                name: "AttendanceStatuses");
 
             migrationBuilder.DropTable(
                 name: "Schedules");
+
+            migrationBuilder.DropTable(
+                name: "ClassDetails");
 
             migrationBuilder.DropTable(
                 name: "PaymentTypes");
@@ -684,13 +759,13 @@ namespace YogaCenter.BackEnd.DAL.Migrations
                 name: "TicketTypes");
 
             migrationBuilder.DropTable(
-                name: "AspNetUsers");
-
-            migrationBuilder.DropTable(
                 name: "Rooms");
 
             migrationBuilder.DropTable(
                 name: "TimeFrames");
+
+            migrationBuilder.DropTable(
+                name: "AspNetUsers");
 
             migrationBuilder.DropTable(
                 name: "Classes");

@@ -42,7 +42,12 @@ namespace YogaCenter.BackEnd.API.Controllers
             return await _reportService.GetReportByMonthAndYear(month, year);
             
         }
+        [HttpPost("upload-excel")]
+        public ActionResult<List<List<string>>> UploadExcel( IFormFile file)
+        {
+            return _fileService.UploadExcel(file);
 
+        }
     }
 
 
