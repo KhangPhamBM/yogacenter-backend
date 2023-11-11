@@ -1,4 +1,6 @@
 ﻿using AutoMapper;
+using DinkToPdf.Contracts;
+using DinkToPdf;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -16,6 +18,8 @@ using YogaCenter.BackEnd.Realtime;
 using YogaCenter.BackEnd.Service.Contracts;
 using YogaCenter.BackEnd.Service.Implementations;
 using YogaCenter.BackEnd.Service.Services;
+using OfficeOpenXml;
+using LicenseContext = OfficeOpenXml.LicenseContext;
 
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 
@@ -35,6 +39,9 @@ builder.Services.AddSingleton(mapper);
 
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
+
+builder.Services.AddSingleton(typeof(IConverter), new SynchronizedConverter(new PdfTools()));
+ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
 
 
 builder.Services.AddScoped<IAccountRepository, AccountRepository>();
@@ -82,6 +89,10 @@ builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IRoleService, RoleService>();
 
 builder.Services.AddScoped<IMessageService, MessageService>();
+
+builder.Services.AddScoped<IFileService, FileService>();
+builder.Services.AddScoped<IReportService, ReportService>();
+builder.Services.AddScoped<IEmailService, EmailService>();
 
 
 builder.Services.AddScoped<WorkerService>();
@@ -171,7 +182,6 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
 app.UseHttpsRedirection();
 app.UseAuthentication();
 
