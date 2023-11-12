@@ -14,6 +14,5 @@ namespace YogaCenter.BackEnd.Service.Contracts
         Task<TokenDto> GetNewToken(string refreshToken, string accountId);
 
 
-
     }
 }

@@ -172,10 +172,14 @@ builder.Services.AddAuthentication(options =>
 
     };
 
-});
+}).AddGoogle(googleOptions =>
+{
+    googleOptions.ClientId = builder.Configuration["Google:ClientId"];
+    googleOptions.ClientSecret = builder.Configuration["Google:ClientSecret"];
+}); ;
 
 var app = builder.Build();
-app.UseCors();
+app.UseCors(MyAllowSpecificOrigins);
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {

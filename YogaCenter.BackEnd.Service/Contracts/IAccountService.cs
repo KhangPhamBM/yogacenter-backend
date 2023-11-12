@@ -8,9 +8,11 @@ using YogaCenter.BackEnd.DAL.Models;
 
 namespace YogaCenter.BackEnd.Service.Contracts
 {
-    public interface IAccountService: ISearching<ApplicationUser>
+    public interface IAccountService : ISearching<ApplicationUser>
     {
         Task<AppActionResult> Login(LoginRequestDto loginRequest);
+        public Task<AppActionResult> VerifyLoginGoogle(string email, string verifyCode);
+
         Task<AppActionResult> CreateAccount(SignUpRequestDto signUpRequest);
         Task<AppActionResult> UpdateAccount(ApplicationUser applicationUser);
         Task<AppActionResult> ChangePassword(ChangePasswordDto changePasswordDto);
@@ -23,6 +25,7 @@ namespace YogaCenter.BackEnd.Service.Contracts
         Task<AppActionResult> ForgotPassword(ForgotPasswordDto dto);
         Task<AppActionResult> ActiveAccount(string email, string verifyCode);
         Task<AppActionResult> SendEmailForgotPassword(string email);
+        Task<string> GenerateVerifyCode(string email);
 
 
     }

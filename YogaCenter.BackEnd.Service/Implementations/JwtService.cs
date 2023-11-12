@@ -16,7 +16,7 @@ using YogaCenter.BackEnd.Service.Contracts;
 
 namespace YogaCenter.BackEnd.Service.Implementations
 {
-    public class JwtService :IJwtService
+    public class JwtService : IJwtService
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly UserManager<ApplicationUser> _userManager;
@@ -72,7 +72,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
             string refreshTokenNew = "";
             var user = await _unitOfWork.GetRepository<ApplicationUser>().GetByExpression(u => u.Id.ToLower() == accountId);
 
-            if (user !=null &&  user.RefreshToken == refreshToken)
+            if (user != null && user.RefreshToken == refreshToken)
             {
                 var roles = await _userManager.GetRolesAsync(user);
                 var claims = new List<Claim>
@@ -106,10 +106,9 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 }
 
             }
-            return  new TokenDto { Token = accessTokenNew, RefreshToken = refreshTokenNew};
+            return new TokenDto { Token = accessTokenNew, RefreshToken = refreshTokenNew };
 
         }
-
-
     }
+
 }

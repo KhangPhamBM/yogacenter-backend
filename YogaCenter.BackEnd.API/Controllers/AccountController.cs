@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using YogaCenter.BackEnd.Common.Dto;
 using YogaCenter.BackEnd.DAL.Models;
 using YogaCenter.BackEnd.DAL.Util;
@@ -13,9 +15,13 @@ namespace YogaCenter.BackEnd.API.Controllers
     public class AccountController : ControllerBase
     {
         private readonly IAccountService _accountService;
-        public AccountController(IAccountService accountService)
+        private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly IConfiguration _configuration;
+        public AccountController(IAccountService accountService, SignInManager<ApplicationUser> signInManager, IConfiguration configuration)
         {
             _accountService = accountService;
+            _signInManager = signInManager;
+            _configuration = configuration;
         }
 
         [HttpPost("create-account")]
@@ -113,5 +119,42 @@ namespace YogaCenter.BackEnd.API.Controllers
         {
             return await _accountService.SendEmailForgotPassword(email);
         }
+
+
+
+
+        [HttpGet("login-google")]
+        public IActionResult ExternalLogin()
+        {
+
+            var redirectUrl = Url.Action("ExternalLoginCallback", "Account", new { ReturnUrl = _configuration["Domain:FE"] });
+
+            var properties = _signInManager.ConfigureExternalAuthenticationProperties("Google", redirectUrl);
+            return Challenge(properties, "Google");
+        }
+
+        [AllowAnonymous]
+        [HttpGet("external-login-google-callback")]
+        public async Task<IActionResult> ExternalLoginCallback(string returnUrl = null)
+        {
+            var info = await _signInManager.GetExternalLoginInfoAsync();
+            if (info == null)
+            {
+                return Redirect($"{returnUrl}/failed"); ;
+            }
+            else
+            {
+                var email = info.Principal.FindFirstValue(ClaimTypes.Email);
+                string code = await _accountService.GenerateVerifyCode(email);
+                return Redirect($"{returnUrl}/success/{email}/{code}");
+            }
+        }
+        [AllowAnonymous]
+        [HttpPost("verify-login-google/{email}/{verifyCode}")]
+        public async Task<AppActionResult> VerifyLoginGoogle(string email , string verifyCode)
+        {
+            return await _accountService.VerifyLoginGoogle(email, verifyCode);
+        }
+
     }
 }
