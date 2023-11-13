@@ -57,5 +57,12 @@ namespace YogaCenter.BackEnd.API.Controllers
         {
             return await _attendanceService.GetAttendancesByScheduleId(scheduleId, pageIndex, pageSize, sortInfos);
         }
+        [HttpPost("export-data")]
+
+        public async Task<IActionResult> ExportData()
+        {
+            return await _attendanceService.ExportData();
+        }
+
     }
 }

@@ -41,7 +41,7 @@ namespace YogaCenter.BackEnd.API.Controllers
         }
 
         [HttpPost("generate-schedule-for-class")]
-        [Authorize(Roles = Permission.STAFF)]
+        //[Authorize(Roles = Permission.STAFF)]
 
         public async Task<AppActionResult> GenerateScheduleForClass(CreateScheduleRequest scheduleDto)
         {
