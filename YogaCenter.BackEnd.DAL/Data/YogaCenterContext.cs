@@ -36,6 +36,8 @@ namespace YogaCenter.BackEnd.DAL.Data
         public DbSet<Room> Rooms { get; set; }
         public DbSet<Message> Messages { get; set; }
      
+        public DbSet<Blog> Blogs {  get; set; }
+        public DbSet<Feedback> Feedbacks { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

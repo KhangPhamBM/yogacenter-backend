@@ -178,8 +178,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
         {
             try
             {
-                
-
+               
                 using (var stream = new MemoryStream())
                 {
                     file.CopyTo(stream);

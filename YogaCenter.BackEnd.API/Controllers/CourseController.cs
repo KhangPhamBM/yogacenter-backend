@@ -12,14 +12,12 @@ namespace YogaCenter.BackEnd.API.Controllers
     [ApiController]
     public class CourseController : ControllerBase
     {
-        private readonly ICourseService _courseService;
-        private readonly AppActionResult _responeDto;
+        private readonly ICourseService _courseService;   
+        
 
         public CourseController(ICourseService courseService)
         {
-            _courseService = courseService;
-            _responeDto = new AppActionResult();
-        }
+            _courseService = courseService;        }
 
         [HttpPost("create-course")]
         [Authorize(Roles = Permission.MANAGEMENT)]

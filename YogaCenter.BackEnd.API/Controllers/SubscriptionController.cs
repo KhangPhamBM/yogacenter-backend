@@ -11,12 +11,10 @@ namespace YogaCenter.BackEnd.API.Controllers
     public class SubscriptionController : ControllerBase
     {
         private readonly ISubscriptionService _subscriptionService;
-        private readonly AppActionResult _responeDto;
 
         public SubscriptionController(ISubscriptionService subscriptionService)
         {
             _subscriptionService = subscriptionService;
-            _responeDto = new AppActionResult();
         }
 
         [HttpPost("create-subscription")]

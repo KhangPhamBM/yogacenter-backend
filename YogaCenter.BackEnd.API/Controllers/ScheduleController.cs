@@ -13,12 +13,11 @@ namespace YogaCenter.BackEnd.API.Controllers
     public class ScheduleController : ControllerBase
     {
         private readonly IScheduleService _scheduleService;
-        private readonly AppActionResult _responeDto;
+        
 
         public ScheduleController(IScheduleService scheduleService)
         {
             _scheduleService = scheduleService;
-            _responeDto = new AppActionResult();
         }
         [HttpGet("get-schedule-by-classId/{classId:int}")]
         public async Task<AppActionResult> GetScheduleByClassId(int classId)

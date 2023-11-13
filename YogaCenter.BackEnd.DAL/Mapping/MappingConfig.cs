@@ -131,6 +131,23 @@ namespace YogaCenter.BackEnd.DAL.Mapping
 
 
           .ReverseMap();
+
+                config.CreateMap<FeedbackDto, Feedback>()
+               .ForMember(desc => desc.Id, act => act.MapFrom(src => src.Id))
+               .ForMember(desc => desc.ClassDetailId, act => act.MapFrom(src => src.ClassDetailId))
+               .ForMember(desc => desc.Content, act => act.MapFrom(src => src.Content))
+               .ForMember(desc => desc.Rating, act => act.MapFrom(src => src.Rating))
+               .ForMember(desc => desc.Status, act => act.MapFrom(src => src.Status))
+               .ReverseMap();
+
+
+                config.CreateMap<BlogDto, Blog>()
+               .ForMember(desc => desc.Id, act => act.MapFrom(src => src.Id))
+               .ForMember(desc => desc.UserId, act => act.MapFrom(src => src.UserId))
+               .ForMember(desc => desc.Content, act => act.MapFrom(src => src.Content))
+               .ForMember(desc => desc.Title, act => act.MapFrom(src => src.Title))
+               .ForMember(desc => desc.BlogImg, act => act.MapFrom(src => src.BlogImg))
+               .ReverseMap();
             });
             return mappingConfig;
         }
