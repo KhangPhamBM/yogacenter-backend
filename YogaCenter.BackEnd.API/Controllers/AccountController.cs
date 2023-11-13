@@ -146,6 +146,20 @@ namespace YogaCenter.BackEnd.API.Controllers
             {
                 var email = info.Principal.FindFirstValue(ClaimTypes.Email);
                 string code = await _accountService.GenerateVerifyCode(email);
+                if(code == string.Empty)
+                {
+                    SignUpRequestDto requestDto = new SignUpRequestDto()
+                    {
+                        Email = email,
+                        FirstName = info.Principal.FindFirstValue(ClaimTypes.GivenName),
+                        LastName = info.Principal.FindFirstValue(ClaimTypes.Surname),
+                        Password = "Abc123@",
+                        Role = new List<string>() { "trainee"}
+                    };
+                    await _accountService.CreateAccount(requestDto);
+                    code = await _accountService.GenerateVerifyCodeGoogle(email);
+                    await _accountService.ActiveAccount(email, code);
+                }
                 return Redirect($"{returnUrl}/success/{email}/{code}");
             }
         }
