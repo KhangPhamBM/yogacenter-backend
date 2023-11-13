@@ -26,6 +26,7 @@ namespace YogaCenter.BackEnd.Service.Contracts
         Task<AppActionResult> ActiveAccount(string email, string verifyCode);
         Task<AppActionResult> SendEmailForgotPassword(string email);
         Task<string> GenerateVerifyCode(string email);
+        Task<string> GenerateVerifyCodeGoogle(string email);
 
 
     }

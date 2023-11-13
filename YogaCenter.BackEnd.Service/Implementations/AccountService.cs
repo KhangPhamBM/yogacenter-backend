@@ -120,12 +120,18 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 if (isValid)
                 {
                     await LoginDefault(email, user);
+                    user.VerifyCode = null;
                 }
             }
             catch (Exception ex)
             {
                 _result.isSuccess = false;
                 _result.Message.Add(ex.Message);
+            }
+            finally
+            {
+                _unitOfWork.SaveChange();
+
             }
 
             return _result;
@@ -164,7 +170,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                     isValid = false;
 
                 }
-                foreach (var role in signUpRequest.RoleId)
+                foreach (var role in signUpRequest.Role)
                 {
                     if (await _unitOfWork.GetRepository<IdentityRole>().GetById(role) == null)
                     {
@@ -202,9 +208,10 @@ namespace YogaCenter.BackEnd.Service.Implementations
                         _result.Message.Add($"{SD.ResponseMessage.CREATE_FAILED} USER");
 
                     }
-                    foreach (var role in signUpRequest.RoleId)
+                    
+                    foreach (var role in signUpRequest.Role)
                     {
-                        var roleDB = await _unitOfWork.GetRepository<IdentityRole>().GetById(role);
+                        var roleDB = await _unitOfWork.GetRepository<IdentityRole>().GetByExpression( r => r.Name.ToLower() == role.ToLower());
                         var resultCreateRole = await _userManager.AddToRoleAsync(user, roleDB.NormalizedName);
                         if (resultCreateRole.Succeeded)
                         {
@@ -226,6 +233,11 @@ namespace YogaCenter.BackEnd.Service.Implementations
             {
                 _result.Message.Add(ex.Message);
                 _result.isSuccess = false;
+            }
+            finally
+            {
+                _unitOfWork.SaveChange();
+
             }
             return _result;
         }
@@ -498,21 +510,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
             return _result;
         }
 
-        public async Task<AppActionResult> GetAllRole()
-        {
-            try
-            {
-                _result.Result.Data = await _unitOfWork.GetRepository<IdentityRole>().GetAll();
-
-            }
-            catch (Exception ex)
-            {
-                _result.Message.Add(ex.Message);
-                _result.isSuccess = false;
-            }
-            return _result;
-        }
-
+       
         public async Task<AppActionResult> GetNewToken(string refreshToken, string userId)
         {
             try
@@ -569,6 +567,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                     var result = await _userManager.AddPasswordAsync(user, dto.NewPassword);
                     if (result.Succeeded)
                     {
+                        user.VerifyCode = null;
                         _result.Message.Add("Change password successful");
                     }
                     else
@@ -582,6 +581,10 @@ namespace YogaCenter.BackEnd.Service.Implementations
             {
                 _result.isSuccess = false;
                 _result.Message.Add(ex.Message);
+            }
+            finally
+            {
+                _unitOfWork.SaveChange();
             }
             return _result;
         }
@@ -607,6 +610,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 if (isValid)
                 {
                     user.IsVerified = true;
+                    user.VerifyCode = null;
                     _unitOfWork.SaveChange();
                     _result.Message.Add("Active successfully");
                 }
@@ -650,6 +654,20 @@ namespace YogaCenter.BackEnd.Service.Implementations
         public async Task<string> GenerateVerifyCode(string email)
         {
             var user = await _unitOfWork.GetRepository<ApplicationUser>().GetByExpression(a => a.Email == email && a.IsDeleted == false && a.IsVerified == true);
+
+            if (user != null)
+            {
+                string code = Guid.NewGuid().ToString("N").Substring(0, 6);
+                user.VerifyCode = code;
+                _unitOfWork.SaveChange();
+                return code;
+
+            }
+            return string.Empty;
+        }
+        public async Task<string> GenerateVerifyCodeGoogle(string email)
+        {
+            var user = await _unitOfWork.GetRepository<ApplicationUser>().GetByExpression(a => a.Email == email && a.IsDeleted == false );
 
             if (user != null)
             {
