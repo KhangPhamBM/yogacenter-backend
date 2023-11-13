@@ -159,7 +159,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
             _result.Result.Data = _tokenDto;
         }
 
-        public async Task<AppActionResult> CreateAccount(SignUpRequestDto signUpRequest)
+        public async Task<AppActionResult> CreateAccount(SignUpRequestDto signUpRequest, bool isGoogle )
         {
             bool isValid = true;
             try
@@ -179,10 +179,13 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 }
                 if (isValid)
                 {
+                    string verifyCode = null;
+                    if (!isGoogle)
+                    {
+                        verifyCode = Guid.NewGuid().ToString("N").Substring(0, 6);
 
+                    }
 
-
-                    string verifyCode = Guid.NewGuid().ToString("N").Substring(0, 6);
                     var user = new ApplicationUser
                     {
                         Email = signUpRequest.Email,
@@ -200,7 +203,10 @@ namespace YogaCenter.BackEnd.Service.Implementations
                     {
                         _result.Result.Data = user;
                         _result.Message.Add($"{SD.ResponseMessage.CREATE_SUCCESSFUL} USER");
-                        _emailService.SendEmail(user.Email, SD.SubjectMail.VERIFY_ACCOUNT, verifyCode);
+                        if (!isGoogle)
+                        {
+                            _emailService.SendEmail(user.Email, SD.SubjectMail.VERIFY_ACCOUNT, verifyCode);
+                        }
 
                     }
                     else
@@ -208,10 +214,10 @@ namespace YogaCenter.BackEnd.Service.Implementations
                         _result.Message.Add($"{SD.ResponseMessage.CREATE_FAILED} USER");
 
                     }
-                    
+
                     foreach (var role in signUpRequest.Role)
                     {
-                        var roleDB = await _unitOfWork.GetRepository<IdentityRole>().GetByExpression( r => r.Name.ToLower() == role.ToLower());
+                        var roleDB = await _unitOfWork.GetRepository<IdentityRole>().GetByExpression(r => r.Name.ToLower() == role.ToLower());
                         var resultCreateRole = await _userManager.AddToRoleAsync(user, roleDB.NormalizedName);
                         if (resultCreateRole.Succeeded)
                         {
@@ -510,7 +516,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
             return _result;
         }
 
-       
+
         public async Task<AppActionResult> GetNewToken(string refreshToken, string userId)
         {
             try
@@ -667,7 +673,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
         }
         public async Task<string> GenerateVerifyCodeGoogle(string email)
         {
-            var user = await _unitOfWork.GetRepository<ApplicationUser>().GetByExpression(a => a.Email == email && a.IsDeleted == false );
+            var user = await _unitOfWork.GetRepository<ApplicationUser>().GetByExpression(a => a.Email == email && a.IsDeleted == false);
 
             if (user != null)
             {

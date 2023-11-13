@@ -34,7 +34,10 @@ namespace YogaCenter.BackEnd.Service.Implementations
 
         public async Task<IActionResult> ExportData()
         {
-           return _fileService.GenerateExcelContent( _mapper.Map<IEnumerable<AttendanceDto>>(await _unitOfWork.GetRepository<Attendance>().GetAll()), "attendance");
+            //    return _fileService.GenerateExcelContent( _mapper.Map<IEnumerable<AttendanceDto>>(await _unitOfWork.GetRepository<Attendance>().GetAll()), "attendance");
+          
+            return _fileService.GenerateTemplateExcel(new ClassDto());
+
         }
 
         public async Task<AppActionResult> AddListAttendance(IEnumerable<AttendanceDto> attendances)

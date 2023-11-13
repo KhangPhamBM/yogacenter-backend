@@ -292,5 +292,33 @@ namespace YogaCenter.BackEnd.Service.Implementations
 
             }
         }
+
+        public IActionResult GenerateTemplateExcel<T>(T dataList)
+        {
+            using (ExcelPackage package = new ExcelPackage())
+            {
+                ExcelWorksheet worksheet = package.Workbook.Worksheets.Add(nameof(T));
+
+                PropertyInfo[] properties = typeof(T).GetProperties();
+
+                for (int i = 0; i < properties.Length; i++)
+                {
+                    worksheet.Cells[1, i + 1].Value = properties[i].Name;
+                }
+
+                string a = typeof(T).ToString();
+                string[] name = a.Split(".");
+                var excelBytes = package.GetAsByteArray();
+                var nameExcel = name[name.Length - 1];
+                if (nameExcel.Contains("Dto"))
+                {
+                    nameExcel = nameExcel.Substring(0,nameExcel.Length - 3); 
+                }
+                return new FileContentResult(excelBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+                {
+                    FileDownloadName = $"TemplateImport{nameExcel}.xlsx"
+                };
+            }
+        }
     }
 }
