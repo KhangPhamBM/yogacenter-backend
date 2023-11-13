@@ -1,5 +1,8 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -18,13 +21,20 @@ namespace YogaCenter.BackEnd.Service.Implementations
         private readonly IUnitOfWork _unitOfWork;
         private IMapper _mapper;
         private readonly AppActionResult _result;
+        private IFileService _fileService;
 
-        public AttendanceService(IAttendanceRepository attendanceRepository, IUnitOfWork unitOfWork, IMapper mapper)
+        public AttendanceService(IAttendanceRepository attendanceRepository, IUnitOfWork unitOfWork, IMapper mapper, IFileService fileService)
         {
             _attendanceRepository = attendanceRepository;
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _result = new AppActionResult();
+            _fileService = fileService;
+        }
+
+        public async Task<IActionResult> ExportData()
+        {
+           return _fileService.GenerateExcelContent( _mapper.Map<IEnumerable<AttendanceDto>>(await _unitOfWork.GetRepository<Attendance>().GetAll()), "attendance");
         }
 
         public async Task<AppActionResult> AddListAttendance(IEnumerable<AttendanceDto> attendances)
