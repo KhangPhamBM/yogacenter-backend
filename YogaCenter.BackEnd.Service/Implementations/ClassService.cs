@@ -48,7 +48,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 }
                 if (isValid)
                 {
-                   
+
                     await _unitOfWork.GetRepository<Class>().Insert(_mapper.Map<Class>(classDto));
                     _unitOfWork.SaveChange();
                     _result.Message.Add(SD.ResponseMessage.CREATE_SUCCESSFUL);

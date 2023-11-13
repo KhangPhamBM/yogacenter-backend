@@ -15,11 +15,9 @@ namespace YogaCenter.BackEnd.API.Controllers
     public class ClassController : ControllerBase
     {
         public readonly IClassService _classService;
-        public AppActionResult _responeDto;
         public ClassController(IClassService classService)
         {
             _classService = classService;
-            _responeDto = new AppActionResult();
         }
 
         [HttpPost("create-class")]

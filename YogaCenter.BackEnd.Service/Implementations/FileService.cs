@@ -2,11 +2,14 @@
 using DinkToPdf.Contracts;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using NPOI.POIFS.Crypt.Dsig;
 using OfficeOpenXml;
 using Org.BouncyCastle.Asn1.Ocsp;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using YogaCenter.BackEnd.Common.Dto;
@@ -108,7 +111,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
             </tbody>
           </table>
           <div class=""d-flex justify-content-end"">
-          <h6 class=""p-3"" style=""border: 1px solid #ccc; border-radius: 10px;"">Total: " + report.Total.ToString("N0", new System.Globalization.CultureInfo("en-US")).Replace(",", ".") +@"</h6>
+          <h6 class=""p-3"" style=""border: 1px solid #ccc; border-radius: 10px;"">Total: " + report.Total.ToString("N0", new System.Globalization.CultureInfo("en-US")).Replace(",", ".") + @"</h6>
           </div>
         
       
@@ -122,8 +125,8 @@ namespace YogaCenter.BackEnd.Service.Implementations
 </body>
 </html>
 
-"; 
-            
+";
+
             return body;
         }
 
@@ -174,11 +177,10 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 };
             }
         }
-        public ActionResult<List<List<string>>> UploadExcel( IFormFile file)
+        public ActionResult<List<List<string>>> UploadExcel(IFormFile file)
         {
             try
             {
-                
 
                 using (var stream = new MemoryStream())
                 {
@@ -206,7 +208,8 @@ namespace YogaCenter.BackEnd.Service.Implementations
                         return data;
                     }
                 }
-            }catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
             }
@@ -214,7 +217,41 @@ namespace YogaCenter.BackEnd.Service.Implementations
         }
 
 
+
+
+        public IActionResult GenerateExcelContent<T>(IEnumerable<T> dataList, string sheetName)
+        {
+            using (ExcelPackage package = new ExcelPackage())
+            {
+                ExcelWorksheet worksheet = package.Workbook.Worksheets.Add(sheetName);
+
+                PropertyInfo[] properties = typeof(T).GetProperties();
+
+                for (int i = 0; i < properties.Length; i++)
+                {
+                    worksheet.Cells[1, i + 1].Value = properties[i].Name;
+                }
+
+                int row = 2;
+                foreach (T item in dataList)
+                {
+                    for (int j = 0; j < properties.Length; j++)
+                    {
+                        worksheet.Cells[row, j + 1].Value = properties[j].GetValue(item);
+                    }
+                    row++;
+                }
+
+                var excelBytes = package.GetAsByteArray();
+
+                return new FileContentResult(excelBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+                {
+                    FileDownloadName = "template.xlsx"
+                };
+            }
+        }
+
+
+
     }
-
-
 }
