@@ -25,22 +25,45 @@ namespace YogaCenter.BackEnd.Service.Implementations
             _mapper = mapper;
             _result = new();
         }
-        public async Task<AppActionResult> CreateFeedback(FeedbackDto Feedback)
+        public async Task<AppActionResult> CreateFeedback(FeedbackDto feedback)
         {
             try
             {
                 bool isValid = true;
-                if (await _unitOfWork.GetRepository<ClassDetail>().GetById(Feedback.ClassDetailId) == null)
+                var classDetailDB = await _unitOfWork.GetRepository<ClassDetail>().GetByExpression(f => f.UserId == feedback.UserId && f.ClassId == feedback.ClassId);
+                if (classDetailDB == null)
                 {
                     isValid = false;
-                    _result.Message.Add($"Class Detail with id {Feedback.ClassDetailId} not found");
+                    _result.Message.Add($"This user didn't join class this class");
                 }
 
-                
+                if (feedback.Status != FeedbackDto.FeedbackStatus.Approved &&
+                    feedback.Status != FeedbackDto.FeedbackStatus.Pending &&
+                    feedback.Status != FeedbackDto.FeedbackStatus.Rejected)
+                {
+                    isValid = false;
+                    _result.Message.Add($"This status is not available please check enum");
+
+
+                }
+                if (feedback.Rating != FeedbackDto.RatingStar.OneStar &&
+                    feedback.Rating != FeedbackDto.RatingStar.TwoStar &&
+                    feedback.Rating != FeedbackDto.RatingStar.ThreeStar &&
+                    feedback.Rating != FeedbackDto.RatingStar.FourStar &&
+                    feedback.Rating != FeedbackDto.RatingStar.FiveStar
+                    )
+                {
+                    isValid = false;
+                    _result.Message.Add($"This ratitng is not available please check enum");
+
+
+                }
 
                 if (isValid)
                 {
-                    await _unitOfWork.GetRepository<Feedback>().Insert(_mapper.Map<Feedback>(Feedback));
+                    var feedbackDb = _mapper.Map<Feedback>(feedback);
+                    feedbackDb.ClassDetailId = classDetailDB.ClassDetailId;
+                    await _unitOfWork.GetRepository<Feedback>().Insert(feedbackDb);
                     _unitOfWork.SaveChange();
                     _result.Message.Add(SD.ResponseMessage.CREATE_SUCCESSFUL);
                 }
@@ -201,21 +224,45 @@ namespace YogaCenter.BackEnd.Service.Implementations
             return _result;
         }
 
-        public async Task<AppActionResult> UpdateFeedback(FeedbackDto Feedback)
+        public async Task<AppActionResult> UpdateFeedback(FeedbackDto feedback)
         {
             try
             {
                 bool isValid = true;
-                if (await _unitOfWork.GetRepository<Feedback>().GetById(Feedback.Id) == null)
+                var classDetailDB = await _unitOfWork.GetRepository<ClassDetail>().GetByExpression(f => f.UserId == feedback.UserId && f.ClassId == feedback.ClassId);
+                if (classDetailDB == null)
                 {
-                    _result.Message.Add($"The feedback with id {Feedback.Id} not found");
                     isValid = false;
+                    _result.Message.Add($"This user didn't join class this class");
+                }
+
+                if (feedback.Status != FeedbackDto.FeedbackStatus.Approved &&
+                  feedback.Status != FeedbackDto.FeedbackStatus.Pending &&
+                  feedback.Status != FeedbackDto.FeedbackStatus.Rejected)
+                {
+                    isValid = false;
+                    _result.Message.Add($"This status is not available please check enum");
+
+
+                }
+                if (feedback.Rating != FeedbackDto.RatingStar.OneStar &&
+                    feedback.Rating != FeedbackDto.RatingStar.TwoStar &&
+                    feedback.Rating != FeedbackDto.RatingStar.ThreeStar &&
+                    feedback.Rating != FeedbackDto.RatingStar.FourStar &&
+                    feedback.Rating != FeedbackDto.RatingStar.FiveStar
+                    )
+                {
+                    isValid = false;
+                    _result.Message.Add($"This ratitng is not available please check enum");
+
 
                 }
 
                 if (isValid)
                 {
-                    await _unitOfWork.GetRepository<Feedback>().Update(_mapper.Map<Feedback>(Feedback));
+                    var feedbackDb = _mapper.Map<Feedback>(feedback);
+                    feedbackDb.ClassDetailId = classDetailDB.ClassDetailId;
+                    await _unitOfWork.GetRepository<Feedback>().Update(_mapper.Map<Feedback>(feedbackDb));
                     _unitOfWork.SaveChange();
                     _result.Message.Add(SD.ResponseMessage.UPDATE_SUCCESSFUL);
                 }

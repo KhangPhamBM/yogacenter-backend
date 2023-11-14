@@ -19,7 +19,7 @@ namespace YogaCenter.BackEnd.API.Controllers
         }
 
         [HttpPost("create-feedback")]
-        [Authorize(Roles = Permission.MANAGEMENT)]
+        [Authorize]
 
         public async Task<AppActionResult> CreateFeedback(FeedbackDto feedback)
         {
@@ -27,7 +27,7 @@ namespace YogaCenter.BackEnd.API.Controllers
         }
 
         [HttpPut("update-feedback")]
-        [Authorize(Roles = Permission.MANAGEMENT)]
+        [Authorize]
 
         public async Task<AppActionResult> UpdateFeedback(FeedbackDto feedback)
         {
