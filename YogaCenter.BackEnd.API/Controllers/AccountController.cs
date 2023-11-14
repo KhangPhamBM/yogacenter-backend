@@ -17,18 +17,20 @@ namespace YogaCenter.BackEnd.API.Controllers
         private readonly IAccountService _accountService;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly IConfiguration _configuration;
-        public AccountController(IAccountService accountService, SignInManager<ApplicationUser> signInManager, IConfiguration configuration)
+        private IFileService _fileService;
+        public AccountController(IAccountService accountService, SignInManager<ApplicationUser> signInManager, IConfiguration configuration, IFileService fileService)
         {
             _accountService = accountService;
             _signInManager = signInManager;
             _configuration = configuration;
+            _fileService = fileService;
         }
 
         [HttpPost("create-account")]
 
         public async Task<AppActionResult> CreateAccount(SignUpRequestDto request)
         {
-            return await _accountService.CreateAccount(request);
+            return await _accountService.CreateAccount(request,false);
 
         }
 
@@ -156,7 +158,7 @@ namespace YogaCenter.BackEnd.API.Controllers
                         Password = "Abc123@",
                         Role = new List<string>() { "trainee"}
                     };
-                    await _accountService.CreateAccount(requestDto);
+                    await _accountService.CreateAccount(requestDto, true);
                     code = await _accountService.GenerateVerifyCodeGoogle(email);
                     await _accountService.ActiveAccount(email, code);
                 }
@@ -169,6 +171,12 @@ namespace YogaCenter.BackEnd.API.Controllers
         {
             return await _accountService.VerifyLoginGoogle(email, verifyCode);
         }
+        [HttpPost("export-template")]
+        public IActionResult ExportTemplate()
+        {
+            return _fileService.GenerateTemplateExcel(new SignUpRequestDto());
+        }
 
+        
     }
 }

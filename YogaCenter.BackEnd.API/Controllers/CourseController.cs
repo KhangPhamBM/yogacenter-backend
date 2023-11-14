@@ -5,6 +5,7 @@ using YogaCenter.BackEnd.Common.Dto;
 using YogaCenter.BackEnd.DAL.Models;
 using YogaCenter.BackEnd.DAL.Util;
 using YogaCenter.BackEnd.Service.Contracts;
+using YogaCenter.BackEnd.Service.Implementations;
 
 namespace YogaCenter.BackEnd.API.Controllers
 {
@@ -12,19 +13,21 @@ namespace YogaCenter.BackEnd.API.Controllers
     [ApiController]
     public class CourseController : ControllerBase
     {
-        private readonly ICourseService _courseService;   
-        
+        private readonly ICourseService _courseService;
+        private IFileService _fileService;
 
-        public CourseController(ICourseService courseService)
+        public CourseController(ICourseService courseService, IFileService fileService)
         {
-            _courseService = courseService;        }
+            _courseService = courseService;
+            _fileService = fileService;
+        }
 
         [HttpPost("create-course")]
         [Authorize(Roles = Permission.MANAGEMENT)]
 
         public async Task<AppActionResult> CreateCourse(CourseDto course)
         {
-           return await _courseService.CreateCourse(course);  
+            return await _courseService.CreateCourse(course);
         }
 
         [HttpPut("update-course")]
@@ -58,9 +61,14 @@ namespace YogaCenter.BackEnd.API.Controllers
         }
 
         [HttpPost("get-course-with-searching")]
-        public async Task<AppActionResult> GetCourseWithSearching( BaseFilterRequest baseFilterRequest)
+        public async Task<AppActionResult> GetCourseWithSearching(BaseFilterRequest baseFilterRequest)
         {
             return await _courseService.SearchApplyingSortingAndFiltering(baseFilterRequest);
+        }
+        [HttpPost("export-template")]
+        public IActionResult ExportTemplate()
+        {
+            return _fileService.GenerateTemplateExcel(new CourseDto());
         }
     }
 }

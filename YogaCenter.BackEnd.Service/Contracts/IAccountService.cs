@@ -13,7 +13,7 @@ namespace YogaCenter.BackEnd.Service.Contracts
         Task<AppActionResult> Login(LoginRequestDto loginRequest);
         public Task<AppActionResult> VerifyLoginGoogle(string email, string verifyCode);
 
-        Task<AppActionResult> CreateAccount(SignUpRequestDto signUpRequest);
+        Task<AppActionResult> CreateAccount(SignUpRequestDto signUpRequest, bool isGoogle);
         Task<AppActionResult> UpdateAccount(ApplicationUser applicationUser);
         Task<AppActionResult> ChangePassword(ChangePasswordDto changePasswordDto);
         Task<AppActionResult> GetAccountByUserId(string id);

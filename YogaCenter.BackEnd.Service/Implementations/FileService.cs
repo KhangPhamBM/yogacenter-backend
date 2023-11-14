@@ -250,46 +250,31 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 };
             }
         }
-        public async Task<List<TDto>> ReadExcelFile<TDto>(IFormFile file)
-        where TDto : class, new()
+             public IActionResult GenerateTemplateExcel<T>(T dataList)
         {
-            using (MemoryStream memoryStream = new MemoryStream())
+            using (ExcelPackage package = new ExcelPackage())
             {
-                await file.CopyToAsync(memoryStream);
-                using (ExcelPackage package = new ExcelPackage(memoryStream))
+                ExcelWorksheet worksheet = package.Workbook.Worksheets.Add(nameof(T));
+
+                PropertyInfo[] properties = typeof(T).GetProperties();
+
+                for (int i = 0; i < properties.Length; i++)
                 {
-                    ExcelWorksheet worksheet = package.Workbook.Worksheets.First();
-
-                    int rowCount = worksheet.Dimension.Rows;
-                    int colCount = worksheet.Dimension.Columns;
-
-                    List<TDto> importedData = new List<TDto>();
-
-                    for (int row = 2; row <= rowCount; row++)
-                    {
-                        TDto dto = new TDto();
-
-                        for (int col = 1; col <= colCount; col++)
-                        {
-                            PropertyInfo property = typeof(TDto).GetProperty(worksheet.Cells[1, col].Value.ToString());
-                            if (property != null)
-                            {
-                                Type propertyType = property.PropertyType;
-                                object cellValue = worksheet.Cells[row, col].Value;
-
-                                // Convert cell value to the property type
-                                object convertedValue = Convert.ChangeType(cellValue, propertyType);
-                                property.SetValue(dto, convertedValue);
-                            }
-                        }
-
-                        importedData.Add(dto);
-                    }
-
-                    return importedData;
+                    worksheet.Cells[1, i + 1].Value = properties[i].Name;
                 }
 
-
+                string a = typeof(T).ToString();
+                string[] name = a.Split(".");
+                var excelBytes = package.GetAsByteArray();
+                var nameExcel = name[name.Length - 1];
+                if (nameExcel.Contains("Dto"))
+                {
+                    nameExcel = nameExcel.Substring(0,nameExcel.Length - 3); 
+                }
+                return new FileContentResult(excelBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+                {
+                    FileDownloadName = $"TemplateImport{nameExcel}.xlsx"
+                };
             }
         }
     }

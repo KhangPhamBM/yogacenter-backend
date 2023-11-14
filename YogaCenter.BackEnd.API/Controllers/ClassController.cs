@@ -15,9 +15,11 @@ namespace YogaCenter.BackEnd.API.Controllers
     public class ClassController : ControllerBase
     {
         public readonly IClassService _classService;
-        public ClassController(IClassService classService)
+        private IFileService _fileService;
+        public ClassController(IClassService classService, IFileService fileService)
         {
             _classService = classService;
+            _fileService = fileService;
         }
 
         [HttpPost("create-class")]
@@ -58,6 +60,10 @@ namespace YogaCenter.BackEnd.API.Controllers
         {
             return await _classService.GetAllAvailableClass(pageIndex, pageSize, sortInfos);
         }
-
+        [HttpPost("export-template")]
+        public IActionResult ExportTemplate()
+        {
+            return _fileService.GenerateTemplateExcel(new ClassDto());
+        }
     }
 }
