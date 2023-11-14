@@ -250,50 +250,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 };
             }
         }
-        public async Task<List<TDto>> ReadExcelFile<TDto>(IFormFile file)
-        where TDto : class, new()
-        {
-            using (MemoryStream memoryStream = new MemoryStream())
-            {
-                await file.CopyToAsync(memoryStream);
-                using (ExcelPackage package = new ExcelPackage(memoryStream))
-                {
-                    ExcelWorksheet worksheet = package.Workbook.Worksheets.First();
-
-                    int rowCount = worksheet.Dimension.Rows;
-                    int colCount = worksheet.Dimension.Columns;
-
-                    List<TDto> importedData = new List<TDto>();
-
-                    for (int row = 2; row <= rowCount; row++)
-                    {
-                        TDto dto = new TDto();
-
-                        for (int col = 1; col <= colCount; col++)
-                        {
-                            PropertyInfo property = typeof(TDto).GetProperty(worksheet.Cells[1, col].Value.ToString());
-                            if (property != null)
-                            {
-                                Type propertyType = property.PropertyType;
-                                object cellValue = worksheet.Cells[row, col].Value;
-
-                                // Convert cell value to the property type
-                                object convertedValue = Convert.ChangeType(cellValue, propertyType);
-                                property.SetValue(dto, convertedValue);
-                            }
-                        }
-
-                        importedData.Add(dto);
-                    }
-
-                    return importedData;
-                }
-
-
-            }
-        }
-
-        public IActionResult GenerateTemplateExcel<T>(T dataList)
+             public IActionResult GenerateTemplateExcel<T>(T dataList)
         {
             using (ExcelPackage package = new ExcelPackage())
             {

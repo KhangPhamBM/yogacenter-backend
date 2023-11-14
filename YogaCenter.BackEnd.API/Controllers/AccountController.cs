@@ -176,5 +176,7 @@ namespace YogaCenter.BackEnd.API.Controllers
         {
             return _fileService.GenerateTemplateExcel(new SignUpRequestDto());
         }
+
+        
     }
 }

@@ -19,7 +19,6 @@ namespace YogaCenter.BackEnd.Service.Contracts
         public IActionResult GenerateExcelContent<T>(IEnumerable<T> dataList, string sheetName);
         public IActionResult GenerateTemplateExcel<T>(T dataList);
 
-        public Task<List<TDto>> ReadExcelFile<TDto>(IFormFile file) where TDto : class, new();
 
 
 
