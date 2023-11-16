@@ -1,5 +1,5 @@
 ﻿# Welcome to Yoga Center API Repository
-[![.NET](https://github.com/duong-hong-quan/yogacenter-backend/actions/workflows/build.yml/badge.svg)](https://github.com/duong-hong-quan/yogacenter-backend/actions/workflows/build.yml)
+[![ Testing .NET](https://github.com/duong-hong-quan/yogacenter-backend/actions/workflows/build.yml/badge.svg)](https://github.com/duong-hong-quan/yogacenter-backend/actions/workflows/build.yml)
 ## Description
 This repository contains the backend API part of the Yoga Center Management System, which is a course project aimed at facilitating the training process for trainees and providing management tools for administrators.
 
