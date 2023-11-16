@@ -16,6 +16,7 @@ namespace YogaCenter.BackEnd.DAL.Models
         public double? Total { get; set; }
         public string? UserId { get; set; }
         [ForeignKey("UserId"), Column(Order = 3)]
+        public ApplicationUser User { get; set; }
         public int? ClassId { get; set; }
         [ForeignKey("ClassId"), Column(Order = 1)]
         public Class? Class { get; set; }
