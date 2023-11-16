@@ -134,7 +134,6 @@ namespace YogaCenter.BackEnd.DAL.Mapping
 
                 config.CreateMap<FeedbackDto, Feedback>()
                .ForMember(desc => desc.Id, act => act.MapFrom(src => src.Id))
-               .ForMember(desc => desc.ClassDetailId, act => act.MapFrom(src => src.ClassDetailId))
                .ForMember(desc => desc.Content, act => act.MapFrom(src => src.Content))
                .ForMember(desc => desc.Rating, act => act.MapFrom(src => src.Rating))
                .ForMember(desc => desc.Status, act => act.MapFrom(src => src.Status))

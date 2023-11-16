@@ -159,7 +159,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
             _result.Result.Data = _tokenDto;
         }
 
-        public async Task<AppActionResult> CreateAccount(SignUpRequestDto signUpRequest, bool isGoogle )
+        public async Task<AppActionResult> CreateAccount(SignUpRequestDto signUpRequest, bool isGoogle)
         {
             bool isValid = true;
             try
@@ -194,7 +194,8 @@ namespace YogaCenter.BackEnd.Service.Implementations
                         LastName = signUpRequest.LastName,
                         PhoneNumber = signUpRequest.PhoneNumber,
                         Gender = signUpRequest.Gender,
-                        VerifyCode = verifyCode
+                        VerifyCode = verifyCode,
+                        IsVerified = isGoogle ? true : false
 
 
                     };
