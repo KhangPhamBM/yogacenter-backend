@@ -45,7 +45,7 @@ namespace YogaCenter.BackEnd.Service.Services
             }
         }
 
-        private static async Task PaymentReminder(IUnitOfWork _unitOfWork, IEmailService _emailService, DateTime vietnamTime)
+        private  async Task PaymentReminder(IUnitOfWork _unitOfWork, IEmailService _emailService, DateTime vietnamTime)
         {
             
             var list = await _unitOfWork.GetRepository<Subscription>().GetListByExpression(s => s.SubscriptionStatusId == SD.Subscription.PENDING, s => s.User, s => s.Class);
