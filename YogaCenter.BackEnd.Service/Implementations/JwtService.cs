@@ -16,14 +16,19 @@ using YogaCenter.BackEnd.Service.Contracts;
 
 namespace YogaCenter.BackEnd.Service.Implementations
 {
-    public class JwtService : IJwtService
+    public class JwtService : GenericBackendService,IJwtService
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IConfiguration _configuration;
 
 
-        public JwtService(IUnitOfWork unitOfWork, UserManager<ApplicationUser> userManager, IConfiguration configuration)
+        public JwtService(
+            IUnitOfWork unitOfWork,
+            UserManager<ApplicationUser> userManager,
+            IConfiguration configuration, 
+            IServiceProvider serviceProvider) 
+            :base(serviceProvider)
         {
             _unitOfWork = unitOfWork;
             _userManager = userManager;
@@ -39,7 +44,8 @@ namespace YogaCenter.BackEnd.Service.Implementations
         }
         public async Task<string> GenerateAccessToken(LoginRequestDto loginRequest)
         {
-            var user = await _unitOfWork.GetRepository<ApplicationUser>().GetByExpression(u => u.Email.ToLower() == loginRequest.Email.ToLower());
+            var accountRepository = Resolve<IAccountRepository>();
+            var user = await accountRepository.GetByExpression(u => u.Email.ToLower() == loginRequest.Email.ToLower());
 
             if (user != null)
             {
@@ -70,7 +76,9 @@ namespace YogaCenter.BackEnd.Service.Implementations
         {
             string accessTokenNew = "";
             string refreshTokenNew = "";
-            var user = await _unitOfWork.GetRepository<ApplicationUser>().GetByExpression(u => u.Id.ToLower() == accountId);
+            var accountRepository = Resolve<IAccountRepository>();
+
+            var user = await accountRepository.GetByExpression(u => u.Id.ToLower() == accountId);
 
             if (user != null && user.RefreshToken == refreshToken)
             {
