@@ -14,19 +14,21 @@ using YogaCenter.BackEnd.Service.Contracts;
 
 namespace YogaCenter.BackEnd.Service.Implementations
 {
-    public class SubscriptionService : ISubscriptionService
+    public class SubscriptionService : GenericBackendService,ISubscriptionService
     {
         private IUnitOfWork _unitOfWork;
         private IMapper _mapper;
         private ISubscriptionRepository _subscriptionRepository;
-        private IPaymentService _paymentService;
         private readonly AppActionResult _result;
-        public SubscriptionService(IUnitOfWork unitOfWork, IMapper mapper, ISubscriptionRepository subscriptionRepository, IPaymentService paymentService)
+        public SubscriptionService(
+            IUnitOfWork unitOfWork,
+            IMapper mapper, ISubscriptionRepository subscriptionRepository,
+            IServiceProvider serviceProvider
+            ):base(serviceProvider)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _subscriptionRepository = subscriptionRepository;
-            _paymentService = paymentService;
             _result = new AppActionResult();
         }
 
@@ -34,6 +36,16 @@ namespace YogaCenter.BackEnd.Service.Implementations
         {
             try
             {
+                var paymentService = Resolve<IPaymentService>();
+                var classRepository = Resolve<IClassRepository>();
+                var classDetailRepository = Resolve<IClassDetailRepository>();
+                var accountRepository = Resolve<IAccountRepository>();
+                var courseRepository = Resolve<ICourseRepository>();
+                var subcriptionStatusRepository = Resolve<ISubscriptionStatusRepository>();
+
+
+
+
                 bool isValid = true;
                 if (Subscription.PaymentChoice != SD.PaymentType.VNPAY && Subscription.PaymentChoice != SD.PaymentType.MOMO && Subscription.PaymentChoice != 3)
                 {
@@ -41,29 +53,29 @@ namespace YogaCenter.BackEnd.Service.Implementations
                     isValid = false;
                 }
 
-                if (await _unitOfWork.GetRepository<Class>().GetById(Subscription.Subscription.ClassId) == null)
+                if (await classRepository.GetById(Subscription.Subscription.ClassId) == null)
                 {
                     _result.Message.Add("The class not found");
                     isValid = false;
                 }
                 else
                 {
-                    if (DateTime.Now < _unitOfWork.GetRepository<Class>()
+                    if (DateTime.Now < classRepository
                     .GetById(Subscription.Subscription.ClassId).Result.EndDate
                     &&
-                    await _unitOfWork.GetRepository<ClassDetail>()
+                    await classDetailRepository
                     .GetByExpression(c => c.UserId == Subscription.Subscription.UserId && c.ClassId == Subscription.Subscription.ClassId) != null)
                     {
                         _result.Message.Add("This action was blocked because the trainee is studying a class which hasn't ended ");
                         isValid = false;
                     }
                 }
-                if (await _unitOfWork.GetRepository<ApplicationUser>().GetById(Subscription.Subscription.UserId) == null)
+                if (await accountRepository.GetById(Subscription.Subscription.UserId) == null)
                 {
                     _result.Message.Add("The user not found");
                     isValid = false;
                 }
-                if (await _unitOfWork.GetRepository<SubscriptionStatus>().GetById(Subscription.Subscription.SubscriptionStatusId) == null)
+                if (await subcriptionStatusRepository.GetById(Subscription.Subscription.SubscriptionStatusId) == null)
                 {
 
                     _result.Message.Add("The subscription status not found");
@@ -72,13 +84,13 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 if (isValid)
                 {
                     Subscription.Subscription.SubscriptionId = Guid.NewGuid().ToString();
-                    var classDb = await _unitOfWork.GetRepository<Class>().GetById(Subscription.Subscription.ClassId);
-                    var course = await _unitOfWork.GetRepository<Course>().GetById(classDb.CourseId);
+                    var classDb = await classRepository.GetById(Subscription.Subscription.ClassId);
+                    var course = await courseRepository.GetById(classDb.CourseId);
                     double total = 0;
                     total = (double)(course.Price * (100 - course.Discount) / 100);
                     Subscription.Subscription.Total = total;
 
-                    var subscription = await _unitOfWork.GetRepository<Subscription>().Insert(_mapper.Map<Subscription>(Subscription.Subscription));
+                    var subscription = await _subscriptionRepository.Insert(_mapper.Map<Subscription>(Subscription.Subscription));
                     _unitOfWork.SaveChange();
 
                     switch (Subscription.PaymentChoice)
@@ -86,7 +98,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                         case 1:
                             try
                             {
-                                _result.Result.Data = await _paymentService.CreatePaymentUrlVNPay(_mapper.Map<SubscriptionDto>(subscription), context);
+                                _result.Result.Data = await paymentService.CreatePaymentUrlVNPay(_mapper.Map<SubscriptionDto>(subscription), context);
                             }
                             catch (Exception ex)
                             {
@@ -96,7 +108,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                         case 2:
                             try
                             {
-                                _result.Result.Data = await _paymentService.CreatePaymentUrlMomo(_mapper.Map<SubscriptionDto>(subscription));
+                                _result.Result.Data = await paymentService.CreatePaymentUrlMomo(_mapper.Map<SubscriptionDto>(subscription));
                             }
                             catch (Exception ex)
                             {
@@ -129,6 +141,13 @@ namespace YogaCenter.BackEnd.Service.Implementations
         {
             try
             {
+                var paymentService = Resolve<IPaymentService>();
+                var classRepository = Resolve<IClassRepository>();
+                var classDetailRepository = Resolve<IClassDetailRepository>();
+                var accountRepository = Resolve<IAccountRepository>();
+                var courseRepository = Resolve<ICourseRepository>();
+                var subcriptionStatusRepository = Resolve<ISubscriptionStatusRepository>();
+
                 bool isValid = true;
                 if (Subscription.PaymentChoice != SD.PaymentType.VNPAY && Subscription.PaymentChoice != SD.PaymentType.MOMO && Subscription.PaymentChoice != 3)
                 {
@@ -136,7 +155,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                     isValid = false;
                 }
 
-                if (await _unitOfWork.GetRepository<Class>().GetById(Subscription.Subscription.ClassId) == null)
+                if (await classRepository.GetById(Subscription.Subscription.ClassId) == null)
                 {
 
                     _result.Message.Add("The class not found");
@@ -144,29 +163,29 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 }
                 else
                 {
-                    if (DateTime.Now < _unitOfWork.GetRepository<Class>()
+                    if (DateTime.Now < classRepository
                     .GetById(Subscription.Subscription.ClassId).Result.EndDate
                     &&
-                    await _unitOfWork.GetRepository<ClassDetail>()
+                    await classDetailRepository
                     .GetByExpression(c => c.UserId == Subscription.Subscription.UserId && c.ClassId == Subscription.Subscription.ClassId) != null)
                     {
                         _result.Message.Add("This action was blocked because the trainee is studying a class which hasn't ended ");
                         isValid = false;
                     }
                 }
-                if (await _unitOfWork.GetRepository<ApplicationUser>().GetById(Subscription.Subscription.UserId) == null)
+                if (await accountRepository.GetById(Subscription.Subscription.UserId) == null)
                 {
 
                     _result.Message.Add("The user not found");
                     isValid = false;
                 }
-                if (await _unitOfWork.GetRepository<SubscriptionStatus>().GetById(Subscription.Subscription.SubscriptionStatusId) == null)
+                if (await subcriptionStatusRepository.GetById(Subscription.Subscription.SubscriptionStatusId) == null)
                 {
 
                     _result.Message.Add("The subscription status not found");
                     isValid = false;
                 }
-                if (await _unitOfWork.GetRepository<Subscription>().GetById(Subscription.Subscription.SubscriptionId) == null)
+                if (await _subscriptionRepository.GetById(Subscription.Subscription.SubscriptionId) == null)
                 {
 
                     _result.Message.Add($"The subscription with id {Subscription.Subscription.SubscriptionId} not found. Please create subscription");
@@ -175,14 +194,14 @@ namespace YogaCenter.BackEnd.Service.Implementations
 
                 if (isValid)
                 {
-                    var subscription = await _unitOfWork.GetRepository<Subscription>().GetById(Subscription.Subscription.SubscriptionId);
+                    var subscription = await _subscriptionRepository.GetById(Subscription.Subscription.SubscriptionId);
 
                     switch (Subscription.PaymentChoice)
                     {
                         case 1:
                             try
                             {
-                                _result.Result.Data = await _paymentService.CreatePaymentUrlVNPay(_mapper.Map<SubscriptionDto>(subscription), context);
+                                _result.Result.Data = await paymentService.CreatePaymentUrlVNPay(_mapper.Map<SubscriptionDto>(subscription), context);
 
                             }
                             catch (Exception ex)
@@ -193,7 +212,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                         case 2:
                             try
                             {
-                                _result.Result.Data = await _paymentService.CreatePaymentUrlMomo(_mapper.Map<SubscriptionDto>(subscription));
+                                _result.Result.Data = await paymentService.CreatePaymentUrlMomo(_mapper.Map<SubscriptionDto>(subscription));
 
                             }
                             catch (Exception ex)
@@ -230,14 +249,14 @@ namespace YogaCenter.BackEnd.Service.Implementations
             {
 
                 bool isValid = true;
-                if (_unitOfWork.GetRepository<Subscription>().GetById(Subscription.SubscriptionId) == null)
+                if (_subscriptionRepository.GetById(Subscription.SubscriptionId) == null)
                 {
                     isValid = false;
                     _result.Message.Add($"The subscription with id {Subscription.SubscriptionId} not found");
                 }
                 if (isValid)
                 {
-                    await _unitOfWork.GetRepository<Subscription>().Update(_mapper.Map<Subscription>(Subscription));
+                    await _subscriptionRepository.Update(_mapper.Map<Subscription>(Subscription));
                     _unitOfWork.SaveChange();
                     _result.Message.Add(SD.ResponseMessage.UPDATE_SUCCESSFUL);
                 }
@@ -260,14 +279,14 @@ namespace YogaCenter.BackEnd.Service.Implementations
             {
 
                 bool isValid = true;
-                if (await _unitOfWork.GetRepository<Subscription>().GetById(subcriptionId) == null)
+                if (await _subscriptionRepository.GetById(subcriptionId) == null)
                 {
                     isValid = false;
                     _result.Message.Add($"The subscription with id {subcriptionId} not found");
                 }
                 if (isValid)
                 {
-                    _result.Result.Data = await _unitOfWork.GetRepository<Subscription>().GetByExpression(s => s.SubscriptionId == subcriptionId && s.SubscriptionStatusId == SD.Subscription.PENDING);
+                    _result.Result.Data = await _subscriptionRepository.GetByExpression(s => s.SubscriptionId == subcriptionId && s.SubscriptionStatusId == SD.Subscription.PENDING);
                 }
                 else
                 {
@@ -288,7 +307,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
             {
 
                 bool isValid = true;
-                if (await _unitOfWork.GetRepository<Subscription>().GetById(subcriptionId) != null)
+                if (await _subscriptionRepository.GetById(subcriptionId) != null)
                 {
                     isValid = false;
                     _result.Message.Add($"The subscription with id {subcriptionId} not found");
@@ -300,9 +319,9 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 }
                 if (isValid)
                 {
-                    Subscription subscription = await _unitOfWork.GetRepository<Subscription>().GetById(subcriptionId);
+                    Subscription subscription = await _subscriptionRepository.GetById(subcriptionId);
                     subscription.SubscriptionStatusId = status;
-                    await _unitOfWork.GetRepository<Subscription>().Update(subscription);
+                    await _subscriptionRepository.Update(subscription);
                     _unitOfWork.SaveChange();
                     _result.Message.Add(SD.ResponseMessage.UPDATE_SUCCESSFUL);
                 }
@@ -323,7 +342,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
         {
             try
             {
-                var source = await _unitOfWork.GetRepository<Subscription>().GetAll();
+                var source = await _subscriptionRepository.GetAll();
                 int pageSize = filterRequest.pageSize;
                 if (pageSize <= 0) pageSize = SD.MAX_RECORD_PER_PAGE;
                 int totalPage = DataPresentationHelper.CalculateTotalPageSize(source.Count(), pageSize);
@@ -338,7 +357,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                     {
                         if (filterRequest.keyword != "")
                         {
-                            source = await _unitOfWork.GetRepository<Subscription>().GetListByExpression(c => c.UserId.Contains(filterRequest.keyword), null);
+                            source = await _subscriptionRepository.GetListByExpression(c => c.UserId.Contains(filterRequest.keyword), null);
                         }
                         if (filterRequest.filterInfoList != null)
                         {

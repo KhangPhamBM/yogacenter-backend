@@ -15,28 +15,32 @@ using YogaCenter.BackEnd.Service.Contracts;
 
 namespace YogaCenter.BackEnd.Service.Implementations
 {
-    public class AttendanceService : IAttendanceService
+    public class AttendanceService : GenericBackendService, IAttendanceService
     {
         private readonly IAttendanceRepository _attendanceRepository;
         private readonly IUnitOfWork _unitOfWork;
         private IMapper _mapper;
         private readonly AppActionResult _result;
-        private IFileService _fileService;
 
-        public AttendanceService(IAttendanceRepository attendanceRepository, IUnitOfWork unitOfWork, IMapper mapper, IFileService fileService)
+        public AttendanceService
+            (
+            IAttendanceRepository attendanceRepository,
+            IUnitOfWork unitOfWork,
+            IMapper mapper,
+            IFileService fileService,
+            IServiceProvider serviceProvider
+            )
+            : base(serviceProvider)
         {
             _attendanceRepository = attendanceRepository;
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _result = new AppActionResult();
-            _fileService = fileService;
         }
 
         public async Task<IActionResult> ExportData()
         {
-            //    return _fileService.GenerateExcelContent( _mapper.Map<IEnumerable<AttendanceDto>>(await _unitOfWork.GetRepository<Attendance>().GetAll()), "attendance");
-          
-            return _fileService.GenerateTemplateExcel(new ClassDto());
+            return Resolve<IFileService>().GenerateTemplateExcel(new ClassDto());
 
         }
 
@@ -49,17 +53,17 @@ namespace YogaCenter.BackEnd.Service.Implementations
 
                 foreach (var attendance in attendances)
                 {
-                    if (await _unitOfWork.GetRepository<ClassDetail>().GetById(attendance.ClassDetailId) == null)
+                    if (await _attendanceRepository.GetById(attendance.ClassDetailId) == null)
                     {
                         _result.Message.Add($"The class detail with id {attendance.ClassDetailId} not found ");
                         isValid = false;
                     }
-                    if (await _unitOfWork.GetRepository<Schedule>().GetById(attendance.ScheduleId) == null)
+                    if (await _attendanceRepository.GetById(attendance.ScheduleId) == null)
                     {
                         _result.Message.Add($"The schedule with id {attendance.ScheduleId} not found ");
                         isValid = false;
                     }
-                    if (await _unitOfWork.GetRepository<AttendanceStatus>().GetById(attendance.AttendanceStatusId) == null)
+                    if (await _attendanceRepository.GetById(attendance.AttendanceStatusId) == null)
                     {
                         _result.Message.Add($"The attendance status with id {attendance.AttendanceStatusId} not found ");
                         isValid = false;
@@ -70,7 +74,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 {
                     foreach (var attendance in attendances)
                     {
-                        await _unitOfWork.GetRepository<Attendance>().Insert(_mapper.Map<Attendance>(attendance));
+                        await _attendanceRepository.Insert(_mapper.Map<Attendance>(attendance));
                     }
                     _unitOfWork.SaveChange();
 
@@ -96,7 +100,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
             {
                 try
                 {
-                    var attendances = await _unitOfWork.GetRepository<Attendance>().GetListByExpression(c => c.ClassDetail.ClassId == classId, c => c.ClassDetail.User, c => c.Schedule, c => c.AttendanceStatus);
+                    var attendances = await _attendanceRepository.GetListByExpression(c => c.ClassDetail.ClassId == classId, c => c.ClassDetail.User, c => c.Schedule, c => c.AttendanceStatus);
                     int totalPage = DataPresentationHelper.CalculateTotalPageSize(attendances.Count(), pageSize);
                     if (sortInfos != null)
                     {
@@ -125,7 +129,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
         {
             try
             {
-                var attendances = await _unitOfWork.GetRepository<Attendance>().GetListByExpression(c => c.ScheduleId == scheduleId, c => c.ClassDetail.User, c => c.Schedule, c => c.AttendanceStatus);
+                var attendances = await _attendanceRepository.GetListByExpression(c => c.ScheduleId == scheduleId, c => c.ClassDetail.User, c => c.Schedule, c => c.AttendanceStatus);
                 int totalPage = DataPresentationHelper.CalculateTotalPageSize(attendances.Count(), pageSize);
 
                 if (sortInfos != null)
@@ -152,7 +156,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
         {
             try
             {
-                var attendances = await _unitOfWork.GetRepository<Attendance>().GetListByExpression(c => c.ClassDetail.UserId == userId, c => c.ClassDetail.User, c => c.Schedule, c => c.AttendanceStatus);
+                var attendances = await _attendanceRepository.GetListByExpression(c => c.ClassDetail.UserId == userId, c => c.ClassDetail.User, c => c.Schedule, c => c.AttendanceStatus);
                 int totalPage = DataPresentationHelper.CalculateTotalPageSize(attendances.Count(), pageSize);
 
                 if (sortInfos != null)
@@ -182,17 +186,17 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 bool isValid = true;
                 foreach (var attendance in attendances)
                 {
-                    if (await _unitOfWork.GetRepository<ClassDetail>().GetById(attendance.ClassDetailId) == null)
+                    if (await _attendanceRepository.GetById(attendance.ClassDetailId) == null)
                     {
                         _result.Message.Add($"The class detail with id {attendance.ClassDetailId} not found ");
                         isValid = false;
                     }
-                    if (await _unitOfWork.GetRepository<Schedule>().GetById(attendance.ScheduleId) == null)
+                    if (await _attendanceRepository.GetById(attendance.ScheduleId) == null)
                     {
                         _result.Message.Add($"The schedule with id {attendance.ScheduleId} not found ");
                         isValid = false;
                     }
-                    if (await _unitOfWork.GetRepository<AttendanceStatus>().GetById(attendance.AttendanceStatusId) == null)
+                    if (await _attendanceRepository.GetById(attendance.AttendanceStatusId) == null)
                     {
                         _result.Message.Add($"The attendance status with id {attendance.AttendanceStatusId} not found ");
                         isValid = false;
@@ -203,7 +207,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 {
                     foreach (var attendance in attendances)
                     {
-                        await _unitOfWork.GetRepository<Attendance>().Update(_mapper.Map<Attendance>(attendance));
+                        await _attendanceRepository.Update(_mapper.Map<Attendance>(attendance));
                     }
                     _unitOfWork.SaveChange();
                     _result.Message.Add(SD.ResponseMessage.UPDATE_SUCCESSFUL);
