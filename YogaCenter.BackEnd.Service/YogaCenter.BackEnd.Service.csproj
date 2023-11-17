@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+	  <PackageReference Include="Hangfire" Version="1.8.6" />
 	  <PackageReference Include="MailKit" Version="4.2.0" />
 	  <PackageReference Include="DinkToPdf" Version="1.0.8" />
 	  <PackageReference Include="DinkToPdfCopyDependencies" Version="1.0.8" />

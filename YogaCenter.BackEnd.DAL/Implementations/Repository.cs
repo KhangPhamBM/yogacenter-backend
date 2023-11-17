@@ -7,7 +7,6 @@ using System.Text;
 using System.Threading.Tasks;
 using YogaCenter.BackEnd.DAL.Contracts;
 using YogaCenter.BackEnd.DAL.Data;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace YogaCenter.BackEnd.DAL.Implementations
 {

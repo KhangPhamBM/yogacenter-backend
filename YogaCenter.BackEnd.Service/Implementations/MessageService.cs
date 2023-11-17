@@ -12,17 +12,24 @@ using YogaCenter.BackEnd.Service.Contracts;
 
 namespace YogaCenter.BackEnd.Service.Implementations
 {
-    public class MessageService : IMessageService
+    public class MessageService : GenericBackendService,IMessageService
     {
         private readonly IUnitOfWork _unitOfWork;
         private IMapper _mapper;
         private readonly AppActionResult _result;
+        private IMessageRepository _messageRepository;
 
-        public MessageService(IUnitOfWork unitOfWork, IMapper mapper)
+        public MessageService(
+            IUnitOfWork unitOfWork,
+            IMapper mapper, 
+            IMessageRepository messageRepository,
+            IServiceProvider serviceProvider)
+            :base(serviceProvider) 
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _result = new AppActionResult();
+            _messageRepository = messageRepository;
         }
 
         public async Task<AppActionResult> DeleteMessageById(int id)
@@ -30,7 +37,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
             try
             {
                 bool isValid = true;
-                var message = await _unitOfWork.GetRepository<Message>().GetById(id);
+                var message = await _messageRepository.GetById(id);
                 if (message == null)
                 {
                     isValid = false;
@@ -40,7 +47,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 if (isValid)
                 {
                     message.isDeleted = true;
-                    await _unitOfWork.GetRepository<Message>().Update(message);
+                    await _messageRepository.Update(message);
                     _unitOfWork.SaveChange();
                 }
 
@@ -58,8 +65,8 @@ namespace YogaCenter.BackEnd.Service.Implementations
             try
             {
                 bool isValid = true;
-
-                if (await _unitOfWork.GetRepository<Class>().GetById(classId) == null)
+                var classRepository = Resolve<IClassRepository>();
+                if (await classRepository.GetById(classId) == null)
                 {
                     isValid = false;
                     _result.Message.Add("The class is not existed");
@@ -69,7 +76,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 if (isValid)
                 {
                     List<Message> messages = new List<Message>();
-                    var list = await _unitOfWork.GetRepository<Message>().GetListByExpression(c => c.ClassDetail.ClassId == classId, c => c.ClassDetail.User, c => c.ClassDetail.Class);
+                    var list = await _messageRepository.GetListByExpression(c => c.ClassDetail.ClassId == classId, c => c.ClassDetail.User, c => c.ClassDetail.Class);
                     foreach (var item in list)
                     {
                         if (item.isDeleted)
@@ -100,7 +107,8 @@ namespace YogaCenter.BackEnd.Service.Implementations
             try
             {
                 bool isValid = true;
-                var classDetail = await _unitOfWork.GetRepository<ClassDetail>().GetByExpression(c => c.UserId == request.UserId && c.ClassId == request.ClassId);
+                var classDetailRepository = Resolve<IClassDetailRepository>();
+                var classDetail = await classDetailRepository.GetByExpression(c => c.UserId == request.UserId && c.ClassId == request.ClassId);
                 if (classDetail == null)
                 {
                     isValid = false;
@@ -115,7 +123,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                         SendTime = DateTime.Now,
                         ClassDetailId = (int)(classDetail?.ClassDetailId),
                     };
-                    await _unitOfWork.GetRepository<Message>().Insert(message);
+                    await _messageRepository.Insert(message);
                     _unitOfWork.SaveChange();
                     message.MessageContent = EncryptionHelper.Decrypt(message.MessageContent);
                     _result.Result.Data = message;
