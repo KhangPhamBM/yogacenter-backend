@@ -16,14 +16,20 @@ using static YogaCenter.BackEnd.DAL.Util.SD;
 
 namespace YogaCenter.BackEnd.Service.Implementations
 {
-    public class ClassDetailService : IClassDetailService
+    public class ClassDetailService : GenericBackendService, IClassDetailService
     {
         private readonly IClassDetailRepository _classDetailRepository;
         private IMapper _mapper;
         private readonly IUnitOfWork _unitOfWork;
         private readonly AppActionResult _result;
 
-        public ClassDetailService(IClassDetailRepository classDetailRepository, IMapper mapper, IUnitOfWork unitOfWork)
+        public ClassDetailService
+            (IClassDetailRepository classDetailRepository,
+            IMapper mapper,
+            IUnitOfWork unitOfWork,
+            IServiceProvider serviceProvider
+            )
+            : base(serviceProvider)
         {
             _classDetailRepository = classDetailRepository;
             _mapper = mapper;
@@ -47,28 +53,31 @@ namespace YogaCenter.BackEnd.Service.Implementations
                     isValid = false;
                     _result.Message.Add("Please insert role");
                 }
-
-                var classDto = await _unitOfWork.GetRepository<Class>().GetById(detail.ClassId);
+                var classRepository = Resolve<IClassRepository>();
+                var applicationUserRepository = Resolve<IAccountRepository>();
+                var scheduleRepository = Resolve<IScheduleRepository>();
+                var attendanceRepository = Resolve<IAttendanceRepository>();
+                var classDto = await classRepository.GetById(detail.ClassId);
                 if (classDto == null)
                 {
                     isValid = false;
                     _result.Message.Add($"The class with id {detail.ClassId} not found");
                 }
 
-                if(classDto.MaxOfTrainee == await CountTrainee(classDto))
+                if (classDto.MaxOfTrainee == await CountTrainee(classDto))
                 {
                     isValid = false;
                     _result.Message.Add($"The class with id {classDto.ClassId} has reached maximum number of trainees");
 
                 }
 
-                if (await _unitOfWork.GetRepository<ApplicationUser>().GetById(detail.UserId) == null)
+                if (await applicationUserRepository.GetById(detail.UserId) == null)
                 {
                     isValid = false;
                     _result.Message.Add($"The user with id {detail.ClassDetailId} not found");
                 }
 
-                var scheduleList = await _unitOfWork.GetRepository<Schedule>()
+                var scheduleList = await scheduleRepository
                     .GetListByExpression(s => s.ClassId == detail.ClassId, null);
 
                 if (scheduleList.Count() < 1)
@@ -84,21 +93,22 @@ namespace YogaCenter.BackEnd.Service.Implementations
 
                 if (isValid)
                 {
-                    var classDetail = await _unitOfWork.GetRepository<ClassDetail>().Insert(_mapper.Map<ClassDetail>(detail));
+                    var classDetail = await _classDetailRepository.Insert(_mapper.Map<ClassDetail>(detail));
                     _unitOfWork.SaveChange();
                     foreach (var schedule in scheduleList)
                     {
-                        await _unitOfWork.GetRepository<Attendance>()
-                            .Insert(new Attendance() { 
-                                ClassDetailId = classDetail.ClassDetailId, 
-                                ScheduleId = schedule.ScheduleId, 
-                                AttendanceStatusId = SD.AttendanceStatus.NOT_YET 
+                        await attendanceRepository
+                            .Insert(new Attendance()
+                            {
+                                ClassDetailId = classDetail.ClassDetailId,
+                                ScheduleId = schedule.ScheduleId,
+                                AttendanceStatusId = SD.AttendanceStatus.NOT_YET
                             });
                     }
 
                     _unitOfWork.SaveChange();
                     _result.Message.Add(SD.ResponseMessage.CREATE_SUCCESSFUL);
-                    _result.Result.Data = await _unitOfWork.GetRepository<ClassDetail>()
+                    _result.Result.Data = await _classDetailRepository
                         .GetByExpression(_classDetailRepository.GetClassDetailByUserId(detail.UserId));
                 }
                 else
@@ -117,7 +127,8 @@ namespace YogaCenter.BackEnd.Service.Implementations
         private async Task<int> CountTrainee(Class classDto)
         {
             int total = 0;
-            var classDetail = await _unitOfWork.GetRepository<ClassDetail>().GetAll();
+            var applicationUserRepository = Resolve<IAccountRepository>();
+            var classDetail = await _classDetailRepository.GetAll();
 
             var traineeRole = await _unitOfWork.GetRepository<IdentityRole>()
                 .GetByExpression(r => r.NormalizedName.ToLower().Equals("trainee"));
@@ -132,7 +143,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
             List<ApplicationUser> users = new List<ApplicationUser>();
             foreach (var item in classDetail)
             {
-                var user = await _unitOfWork.GetRepository<ApplicationUser>().GetById(item.UserId);
+                var user = await applicationUserRepository.GetById(item.UserId);
                 users.Add(user);
             }
             foreach (var user in users)
@@ -140,7 +151,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 if (await _unitOfWork.GetRepository<IdentityUserRole<string>>()
                     .GetByExpression(r => r.RoleId == traineeRole.Id && r.UserId == user.Id, null) != null)
                 {
-                     total++;
+                    total++;
                 }
             }
             return total;
@@ -148,10 +159,13 @@ namespace YogaCenter.BackEnd.Service.Implementations
 
         private async Task<bool> IsCollidedSchedule(ClassDetailDto detail, bool isValid, IdentityRole? traineeRole, IdentityRole? trainerRole, Class? classDto)
         {
+            var scheduleRepository = Resolve<IScheduleRepository>();
+            var timeframeRepository = Resolve<ITimeFrameRepository>();
+
             if (await _unitOfWork.GetRepository<IdentityUserRole<string>>()
                 .GetByExpression(r => r.RoleId == traineeRole.Id && r.UserId == detail.UserId, null) != null)
             {
-                var classDetailList = await _unitOfWork.GetRepository<ClassDetail>()
+                var classDetailList = await _classDetailRepository
                     .GetListByExpression(c => c.ClassId == detail.ClassId);
 
                 List<ApplicationUser> users = new List<ApplicationUser>();
@@ -178,7 +192,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                     _result.Message.Add($"This class don't have trainer");
                 }
 
-                if (await _unitOfWork.GetRepository<ClassDetail>()
+                if (await _classDetailRepository
                     .GetByExpression(_classDetailRepository.GetByClassIdAndUserId(_mapper.Map<ClassDetail>(detail))) != null && classDto.EndDate >= DateTime.Now)
                 {
                     isValid = false;
@@ -188,29 +202,29 @@ namespace YogaCenter.BackEnd.Service.Implementations
             else if (await _unitOfWork.GetRepository<IdentityUserRole<string>>()
                 .GetByExpression(r => r.RoleId == trainerRole.Id && r.UserId == detail.UserId, null) != null)
             {
-                var classDetail = await _unitOfWork.GetRepository<ClassDetail>()
+                var classDetail = await _classDetailRepository
                     .GetByExpression(c => c.UserId == detail.UserId);
 
                 //Schedule of class that trainer is intended to lecture
-                var classSchedules = await _unitOfWork.GetRepository<Schedule>()
+                var classSchedules = await scheduleRepository
                     .GetListByExpression(s => s.ClassId == classDto.ClassId);
 
                 if (classDetail != null)
                 {
                     //Current Schedule of that trainer 
-                    var trainerSchedules = await _unitOfWork.GetRepository<Schedule>()
+                    var trainerSchedules = await scheduleRepository
                         .GetListByExpression(s => s.ClassId == classDetail.ClassId);
 
                     HashSet<Schedule> schedules = new HashSet<Schedule>();
                     foreach (var item in classSchedules)
-                        schedules.Add(item);          
-                    
+                        schedules.Add(item);
+
                     foreach (var schedule in trainerSchedules)
                     {
                         if (schedules.Contains(schedule))
                         {
                             isValid = false;
-                            var timeFrame = await _unitOfWork.GetRepository<DAL.Models.TimeFrame>().GetById(schedule.TimeFrameId);
+                            var timeFrame = await timeframeRepository.GetById(schedule.TimeFrameId);
                             _result.Message.Add($"Collided schedule time : {timeFrame?.TimeFrameName?.ToLower()}, on {schedule.Date.DayOfWeek} {SD.FormatDateTime(schedule.Date)} at class id: {schedule.ClassId}");
                         }
                     }
@@ -225,14 +239,15 @@ namespace YogaCenter.BackEnd.Service.Implementations
             try
             {
                 bool isValid = true;
-                if (await _unitOfWork.GetRepository<Class>().GetById(classId) == null)
+                var classRepository = Resolve<IClassRepository>();
+                if (await classRepository.GetById(classId) == null)
                 {
                     isValid = false;
-                    _result.Message.Add("The class with id {detail.ClassDetailId} not found");
+                    _result.Message.Add($"The class with id {classId} not found");
                 }
                 if (isValid)
                 {
-                    var details = await _unitOfWork.GetRepository<ClassDetail>().GetListByExpression(cd => cd.ClassId == classId, null);
+                    var details = await _classDetailRepository.GetListByExpression(cd => cd.ClassId == classId, null);
                     if (details != null)
                     {
                         if (pageIndex <= 0) pageIndex = 1;

@@ -18,16 +18,23 @@ using YogaCenter.BackEnd.Service.Contracts;
 
 namespace YogaCenter.BackEnd.Service.Implementations
 {
-    public class CourseService : ICourseService
+    public class CourseService : GenericBackendService,ICourseService
     { 
 
         private readonly IUnitOfWork _unitOfWork;
         private IMapper _mapper;
         private readonly AppActionResult _result;
-        public CourseService(IUnitOfWork unitOfWork, IMapper mapper)
+        private ICourseRepository _courseRepository;
+        public CourseService
+            (IUnitOfWork unitOfWork,
+            IMapper mapper, 
+            ICourseRepository courseRepository, 
+            IServiceProvider serviceProvider
+            ):base(serviceProvider)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _courseRepository = courseRepository;
             _result = new AppActionResult();
         }
 
@@ -36,7 +43,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
             try
             {
                 bool isValid = true;
-                if (await _unitOfWork.GetRepository<Course>().GetByExpression(c => c.CourseName == course.CourseName, null) != null)
+                if (await _courseRepository.GetByExpression(c => c.CourseName == course.CourseName, null) != null)
                 {
                     _result.Message.Add("The course is existed");
                     isValid = false;
@@ -44,7 +51,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
 
                 if (isValid)
                 {
-                    await _unitOfWork.GetRepository<Course>().Insert(_mapper.Map<Course>(course));
+                    await _courseRepository.Insert(_mapper.Map<Course>(course));
                     _unitOfWork.SaveChange();
                     _result.Message.Add(SD.ResponseMessage.CREATE_SUCCESSFUL);
                 }
@@ -66,7 +73,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
             try
             {
                 bool isValid = true;
-                if (await _unitOfWork.GetRepository<Course>().GetById(course.CourseId) == null)
+                if (await _courseRepository.GetById(course.CourseId) == null)
                 {
                     _result.Message.Add($"The course with id {course.CourseId} not found");
                     isValid = false;
@@ -74,7 +81,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
 
                 if (isValid)
                 {
-                    await _unitOfWork.GetRepository<Course>().Update(_mapper.Map<Course>(course));
+                    await _courseRepository.Update(_mapper.Map<Course>(course));
                     _unitOfWork.SaveChange();
                     _result.Message.Add(SD.ResponseMessage.UPDATE_SUCCESSFUL);
                 }
@@ -96,7 +103,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
         {
             try {
                 bool isValid = true;
-                if (await _unitOfWork.GetRepository<Course>().GetById(id) == null)
+                if (await _courseRepository.GetById(id) == null)
                 {
                     _result.Message.Add($"The course with id {id} not found");
                     isValid = false;
@@ -104,7 +111,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
 
                 if (isValid)
                 {
-                    _result.Result.Data = await _unitOfWork.GetRepository<Course>().GetById(id);
+                    _result.Result.Data = await _courseRepository.GetById(id);
                 }
                 else
                 {
@@ -124,7 +131,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
         {
             try
             {
-                var courseList = await _unitOfWork.GetRepository<Course>().GetAll();
+                var courseList = await _courseRepository.GetAll();
                 if (courseList.Any())
                 {
                     if(pageIndex <= 0) pageIndex = 1;
@@ -168,11 +175,11 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 }
                 if (isValid)
                 {
-                    var course = _unitOfWork.GetRepository<Course>().GetById(id);
+                    var course = _courseRepository.GetById(id);
                     if (course.Result != null && !(bool)course.Result.IsDeleted)
                     {
                         course.Result.IsDeleted = true;
-                        await _unitOfWork.GetRepository<Course>().Update(course.Result);
+                        await _courseRepository.Update(course.Result);
                         _unitOfWork.SaveChange();
                     }
                     else
@@ -194,7 +201,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
         {
             try
             {
-                var source = await _unitOfWork.GetRepository<Course>().GetListByExpression(c => (bool)!c.IsDeleted, null);
+                var source = await _courseRepository.GetListByExpression(c => (bool)!c.IsDeleted, null);
                 int pageIndex = filterRequest.pageIndex;
                 if (pageIndex <= 0) pageIndex = 1;
                 int pageSize = filterRequest.pageSize;
@@ -210,7 +217,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                     {
                         if (filterRequest.keyword != "" && filterRequest.keyword != null)
                         {
-                            source = await _unitOfWork.GetRepository<Course>().GetListByExpression(c => (bool)!c.IsDeleted && c.CourseName.Contains(filterRequest.keyword), null);
+                            source = await _courseRepository.GetListByExpression(c => (bool)!c.IsDeleted && c.CourseName.Contains(filterRequest.keyword), null);
                         }
                         if (filterRequest.filterInfoList != null)
                         {
