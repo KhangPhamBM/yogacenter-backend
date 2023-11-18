@@ -50,7 +50,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
             _roleManager = roleManager;
             _signInManager = signInManager;
             _tokenDto = new();
-        }
+        }   
 
         public async Task<AppActionResult> Login(LoginRequestDto loginRequest)
         {
