@@ -17,20 +17,26 @@ using YogaCenter.BackEnd.Service.Contracts;
 
 namespace YogaCenter.BackEnd.Service.Implementations
 {
-    public class RoleService : IRoleService
+    public class RoleService : GenericBackendService,IRoleService
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly AppActionResult _result;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly UserManager<ApplicationUser> _userManager;
+        private IIdentityRoleRepository _roleRepository;
 
-
-        public RoleService(IUnitOfWork unitOfWork, RoleManager<IdentityRole> roleManager, UserManager<ApplicationUser> userManager)
+        public RoleService(
+            IUnitOfWork unitOfWork,
+            RoleManager<IdentityRole> roleManager, 
+            UserManager<ApplicationUser> userManager,
+            IServiceProvider serviceProvider,
+            IIdentityRoleRepository roleRepository) : base(serviceProvider)
         {
             _unitOfWork = unitOfWork;
             _roleManager = roleManager;
             _result = new();
             _userManager = userManager;
+            _roleRepository = roleRepository;
         }
 
         public async Task<AppActionResult> AssignRoleForUser(string userId, string roleName)
@@ -38,12 +44,13 @@ namespace YogaCenter.BackEnd.Service.Implementations
             bool isValid = true;
             try
             {
-                if (await _unitOfWork.GetRepository<ApplicationUser>().GetByExpression(u => u.Id == userId && u.IsDeleted == false) == null)
+                var accountRepository = Resolve<IAccountRepository>();
+                if (await accountRepository.GetByExpression(u => u.Id == userId && u.IsDeleted == false) == null)
                 {
                     isValid = false;
                     _result.Message.Add($"The user with id {userId} not found");
                 }
-                if (await _unitOfWork.GetRepository<IdentityRole>().GetByExpression(r => r.Name.ToLower() == roleName.ToLower()) == null)
+                if (await _roleRepository.GetByExpression(r => r.Name.ToLower() == roleName.ToLower()) == null)
                 {
                     isValid = false;
                     _result.Message.Add($"The role with name {roleName} not found");
@@ -51,7 +58,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
 
                 if (isValid)
                 {
-                    var user = await _unitOfWork.GetRepository<ApplicationUser>().GetById(userId);
+                    var user = await accountRepository.GetById(userId);
                     var result = await _userManager.AddToRoleAsync(user, roleName);
                     if (result.Succeeded)
                     {
@@ -79,7 +86,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
             bool isValid = true;
             try
             {
-                if (await _unitOfWork.GetRepository<IdentityRole>().GetByExpression(r => r.Name.ToLower() == roleName.ToLower()) == null)
+                if (await _roleRepository.GetByExpression(r => r.Name.ToLower() == roleName.ToLower()) == null)
                 {
                     isValid = false;
                     _result.Message.Add($"The role with name {roleName} is existed");
@@ -115,7 +122,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
         {
             try
             {
-                _result.Result.Data = await _unitOfWork.GetRepository<IdentityRole>().GetAll();
+                _result.Result.Data = await _roleRepository.GetAll();
 
             }
             catch (Exception ex)
@@ -129,21 +136,22 @@ namespace YogaCenter.BackEnd.Service.Implementations
         public async Task<AppActionResult> RemoveRoleForUser(string userId, string roleName)
         {
             bool isValid = true;
+            var accountRepository = Resolve<IAccountRepository>();
             try
             {
-                if (await _unitOfWork.GetRepository<ApplicationUser>().GetByExpression(u => u.Id == userId && u.IsDeleted == false) == null)
+                if (await accountRepository.GetByExpression(u => u.Id == userId && u.IsDeleted == false) == null)
                 {
                     isValid = false;
                     _result.Message.Add($"The user with id {userId} not found");
                 }
-                if (await _unitOfWork.GetRepository<IdentityRole>().GetByExpression(r => r.Name.ToLower() == roleName.ToLower()) == null)
+                if (await _roleRepository.GetByExpression(r => r.Name.ToLower() == roleName.ToLower()) == null)
                 {
                     isValid = false;
                     _result.Message.Add($"The role with name {roleName} not found");
                 }
                 if (isValid)
                 {
-                    var user = await _unitOfWork.GetRepository<ApplicationUser>().GetById(userId);
+                    var user = await accountRepository.GetById(userId);
                     var result = await _userManager.RemoveFromRoleAsync(user, roleName);
                     if (result.Succeeded)
                     {
@@ -169,7 +177,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
             bool isValid = true;
             try
             {
-                if (await _unitOfWork.GetRepository<IdentityRole>().GetByExpression(r => r.Name.ToLower() == role.Name.ToLower()) == null)
+                if (await _roleRepository.GetByExpression(r => r.Name.ToLower() == role.Name.ToLower()) == null)
                 {
                     isValid = false;
                     _result.Message.Add($"The role with name {role.Name} not found");

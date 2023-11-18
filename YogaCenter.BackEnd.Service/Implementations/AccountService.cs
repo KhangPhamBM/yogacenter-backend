@@ -24,35 +24,32 @@ using YogaCenter.BackEnd.DAL.Common;
 
 namespace YogaCenter.BackEnd.Service.Implementations
 {
-    public class AccountService : IAccountService
+    public class AccountService : GenericBackendService, IAccountService
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly AppActionResult _result;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
-        private readonly IConfiguration _configuration;
         private readonly TokenDto _tokenDto;
-        private readonly IJwtService _jwtService;
-        private readonly IEmailService _emailService;
-
+        private IAccountRepository _accountRepository;
         public AccountService(
+            IAccountRepository accountRepository,
             IUnitOfWork unitOfWork,
             UserManager<ApplicationUser> userManager,
             RoleManager<IdentityRole> roleManager,
             SignInManager<ApplicationUser> signInManager,
-            IJwtService jwtService,
-            IEmailService emailService
-            )
+           IServiceProvider serviceProvider
+
+            ) : base(serviceProvider)
         {
+            _accountRepository = accountRepository;
             _unitOfWork = unitOfWork;
             _result = new();
             _userManager = userManager;
             _roleManager = roleManager;
             _signInManager = signInManager;
-            _jwtService = jwtService;
             _tokenDto = new();
-            _emailService = emailService;
         }
 
         public async Task<AppActionResult> Login(LoginRequestDto loginRequest)
@@ -60,7 +57,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
             bool isValid = true;
             try
             {
-                var user = await _unitOfWork.GetRepository<ApplicationUser>().GetByExpression(u => u.Email.ToLower() == loginRequest.Email.ToLower() && u.IsDeleted == false);
+                var user = await _accountRepository.GetByExpression(u => u.Email.ToLower() == loginRequest.Email.ToLower() && u.IsDeleted == false);
                 if (user == null)
                 {
                     isValid = false;
@@ -99,7 +96,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
             bool isValid = true;
             try
             {
-                var user = await _unitOfWork.GetRepository<ApplicationUser>().GetByExpression(u => u.Email.ToLower() == email.ToLower() && u.IsDeleted == false);
+                var user = await _accountRepository.GetByExpression(u => u.Email.ToLower() == email.ToLower() && u.IsDeleted == false);
                 if (user == null)
                 {
                     isValid = false;
@@ -140,17 +137,18 @@ namespace YogaCenter.BackEnd.Service.Implementations
 
         private async Task LoginDefault(string email, ApplicationUser? user)
         {
-            string token = await _jwtService.GenerateAccessToken(new LoginRequestDto { Email = email });
+            var jwtService = Resolve<IJwtService>();
+            string token = await jwtService.GenerateAccessToken(new LoginRequestDto { Email = email });
 
             if (user.RefreshToken == null)
             {
-                user.RefreshToken = _jwtService.GenerateRefreshToken();
+                user.RefreshToken = jwtService.GenerateRefreshToken();
                 user.RefreshTokenExpiryTime = DateTime.Now.AddDays(1);
             }
             if (user.RefreshTokenExpiryTime <= DateTime.Now)
             {
                 user.RefreshTokenExpiryTime = DateTime.Now.AddDays(1);
-                user.RefreshToken = _jwtService.GenerateRefreshToken();
+                user.RefreshToken = jwtService.GenerateRefreshToken();
             }
 
             _unitOfWork.SaveChange();
@@ -162,9 +160,10 @@ namespace YogaCenter.BackEnd.Service.Implementations
         public async Task<AppActionResult> CreateAccount(SignUpRequestDto signUpRequest, bool isGoogle)
         {
             bool isValid = true;
+            var identityRoleRepository = Resolve<IIdentityRoleRepository>();
             try
             {
-                if (await _unitOfWork.GetRepository<ApplicationUser>().GetByExpression(r => r.UserName == signUpRequest.Email) != null)
+                if (await _accountRepository.GetByExpression(r => r.UserName == signUpRequest.Email) != null)
                 {
                     _result.Message.Add("The email or username is existed");
                     isValid = false;
@@ -172,13 +171,14 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 }
                 foreach (var role in signUpRequest.Role)
                 {
-                    if (await _unitOfWork.GetRepository<IdentityRole>().GetById(role) == null)
+                    if (await identityRoleRepository.GetById(role) == null)
                     {
                         _result.Message.Add($"The role with id {role} is not existed");
                     }
                 }
                 if (isValid)
                 {
+                    var emailService = Resolve<IEmailService>();
                     string verifyCode = null;
                     if (!isGoogle)
                     {
@@ -206,7 +206,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                         _result.Message.Add($"{SD.ResponseMessage.CREATE_SUCCESSFUL} USER");
                         if (!isGoogle)
                         {
-                            _emailService.SendEmail(user.Email, SD.SubjectMail.VERIFY_ACCOUNT, verifyCode);
+                            emailService.SendEmail(user.Email, SD.SubjectMail.VERIFY_ACCOUNT, verifyCode);
                         }
 
                     }
@@ -218,7 +218,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
 
                     foreach (var role in signUpRequest.Role)
                     {
-                        var roleDB = await _unitOfWork.GetRepository<IdentityRole>().GetByExpression(r => r.Name.ToLower() == role.ToLower());
+                        var roleDB = await identityRoleRepository.GetByExpression(r => r.Name.ToLower() == role.ToLower());
                         var resultCreateRole = await _userManager.AddToRoleAsync(user, roleDB.NormalizedName);
                         if (resultCreateRole.Succeeded)
                         {
@@ -254,14 +254,14 @@ namespace YogaCenter.BackEnd.Service.Implementations
             try
             {
 
-                if (await _unitOfWork.GetRepository<ApplicationUser>().GetByExpression(a => a.Id == applicationUser.Id) == null)
+                if (await _accountRepository.GetByExpression(a => a.Id == applicationUser.Id) == null)
                 {
                     isValid = false;
                     _result.Message.Add($"The user with id {applicationUser.Id} not found");
                 }
                 if (isValid)
                 {
-                    await _unitOfWork.GetRepository<ApplicationUser>().Update(applicationUser);
+                    await _accountRepository.Update(applicationUser);
                     _unitOfWork.SaveChange();
                     _result.Message.Add(SD.ResponseMessage.UPDATE_SUCCESSFUL);
                 }
@@ -281,7 +281,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
             try
             {
 
-                if (await _unitOfWork.GetRepository<ApplicationUser>().GetById(id) == null)
+                if (await _accountRepository.GetById(id) == null)
                 {
                     isValid = false;
                     _result.Message.Add($"The user with id {id} not found");
@@ -289,7 +289,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 }
                 if (isValid)
                 {
-                    _result.Result.Data = await _unitOfWork.GetRepository<ApplicationUser>().GetById(id);
+                    _result.Result.Data = await _accountRepository.GetById(id);
 
                 }
             }
@@ -304,19 +304,22 @@ namespace YogaCenter.BackEnd.Service.Implementations
         {
             try
             {
+                var userRoleRepository = Resolve<IUserRoleRepository>();
+                var identityRoleRepository = Resolve<IIdentityRoleRepository>();
+
                 List<AccountResponse> accounts = new List<AccountResponse>();
-                var list = await _unitOfWork.GetRepository<ApplicationUser>().GetAll();
+                var list = await _accountRepository.GetAll();
                 if (pageIndex <= 0) pageIndex = 1;
                 if (pageSize <= 0) pageSize = SD.MAX_RECORD_PER_PAGE;
                 int totalPage = DataPresentationHelper.CalculateTotalPageSize(list.Count(), pageSize);
 
                 foreach (var account in list)
                 {
-                    var userRole = await _unitOfWork.GetRepository<IdentityUserRole<string>>().GetListByExpression(s => s.UserId == account.Id, null);
+                    var userRole = await userRoleRepository.GetListByExpression(s => s.UserId == account.Id, null);
                     var listRole = new List<IdentityRole>();
                     foreach (var role in userRole)
                     {
-                        var item = await _unitOfWork.GetRepository<IdentityRole>().GetById(role.RoleId);
+                        var item = await identityRoleRepository.GetById(role.RoleId);
                         listRole.Add(item);
                     }
                     accounts.Add(new AccountResponse { User = account, Role = listRole });
@@ -346,14 +349,14 @@ namespace YogaCenter.BackEnd.Service.Implementations
             bool isValid = true;
             try
             {
-                if (await _unitOfWork.GetRepository<ApplicationUser>().GetByExpression(c => c.Email == changePasswordDto.Email && c.IsDeleted == false) == null)
+                if (await _accountRepository.GetByExpression(c => c.Email == changePasswordDto.Email && c.IsDeleted == false) == null)
                 {
                     isValid = false;
                     _result.Message.Add($"The user with email {changePasswordDto.Email} not found");
                 }
                 if (isValid)
                 {
-                    var user = await _unitOfWork.GetRepository<ApplicationUser>().GetByExpression(c => c.Email == changePasswordDto.Email && c.IsDeleted == false);
+                    var user = await _accountRepository.GetByExpression(c => c.Email == changePasswordDto.Email && c.IsDeleted == false);
                     var result = await _userManager.ChangePasswordAsync(user, changePasswordDto.OldPassword, changePasswordDto.NewPassword);
                     if (result.Succeeded)
                     {
@@ -376,7 +379,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
         {
             try
             {
-                var source = (IOrderedQueryable<ApplicationUser>)await _unitOfWork.GetRepository<ApplicationUser>().GetByExpression(a => (bool)a.IsDeleted, null);
+                var source = (IOrderedQueryable<ApplicationUser>)await _accountRepository.GetByExpression(a => (bool)a.IsDeleted, null);
                 int pageSize = filterRequest.pageSize;
                 if (filterRequest.pageSize <= 0) pageSize = SD.MAX_RECORD_PER_PAGE;
                 int totalPage = DataPresentationHelper.CalculateTotalPageSize(source.Count(), pageSize);
@@ -391,7 +394,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                     {
                         if (filterRequest.keyword != "")
                         {
-                            source = (IOrderedQueryable<ApplicationUser>)await _unitOfWork.GetRepository<ApplicationUser>().GetByExpression(c => (bool)!c.IsDeleted && c.UserName.Contains(filterRequest.keyword), null);
+                            source = (IOrderedQueryable<ApplicationUser>)await _accountRepository.GetByExpression(c => (bool)!c.IsDeleted && c.UserName.Contains(filterRequest.keyword), null);
                         }
                         if (filterRequest.filterInfoList != null)
                         {
@@ -425,8 +428,9 @@ namespace YogaCenter.BackEnd.Service.Implementations
         {
             try
             {
+                var identityRoleRepository = Resolve<IIdentityRoleRepository>();
                 bool isValid = true;
-                var user = await _unitOfWork.GetRepository<ApplicationUser>().GetById(userId);
+                var user = await _accountRepository.GetById(userId);
                 if (user == null)
                 {
                     isValid = false;
@@ -434,7 +438,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 }
                 foreach (var role in roleId)
                 {
-                    if (await _unitOfWork.GetRepository<IdentityRole>().GetById(role) == null)
+                    if (await identityRoleRepository.GetById(role) == null)
                     {
                         _result.Message.Add($"The role with id {role} is not existed");
                     }
@@ -444,7 +448,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 {
                     foreach (var role in roleId)
                     {
-                        var roleDB = await _unitOfWork.GetRepository<IdentityRole>().GetById(role);
+                        var roleDB = await identityRoleRepository.GetById(role);
                         var resultCreateRole = await _userManager.AddToRoleAsync(user, roleDB.NormalizedName);
                         if (resultCreateRole.Succeeded)
                         {
@@ -473,8 +477,9 @@ namespace YogaCenter.BackEnd.Service.Implementations
         {
             try
             {
+                var identityRoleRepository = Resolve<IIdentityRoleRepository>();
                 bool isValid = true;
-                var user = await _unitOfWork.GetRepository<ApplicationUser>().GetById(userId);
+                var user = await _accountRepository.GetById(userId);
                 if (user == null)
                 {
                     isValid = false;
@@ -482,7 +487,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 }
                 foreach (var role in roleId)
                 {
-                    if (await _unitOfWork.GetRepository<IdentityRole>().GetById(role) == null)
+                    if (await identityRoleRepository.GetById(role) == null)
                     {
                         _result.Message.Add($"The role with id {role} is not existed");
                     }
@@ -492,7 +497,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 {
                     foreach (var role in roleId)
                     {
-                        var roleDB = await _unitOfWork.GetRepository<IdentityRole>().GetById(role);
+                        var roleDB = await identityRoleRepository.GetById(role);
                         var resultCreateRole = await _userManager.RemoveFromRoleAsync(user, roleDB.NormalizedName);
                         if (resultCreateRole.Succeeded)
                         {
@@ -523,7 +528,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
             try
             {
                 bool isValid = true;
-                var user = await _unitOfWork.GetRepository<ApplicationUser>().GetById(userId);
+                var user = await  _accountRepository.GetById(userId);
                 if (user == null)
                 {
                     isValid = false;
@@ -538,7 +543,8 @@ namespace YogaCenter.BackEnd.Service.Implementations
 
                 if (isValid)
                 {
-                    _result.Result.Data = await _jwtService.GetNewToken(refreshToken, userId);
+                    var jwtService = Resolve<JwtService>();
+                    _result.Result.Data = await jwtService.GetNewToken(refreshToken, userId);
 
                 }
             }
@@ -555,7 +561,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
             try
             {
                 bool isValid = true;
-                var user = await _unitOfWork.GetRepository<ApplicationUser>().GetByExpression(a => a.Email == dto.Email && a.IsDeleted == false && a.IsVerified == true);
+                var user = await _accountRepository.GetByExpression(a => a.Email == dto.Email && a.IsDeleted == false && a.IsVerified == true);
                 if (user == null)
                 {
                     isValid = false;
@@ -601,7 +607,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
             try
             {
                 bool isValid = true;
-                var user = await _unitOfWork.GetRepository<ApplicationUser>().GetByExpression(a => a.Email == email && a.IsDeleted == false && a.IsVerified == false);
+                var user = await _accountRepository.GetByExpression(a => a.Email == email && a.IsDeleted == false && a.IsVerified == false);
                 if (user == null)
                 {
                     isValid = false;
@@ -635,7 +641,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
             try
             {
                 bool isValid = true;
-                var user = await _unitOfWork.GetRepository<ApplicationUser>().GetByExpression(a => a.Email == email && a.IsDeleted == false && a.IsVerified == true);
+                var user = await _accountRepository.GetByExpression(a => a.Email == email && a.IsDeleted == false && a.IsVerified == true);
                 if (user == null)
                 {
                     isValid = false;
@@ -645,8 +651,9 @@ namespace YogaCenter.BackEnd.Service.Implementations
 
                 if (isValid)
                 {
+                    var emailService = Resolve<IEmailService>();
                     string code = await GenerateVerifyCode(user.Email);
-                    _emailService.SendEmail(email, SD.SubjectMail.PASSCODE_FORGOT_PASSWORD, code);
+                    emailService.SendEmail(email, SD.SubjectMail.PASSCODE_FORGOT_PASSWORD, code);
 
                 }
             }
@@ -660,7 +667,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
 
         public async Task<string> GenerateVerifyCode(string email)
         {
-            var user = await _unitOfWork.GetRepository<ApplicationUser>().GetByExpression(a => a.Email == email && a.IsDeleted == false && a.IsVerified == true);
+            var user = await _accountRepository.GetByExpression(a => a.Email == email && a.IsDeleted == false && a.IsVerified == true);
 
             if (user != null)
             {
@@ -674,7 +681,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
         }
         public async Task<string> GenerateVerifyCodeGoogle(string email)
         {
-            var user = await _unitOfWork.GetRepository<ApplicationUser>().GetByExpression(a => a.Email == email && a.IsDeleted == false);
+            var user = await _accountRepository.GetByExpression(a => a.Email == email && a.IsDeleted == false);
 
             if (user != null)
             {
