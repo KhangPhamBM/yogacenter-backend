@@ -164,7 +164,6 @@ namespace YogaCenter.BackEnd.Service.Implementations
             var identityRoleRepository = Resolve<IIdentityRoleRepository>();
             try
             {
-                var identityRoleRepository =Resolve<IdentityRoleRepository>();
                 if (await _accountRepository.GetByExpression(r => r.UserName == signUpRequest.Email) != null)
                 {
                     _result.Message.Add("The email or username is existed");
