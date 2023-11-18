@@ -160,7 +160,6 @@ namespace YogaCenter.BackEnd.Service.Implementations
         public async Task<AppActionResult> CreateAccount(SignUpRequestDto signUpRequest, bool isGoogle)
         {
             bool isValid = true;
-            var identityRoleRepository = Resolve<IIdentityRoleRepository>();
             try
             {
                 if (await _accountRepository.GetByExpression(r => r.UserName == signUpRequest.Email) != null)

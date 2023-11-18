@@ -128,10 +128,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
         private async Task<int> CountTrainee(Class classDto)
         {
             int total = 0;
-            var applicationUserRepository = Resolve<IAccountRepository>();
-            var identityRoleRepository = Resolve<IIdentityRoleRepository>();
-            var userRoleRepository = Resolve<IUserRoleRepository>();
-            var classDetail = await _classDetailRepository.GetAll();
+            var classDetail = await _unitOfWork.GetRepository<ClassDetail>().GetAll();
 
             var traineeRole = await identityRoleRepository
                 .GetByExpression(r => r.NormalizedName.ToLower().Equals("trainee"));
@@ -162,11 +159,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
 
         private async Task<bool> IsCollidedSchedule(ClassDetailDto detail, bool isValid, IdentityRole? traineeRole, IdentityRole? trainerRole, Class? classDto)
         {
-            var scheduleRepository = Resolve<IScheduleRepository>();
-            var timeframeRepository = Resolve<ITimeFrameRepository>();
-            var userRoleRepository = Resolve<IUserRoleRepository>();
-            var accountRepository = Resolve<IAccountRepository>();
-            if (await userRoleRepository
+            if (await _unitOfWork.GetRepository<IdentityUserRole<string>>()
                 .GetByExpression(r => r.RoleId == traineeRole.Id && r.UserId == detail.UserId, null) != null)
             {
                 var classDetailList = await _classDetailRepository

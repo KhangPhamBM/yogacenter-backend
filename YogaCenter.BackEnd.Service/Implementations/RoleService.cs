@@ -25,12 +25,8 @@ namespace YogaCenter.BackEnd.Service.Implementations
         private readonly UserManager<ApplicationUser> _userManager;
         private IIdentityRoleRepository _roleRepository;
 
-        public RoleService(
-            IUnitOfWork unitOfWork,
-            RoleManager<IdentityRole> roleManager, 
-            UserManager<ApplicationUser> userManager,
-            IServiceProvider serviceProvider,
-            IIdentityRoleRepository roleRepository) : base(serviceProvider)
+
+        public RoleService(IUnitOfWork unitOfWork, RoleManager<IdentityRole> roleManager, UserManager<ApplicationUser> userManager)
         {
             _unitOfWork = unitOfWork;
             _roleManager = roleManager;
