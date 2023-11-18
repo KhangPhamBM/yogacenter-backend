@@ -21,12 +21,12 @@ using Utility = YogaCenter.BackEnd.DAL.Util.Utility;
 
 namespace YogaCenter.BackEnd.Service.Implementations
 {
-    public class PaymentService : IPaymentService
+    public class PaymentService : GenericBackendService,IPaymentService
     {
 
         private readonly IConfiguration _configuration;
         private readonly IUnitOfWork _unitOfWork;
-        public PaymentService(IConfiguration configuration, IUnitOfWork unitOfWork)
+        public PaymentService(IConfiguration configuration, IUnitOfWork unitOfWork, IServiceProvider serviceProvider):base(serviceProvider)
         {
             _configuration = configuration;
             _unitOfWork = unitOfWork;
@@ -37,16 +37,19 @@ namespace YogaCenter.BackEnd.Service.Implementations
         public async Task<string> CreatePaymentUrlMomo(SubscriptionDto subscriptionDto)
         {
             string connection = "";
-            var courseId =  _unitOfWork.GetRepository<Class>().GetByExpression(c => c.ClassId == subscriptionDto.ClassId).Result.CourseId;
+            var classRepository = Resolve<IClassRepository>();
+            var courseRepository = Resolve<ICourseRepository>();
+            var accountRepository = Resolve<IAccountRepository>();
+            var courseId =  classRepository.GetByExpression(c => c.ClassId == subscriptionDto.ClassId).Result.CourseId;
             if (courseId != null)
             {
-                var course = await _unitOfWork.GetRepository<Course>().GetById(courseId);
+                var course = await courseRepository.GetById(courseId);
 
                 PaymentInformationRequest momo = new PaymentInformationRequest
                 {
                     AccountID = subscriptionDto.UserId,
                     Amount = (double)(course.Price * (100 - course.Discount) / 100),
-                    CustomerName = _unitOfWork.GetRepository<ApplicationUser>().GetById(subscriptionDto.UserId).Result.FirstName,
+                    CustomerName =  accountRepository.GetById(subscriptionDto.UserId).Result.FirstName,
                     OrderID = subscriptionDto.SubscriptionId
                 };
 
@@ -121,15 +124,19 @@ namespace YogaCenter.BackEnd.Service.Implementations
         public async Task<string> CreatePaymentUrlVNPay(SubscriptionDto subscriptionDto, HttpContext context)
         {
             var paymentUrl = "";
-            var courseId = _unitOfWork.GetRepository<Class>().GetByExpression(c => c.ClassId == subscriptionDto.ClassId).Result.CourseId;
+            var classRepository = Resolve<IClassRepository>();
+            var courseRepository = Resolve<ICourseRepository>();
+            var accountRepository = Resolve<IAccountRepository>();
+
+            var courseId = classRepository.GetByExpression(c => c.ClassId == subscriptionDto.ClassId).Result.CourseId;
             if (courseId != null)
             {
-                var course = await _unitOfWork.GetRepository<Course>().GetById(courseId);
+                var course = await courseRepository.GetById(courseId);
                 PaymentInformationRequest model = new PaymentInformationRequest
                 {
                     AccountID = subscriptionDto.UserId,
                     Amount = (double)(course.Price *(100 - course.Discount)/100),
-                    CustomerName = _unitOfWork.GetRepository<ApplicationUser>().GetById(subscriptionDto.UserId).Result.FirstName,
+                    CustomerName = accountRepository.GetById(subscriptionDto.UserId).Result.FirstName,
                     OrderID = subscriptionDto.SubscriptionId
                 };
                 var timeZoneById = TimeZoneInfo.FindSystemTimeZoneById(_configuration["TimeZoneId"]);

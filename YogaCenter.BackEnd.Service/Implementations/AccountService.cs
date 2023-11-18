@@ -50,7 +50,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
             _roleManager = roleManager;
             _signInManager = signInManager;
             _tokenDto = new();
-        }
+        }   
 
         public async Task<AppActionResult> Login(LoginRequestDto loginRequest)
         {
@@ -160,7 +160,6 @@ namespace YogaCenter.BackEnd.Service.Implementations
         public async Task<AppActionResult> CreateAccount(SignUpRequestDto signUpRequest, bool isGoogle)
         {
             bool isValid = true;
-
             try
             {
                 if (await _accountRepository.GetByExpression(r => r.UserName == signUpRequest.Email) != null)
@@ -171,7 +170,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 }
                 foreach (var role in signUpRequest.Role)
                 {
-                    if (await _unitOfWork.GetRepository<IdentityRole>().GetById(role) == null)
+                    if (await identityRoleRepository.GetById(role) == null)
                     {
                         _result.Message.Add($"The role with id {role} is not existed");
                     }
@@ -218,7 +217,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
 
                     foreach (var role in signUpRequest.Role)
                     {
-                        var roleDB = await _unitOfWork.GetRepository<IdentityRole>().GetByExpression(r => r.Name.ToLower() == role.ToLower());
+                        var roleDB = await identityRoleRepository.GetByExpression(r => r.Name.ToLower() == role.ToLower());
                         var resultCreateRole = await _userManager.AddToRoleAsync(user, roleDB.NormalizedName);
                         if (resultCreateRole.Succeeded)
                         {
@@ -304,6 +303,9 @@ namespace YogaCenter.BackEnd.Service.Implementations
         {
             try
             {
+                var userRoleRepository = Resolve<IUserRoleRepository>();
+                var identityRoleRepository = Resolve<IIdentityRoleRepository>();
+
                 List<AccountResponse> accounts = new List<AccountResponse>();
                 var list = await _accountRepository.GetAll();
                 if (pageIndex <= 0) pageIndex = 1;
@@ -312,11 +314,11 @@ namespace YogaCenter.BackEnd.Service.Implementations
 
                 foreach (var account in list)
                 {
-                    var userRole = await _unitOfWork.GetRepository<IdentityUserRole<string>>().GetListByExpression(s => s.UserId == account.Id, null);
+                    var userRole = await userRoleRepository.GetListByExpression(s => s.UserId == account.Id, null);
                     var listRole = new List<IdentityRole>();
                     foreach (var role in userRole)
                     {
-                        var item = await _unitOfWork.GetRepository<IdentityRole>().GetById(role.RoleId);
+                        var item = await identityRoleRepository.GetById(role.RoleId);
                         listRole.Add(item);
                     }
                     accounts.Add(new AccountResponse { User = account, Role = listRole });
@@ -425,6 +427,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
         {
             try
             {
+                var identityRoleRepository = Resolve<IIdentityRoleRepository>();
                 bool isValid = true;
                 var user = await _accountRepository.GetById(userId);
                 if (user == null)
@@ -434,7 +437,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 }
                 foreach (var role in roleId)
                 {
-                    if (await _unitOfWork.GetRepository<IdentityRole>().GetById(role) == null)
+                    if (await identityRoleRepository.GetById(role) == null)
                     {
                         _result.Message.Add($"The role with id {role} is not existed");
                     }
@@ -444,7 +447,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 {
                     foreach (var role in roleId)
                     {
-                        var roleDB = await _unitOfWork.GetRepository<IdentityRole>().GetById(role);
+                        var roleDB = await identityRoleRepository.GetById(role);
                         var resultCreateRole = await _userManager.AddToRoleAsync(user, roleDB.NormalizedName);
                         if (resultCreateRole.Succeeded)
                         {
@@ -473,6 +476,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
         {
             try
             {
+                var identityRoleRepository = Resolve<IIdentityRoleRepository>();
                 bool isValid = true;
                 var user = await _accountRepository.GetById(userId);
                 if (user == null)
@@ -482,7 +486,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 }
                 foreach (var role in roleId)
                 {
-                    if (await _unitOfWork.GetRepository<IdentityRole>().GetById(role) == null)
+                    if (await identityRoleRepository.GetById(role) == null)
                     {
                         _result.Message.Add($"The role with id {role} is not existed");
                     }
@@ -492,7 +496,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 {
                     foreach (var role in roleId)
                     {
-                        var roleDB = await _unitOfWork.GetRepository<IdentityRole>().GetById(role);
+                        var roleDB = await identityRoleRepository.GetById(role);
                         var resultCreateRole = await _userManager.RemoveFromRoleAsync(user, roleDB.NormalizedName);
                         if (resultCreateRole.Succeeded)
                         {
@@ -523,7 +527,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
             try
             {
                 bool isValid = true;
-                var user = await _unitOfWork.GetRepository<ApplicationUser>().GetById(userId);
+                var user = await  _accountRepository.GetById(userId);
                 if (user == null)
                 {
                     isValid = false;

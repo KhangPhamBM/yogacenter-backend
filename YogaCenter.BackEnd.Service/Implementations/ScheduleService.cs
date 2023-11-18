@@ -91,7 +91,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 }
                 if (isValid)
                 {
-                    var collidedSchedule = await _unitOfWork.GetRepository<Schedule>()
+                    var collidedSchedule = await _scheduleRepository
                                                             .GetByExpression(s => s.Date == scheduleDto.Date
                                                                             && s.RoomId == scheduleDto.RoomId
                                                                             && s.TimeFrameId == scheduleDto.TimeFrameId);

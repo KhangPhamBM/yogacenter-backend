@@ -19,11 +19,6 @@ namespace YogaCenter.BackEnd.DAL.Implementations
             _db = db;
         }
 
-        public IRepository<TEntity> GetRepository<TEntity>() where TEntity : class
-        {
-            return new Repository<TEntity>(_db);
-        }
-
         public void SaveChange()
         {
              _db.SaveChanges();
