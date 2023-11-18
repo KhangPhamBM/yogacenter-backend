@@ -7,19 +7,20 @@ using System.Text;
 using System.Threading.Tasks;
 using YogaCenter.BackEnd.Common.Dto;
 using YogaCenter.BackEnd.DAL.Contracts;
+using YogaCenter.BackEnd.DAL.Implementations;
 using YogaCenter.BackEnd.DAL.Models;
 using YogaCenter.BackEnd.DAL.Util;
 using YogaCenter.BackEnd.Service.Contracts;
 
 namespace YogaCenter.BackEnd.Service.Implementations
 {
-    public class BlogService : IBlogService
+    public class BlogService : GenericBackendService,IBlogService
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IBlogRepository _blogRepository;
         private readonly IMapper _mapper;
         private readonly AppActionResult _result;
-        public BlogService(IUnitOfWork unitOfWork, IBlogRepository blogRepository, IMapper mapper) {
+        public BlogService(IUnitOfWork unitOfWork, IBlogRepository blogRepository, IMapper mapper, IServiceProvider serviceProvider):base(serviceProvider) {
             _unitOfWork = unitOfWork;
             _blogRepository = blogRepository;
             _mapper = mapper;
@@ -30,13 +31,15 @@ namespace YogaCenter.BackEnd.Service.Implementations
             try
             {
                 bool isValid = true;
-                if(await _unitOfWork.GetRepository<ApplicationUser>().GetById(Blog.UserId) == null)
+                var applicationUserRepository = Resolve<IAccountRepository>();
+
+                if (await applicationUserRepository.GetById(Blog.UserId) == null)
                 {
                     isValid = false;
                     _result.Message.Add($"User with id {Blog.UserId} not found");
                 }
 
-                if (await _unitOfWork.GetRepository<Blog>().GetByExpression(b => b.Title.Equals(Blog.Title)) != null)
+                if (await _blogRepository.GetByExpression(b => b.Title.Equals(Blog.Title)) != null)
                 {
                     isValid = false;
                     _result.Message.Add($"Duplicated Title");
@@ -44,7 +47,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
 
                 if(isValid)
                 {
-                    await _unitOfWork.GetRepository<Blog>().Insert(_mapper.Map<Blog>(Blog));
+                    await _blogRepository.Insert(_mapper.Map<Blog>(Blog));
                     _unitOfWork.SaveChange();
                     _result.Message.Add(SD.ResponseMessage.CREATE_SUCCESSFUL);
                 } else
@@ -67,7 +70,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
             {
                 bool isValid = true;
 
-                if (await _unitOfWork.GetRepository<Blog>().GetById(id) == null)
+                if (await _blogRepository.GetById(id) == null)
                 {
                     isValid = false;
                     _result.Message.Add($"Duplicated Title");
@@ -75,7 +78,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
 
                 if (isValid)
                 {
-                    await _unitOfWork.GetRepository<Blog>().DeleteById(id);
+                    await _blogRepository.DeleteById(id);
                     _unitOfWork.SaveChange();
                     _result.Message.Add(SD.ResponseMessage.DELETE_SUCCESSFUL);
                 }
@@ -97,7 +100,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
         {
             try
             {
-                var blogs = await _unitOfWork.GetRepository<Blog>().GetAll();
+                var blogs = await _blogRepository.GetAll();
                 if (pageIndex <= 0) pageIndex = 1;
                 if (pageSize <= 0) pageSize = SD.MAX_RECORD_PER_PAGE;
                 int totalPage = DataPresentationHelper.CalculateTotalPageSize(blogs.Count(), pageSize);
@@ -127,7 +130,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
             {
                 bool isValid = true;
 
-                if (await _unitOfWork.GetRepository<Blog>().GetById(id) == null)
+                if (await _blogRepository.GetById(id) == null)
                 {
                     _result.Message.Add($"The Blog with id {id} not found");
                     isValid = false;
@@ -135,7 +138,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 }
                 if (isValid)
                 {
-                    _result.Result.Data = await _unitOfWork.GetRepository<Blog>().GetById(id);
+                    _result.Result.Data = await _blogRepository.GetById(id);
                 }
                 else
                 {
@@ -154,7 +157,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
         {
             try
             {
-                var source = await _unitOfWork.GetRepository<Blog>().GetAll();
+                var source = await _blogRepository.GetAll();
                 int pageIndex = filterRequest.pageIndex;
                 if (pageIndex <= 0) pageIndex = 1;
                 int pageSize = filterRequest.pageSize;
@@ -171,7 +174,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                     {
                         if (filterRequest.keyword != "" && filterRequest.keyword != null)
                         {
-                            source = await _unitOfWork.GetRepository<Blog>().GetListByExpression(b => b.Title.Contains(filterRequest.keyword), null);
+                            source = await _blogRepository.GetListByExpression(b => b.Title.Contains(filterRequest.keyword), null);
                         }
                         if (filterRequest.filterInfoList != null)
                         {
@@ -208,7 +211,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
             try
             {
                 bool isValid = true;
-                if (await _unitOfWork.GetRepository<Blog>().GetById(Blog.Id) == null)
+                if (await _blogRepository.GetById(Blog.Id) == null)
                 {
                     _result.Message.Add($"The blog with id {Blog.Id} not found");
                     isValid = false;
@@ -217,7 +220,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
            
                 if (isValid)
                 {
-                    await _unitOfWork.GetRepository<Blog>().Update(_mapper.Map<Blog>(Blog));
+                    await _blogRepository.Update(_mapper.Map<Blog>(Blog));
                     _unitOfWork.SaveChange();
                     _result.Message.Add(SD.ResponseMessage.UPDATE_SUCCESSFUL);
                 }

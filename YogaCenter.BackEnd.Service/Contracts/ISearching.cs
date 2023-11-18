@@ -9,6 +9,6 @@ namespace YogaCenter.BackEnd.Service.Contracts
 {
     public interface ISearching<T> where T : class
     {
-        Task<AppActionResult> SearchApplyingSortingAndFiltering(BaseFilterRequest filterRequest);
+         Task<AppActionResult> SearchApplyingSortingAndFiltering(BaseFilterRequest filterRequest);
     }
 }

@@ -12,16 +12,22 @@ using YogaCenter.BackEnd.Service.Contracts;
 
 namespace YogaCenter.BackEnd.Service.Implementations
 {
-    public class TimeFrameService : ITimeFrameService
+    public class TimeFrameService : GenericBackendService,ITimeFrameService
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly AppActionResult _result;
-        public TimeFrameService(IUnitOfWork unitOfWork, IMapper mapper)
+        private ITimeFrameRepository _timeFrameRepository;
+        public TimeFrameService
+            (IUnitOfWork unitOfWork, 
+            IMapper mapper, ITimeFrameRepository timeFrameRepository, 
+            IServiceProvider serviceProvider)
+            :base(serviceProvider)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _result = new AppActionResult();
+            _timeFrameRepository = timeFrameRepository;
         }
         public async Task<TimeSpan[]> ConvertStringTimeFrameToTime(string timeFrame)
         {
@@ -50,14 +56,14 @@ namespace YogaCenter.BackEnd.Service.Implementations
             {
 
                 bool isValid = true;
-                if (await _unitOfWork.GetRepository<TimeFrame>().GetByExpression(t => t.TimeFrameName == timeFrameDto.TimeFrameName) != null)
+                if (await _timeFrameRepository.GetByExpression(t => t.TimeFrameName == timeFrameDto.TimeFrameName) != null)
                 {
                     isValid = false;
                     _result.Message.Add($"The timeframe with name {timeFrameDto.TimeFrameName} is existed");
                 }
                 if (isValid)
                 {
-                    await _unitOfWork.GetRepository<TimeFrame>().Insert(_mapper.Map<TimeFrame>(timeFrameDto));
+                    await _timeFrameRepository.Insert(_mapper.Map<TimeFrame>(timeFrameDto));
                     _unitOfWork.SaveChange();
                     _result.Message.Add(SD.ResponseMessage.CREATE_SUCCESSFUL);
                 }
@@ -79,14 +85,14 @@ namespace YogaCenter.BackEnd.Service.Implementations
             try
             {
                 bool isValid = true;
-                if (await _unitOfWork.GetRepository<TimeFrame>().GetById(timeframeId) == null)
+                if (await _timeFrameRepository.GetById(timeframeId) == null)
                 {
                     isValid = false;
                     _result.Message.Add($"The timeframe with id {timeframeId} not found");
                 }
                 if (isValid)
                 {
-                    _result.Result.Data = await _unitOfWork.GetRepository<TimeFrame>().GetById(timeframeId);
+                    _result.Result.Data = await _timeFrameRepository.GetById(timeframeId);
                 }
                 else
                 {
@@ -107,14 +113,14 @@ namespace YogaCenter.BackEnd.Service.Implementations
             try
             {
                 bool isValid = true;
-                if (await _unitOfWork.GetRepository<TimeFrame>().GetById(timeFrameDto.TimeFrameId) == null)
+                if (await _timeFrameRepository.GetById(timeFrameDto.TimeFrameId) == null)
                 {
                     isValid = false;
                     _result.Message.Add($"The timeframe with id {timeFrameDto.TimeFrameId} not found");
                 }
                 if (isValid)
                 {
-                    await _unitOfWork.GetRepository<TimeFrame>().Update(_mapper.Map<TimeFrame>(timeFrameDto));
+                    await _timeFrameRepository.Update(_mapper.Map<TimeFrame>(timeFrameDto));
                     _unitOfWork.SaveChange();
                     _result.Message.Add(SD.ResponseMessage.UPDATE_SUCCESSFUL);
                 }
@@ -136,7 +142,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
         {
             try
             {
-                var source = await _unitOfWork.GetRepository<TimeFrame>().GetAll();
+                var source = await _timeFrameRepository.GetAll();
                 int pageSize = filterRequest.pageSize;
                 if (pageSize <= 0) pageSize = SD.MAX_RECORD_PER_PAGE;
                 int totalPage = DataPresentationHelper.CalculateTotalPageSize(source.Count(), pageSize);
@@ -151,7 +157,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                     {
                         if (filterRequest.keyword != "")
                         {
-                            source = await _unitOfWork.GetRepository<TimeFrame>().GetListByExpression(c => c.TimeFrameName.Contains(filterRequest.keyword), null);
+                            source = await _timeFrameRepository.GetListByExpression(c => c.TimeFrameName.Contains(filterRequest.keyword), null);
                         }
                         if (filterRequest.filterInfoList != null)
                         {

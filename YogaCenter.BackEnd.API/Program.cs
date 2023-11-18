@@ -20,6 +20,7 @@ using YogaCenter.BackEnd.Service.Implementations;
 using YogaCenter.BackEnd.Service.Services;
 using OfficeOpenXml;
 using LicenseContext = OfficeOpenXml.LicenseContext;
+using Hangfire;
 
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 
@@ -93,6 +94,7 @@ builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IRoleService, RoleService>();
 
 builder.Services.AddScoped<IMessageService, MessageService>();
+builder.Services.AddScoped<IMessageRepository, MessageRepository>();
 
 builder.Services.AddScoped<IFileService, FileService>();
 builder.Services.AddScoped<IReportService, ReportService>();
@@ -105,8 +107,10 @@ builder.Services.AddScoped<IBlogRepository, BlogRepository>();
 builder.Services.AddScoped<IBlogService, BlogService>();
 
 builder.Services.AddScoped<WorkerService>();
+builder.Services.AddHangfire(x => x.UseSqlServerStorage(builder.Configuration.GetValue<string>("ConnectionStrings:DB")));
+builder.Services.AddHangfireServer();
 
-builder.Services.AddHostedService<WorkerService>();
+
 
 builder.Services.AddControllers();
 builder.Services.AddSignalR();
@@ -199,6 +203,9 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 
 app.UseAuthorization();
+
+app.UseHangfireDashboard();
+
 app.MapHub<ChatHub>("/chat");
 
 app.MapControllers();
