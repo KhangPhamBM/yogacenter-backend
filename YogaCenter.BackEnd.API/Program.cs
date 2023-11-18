@@ -47,6 +47,9 @@ ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
 
 builder.Services.AddScoped<IAccountRepository, AccountRepository>();
 builder.Services.AddScoped<IAccountService, AccountService>();
+builder.Services.AddScoped<IIdentityRoleRepository, IdentityRoleRepository>();
+builder.Services.AddScoped<IUserRoleRepository, UserRoleRepository>();
+
 
 builder.Services.AddScoped<IAttendanceRepository, AttendanceRepository>();
 builder.Services.AddScoped<IAttendanceService, AttendanceService>();
