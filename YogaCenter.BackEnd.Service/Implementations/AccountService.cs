@@ -21,6 +21,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using YogaCenter.BackEnd.DAL.Util;
 using YogaCenter.BackEnd.DAL.Common;
+using YogaCenter.BackEnd.DAL.Implementations;
 
 namespace YogaCenter.BackEnd.Service.Implementations
 {
@@ -163,6 +164,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
             var identityRoleRepository = Resolve<IIdentityRoleRepository>();
             try
             {
+                var identityRoleRepository =Resolve<IdentityRoleRepository>();
                 if (await _accountRepository.GetByExpression(r => r.UserName == signUpRequest.Email) != null)
                 {
                     _result.Message.Add("The email or username is existed");
