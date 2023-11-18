@@ -42,10 +42,12 @@ namespace YogaCenter.BackEnd.Service.Implementations
             try
             {
                 bool isValid = true;
-                var traineeRole = await _unitOfWork.GetRepository<IdentityRole>()
+                var userRoleRepository = Resolve<IUserRoleRepository>();
+                var identityRoleRepository = Resolve<IIdentityRoleRepository>();
+                var traineeRole = await identityRoleRepository
                     .GetByExpression(r => r.NormalizedName.ToLower().Equals("trainee"));
 
-                var trainerRole = await _unitOfWork.GetRepository<IdentityRole>()
+                var trainerRole = await identityRoleRepository
                     .GetByExpression(r => r.NormalizedName.ToLower().Equals("trainer"));
 
                 if (traineeRole == null || trainerRole == null)
@@ -129,11 +131,12 @@ namespace YogaCenter.BackEnd.Service.Implementations
             int total = 0;
             var applicationUserRepository = Resolve<IAccountRepository>();
             var classDetail = await _classDetailRepository.GetAll();
-
-            var traineeRole = await _unitOfWork.GetRepository<IdentityRole>()
+            var userRoleRepository = Resolve<IUserRoleRepository>();
+            var identityRoleRepository = Resolve<IIdentityRoleRepository>();
+            var traineeRole = await identityRoleRepository
                 .GetByExpression(r => r.NormalizedName.ToLower().Equals("trainee"));
 
-            var trainerRole = await _unitOfWork.GetRepository<IdentityRole>()
+            var trainerRole = await identityRoleRepository
                 .GetByExpression(r => r.NormalizedName.ToLower().Equals("trainer"));
 
             if (traineeRole == null || trainerRole == null || !classDetail.Any())
@@ -148,7 +151,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
             }
             foreach (var user in users)
             {
-                if (await _unitOfWork.GetRepository<IdentityUserRole<string>>()
+                if (await  userRoleRepository
                     .GetByExpression(r => r.RoleId == traineeRole.Id && r.UserId == user.Id, null) != null)
                 {
                     total++;
@@ -161,8 +164,11 @@ namespace YogaCenter.BackEnd.Service.Implementations
         {
             var scheduleRepository = Resolve<IScheduleRepository>();
             var timeframeRepository = Resolve<ITimeFrameRepository>();
+            var userRoleRepository = Resolve<IUserRoleRepository>();
+            var identityRoleRepository = Resolve<IIdentityRoleRepository>();
+            var accountRepository = Resolve<IAccountRepository>();
 
-            if (await _unitOfWork.GetRepository<IdentityUserRole<string>>()
+            if (await userRoleRepository
                 .GetByExpression(r => r.RoleId == traineeRole.Id && r.UserId == detail.UserId, null) != null)
             {
                 var classDetailList = await _classDetailRepository
@@ -171,7 +177,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 List<ApplicationUser> users = new List<ApplicationUser>();
                 foreach (var item in classDetailList)
                 {
-                    var user = await _unitOfWork.GetRepository<ApplicationUser>().GetById(item.UserId);
+                    var user = await accountRepository.GetById(item.UserId);
                     users.Add(user);
                 }
 
@@ -179,7 +185,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
 
                 foreach (var user in users)
                 {
-                    if (await _unitOfWork.GetRepository<IdentityUserRole<string>>()
+                    if (await userRoleRepository
                         .GetByExpression(r => r.RoleId == trainerRole.Id && r.UserId == user.Id, null) != null)
                     {
                         haveTrainer = true;
@@ -199,7 +205,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                     _result.Message.Add($"The trainee has been registed in this class with id {detail.ClassId}");
                 }
             }
-            else if (await _unitOfWork.GetRepository<IdentityUserRole<string>>()
+            else if (await userRoleRepository
                 .GetByExpression(r => r.RoleId == trainerRole.Id && r.UserId == detail.UserId, null) != null)
             {
                 var classDetail = await _classDetailRepository

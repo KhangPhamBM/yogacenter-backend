@@ -23,9 +23,11 @@ namespace YogaCenter.BackEnd.Service.Implementations
         private readonly AppActionResult _result;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly UserManager<ApplicationUser> _userManager;
+        private IIdentityRoleRepository _roleRepository;
 
 
         public RoleService(
+            IIdentityRoleRepository identityRoleRepository,
             IUnitOfWork unitOfWork,
             RoleManager<IdentityRole> roleManager, 
             UserManager<ApplicationUser> userManager,
@@ -36,6 +38,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
             _roleManager = roleManager;
             _result = new();
             _userManager = userManager;
+            _roleRepository = identityRoleRepository;
         }
 
         public async Task<AppActionResult> AssignRoleForUser(string userId, string roleName)
@@ -49,7 +52,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                     isValid = false;
                     _result.Message.Add($"The user with id {userId} not found");
                 }
-                if (await _unitOfWork.GetRepository<IdentityRole>().GetByExpression(r => r.Name.ToLower() == roleName.ToLower()) == null)
+                if (await _roleRepository.GetByExpression(r => r.Name.ToLower() == roleName.ToLower()) == null)
                 {
                     isValid = false;
                     _result.Message.Add($"The role with name {roleName} not found");
@@ -85,7 +88,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
             bool isValid = true;
             try
             {
-                if (await _unitOfWork.GetRepository<IdentityRole>().GetByExpression(r => r.Name.ToLower() == roleName.ToLower()) == null)
+                if (await _roleRepository.GetByExpression(r => r.Name.ToLower() == roleName.ToLower()) == null)
                 {
                     isValid = false;
                     _result.Message.Add($"The role with name {roleName} is existed");
@@ -121,7 +124,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
         {
             try
             {
-                _result.Result.Data = await _unitOfWork.GetRepository<IdentityRole>().GetAll();
+                _result.Result.Data = await _roleRepository.GetAll();
 
             }
             catch (Exception ex)
@@ -143,7 +146,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                     isValid = false;
                     _result.Message.Add($"The user with id {userId} not found");
                 }
-                if (await _unitOfWork.GetRepository<IdentityRole>().GetByExpression(r => r.Name.ToLower() == roleName.ToLower()) == null)
+                if (await _roleRepository.GetByExpression(r => r.Name.ToLower() == roleName.ToLower()) == null)
                 {
                     isValid = false;
                     _result.Message.Add($"The role with name {roleName} not found");
@@ -176,7 +179,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
             bool isValid = true;
             try
             {
-                if (await _unitOfWork.GetRepository<IdentityRole>().GetByExpression(r => r.Name.ToLower() == role.Name.ToLower()) == null)
+                if (await _roleRepository.GetByExpression(r => r.Name.ToLower() == role.Name.ToLower()) == null)
                 {
                     isValid = false;
                     _result.Message.Add($"The role with name {role.Name} not found");

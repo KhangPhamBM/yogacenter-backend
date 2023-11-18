@@ -53,13 +53,13 @@ namespace YogaCenter.BackEnd.Service.Services
             {
                 var _unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
                 var _emailService = scope.ServiceProvider.GetRequiredService<IEmailService>();
-
+                var subcriptionRepository = scope.ServiceProvider.GetRequiredService<ISubscriptionRepository>();
                 TimeZoneInfo vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
                 DateTime _vietnamTime = TimeZoneInfo.ConvertTime(DateTime.Now, vietnamTimeZone);
 
                 _logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
 
-                var list = await _unitOfWork.GetRepository<Subscription>().GetListByExpression(s => s.SubscriptionStatusId == SD.Subscription.PENDING, s => s.User, s => s.Class);
+                var list = await subcriptionRepository.GetListByExpression(s => s.SubscriptionStatusId == SD.Subscription.PENDING, s => s.User, s => s.Class);
 
                 foreach (var item in list)
                 {
