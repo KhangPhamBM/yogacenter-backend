@@ -21,11 +21,12 @@ The Yoga Center Management System backend API is built using the following techn
  - Entity Framework: Object-Relational Mapping (ORM) tool for database management.
  - Identity Framework: Manages users, passwords, profile data, roles, claims, tokens, email confirmation, and more.
  - VNPAY && Momo: Integration for online payment processing.
- - Worker Services: Background tasks and services.
+ - Hangfire: Background tasks.
  - SignalR: ASP.NET SignalR is a library for ASP.NET developers that simplifies the process of adding real-time web functionality to applications.
  - DinkToPDF: Create a report and export it to PDF.
  - OfficeOpenXml: The library support for processing data from Excel file
  - Google Authentication: Authenticate users by logging in with google. Use OAuth from Google.
+ - Firebase: The cloud storage 
 
 ## Screen-shots
 ![Swagger Page](https://github.com/duong-hong-quan/yogacenter-backend/blob/master/screenshots/Swagger.PNG)
