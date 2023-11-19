@@ -25,7 +25,7 @@ namespace YogaCenter.BackEnd.API.Controllers
         public AccountController(
             IAccountService accountService,
             SignInManager<ApplicationUser> signInManager,
-            IConfiguration configuration, IFileService fileService,)
+            IConfiguration configuration, IFileService fileService)
         {
             _accountService = accountService;
             _signInManager = signInManager;
