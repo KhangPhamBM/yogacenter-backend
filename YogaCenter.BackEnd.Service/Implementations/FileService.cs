@@ -1,18 +1,25 @@
 ﻿using DinkToPdf;
 using DinkToPdf.Contracts;
+using Firebase.Auth;
+using Firebase.Storage;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json.Linq;
 using NPOI.POIFS.Crypt.Dsig;
 using OfficeOpenXml;
 using Org.BouncyCastle.Asn1.Ocsp;
+using RestSharp;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using YogaCenter.BackEnd.Common.Dto;
+using YogaCenter.BackEnd.DAL.Models;
 using YogaCenter.BackEnd.Service.Contracts;
 
 
@@ -23,10 +30,14 @@ namespace YogaCenter.BackEnd.Service.Implementations
 
         private readonly IConverter _pdfConverter;
         private IReportService _reportService;
-        public FileService(IConverter pdfConverter, IReportService reportService)
+        private IConfiguration _configuration;
+        private AppActionResult _result;
+        public FileService(IConverter pdfConverter, IReportService reportService, IConfiguration configuration)
         {
             _pdfConverter = pdfConverter;
             _reportService = reportService;
+            _configuration = configuration;
+            _result = new();
         }
 
 
@@ -276,6 +287,62 @@ namespace YogaCenter.BackEnd.Service.Implementations
                     FileDownloadName = $"TemplateImport{nameExcel}.xlsx"
                 };
             }
+        }
+
+        public async Task<AppActionResult> UploadImageToFirebase(IFormFile file)
+        {
+            bool isValid = true;
+            if (file == null || file.Length == 0)
+            {
+                isValid = false;
+                _result.Message.Add("The file is empty");
+                
+            }
+            if(isValid)
+            {
+                using (var memoryStream = new MemoryStream())
+                {
+                    await file.CopyToAsync(memoryStream);
+                    var stream = new MemoryStream(memoryStream.ToArray());
+                    var auth = new FirebaseAuthProvider(new FirebaseConfig(_configuration["Firebase:ApiKey"]));
+
+                    var account = await auth.SignInWithEmailAndPasswordAsync(_configuration["Firebase:AuthEmail"], _configuration["Firebase:AuthPassword"]);
+                    var cancellation = new CancellationTokenSource();
+
+                    string destinationPath = $"images/{file.FileName}";
+
+
+                    var task = new FirebaseStorage(
+                    _configuration["Firebase:Bucket"],
+                    new FirebaseStorageOptions
+                    {
+                        AuthTokenAsyncFactory = () => Task.FromResult(account.FirebaseToken),
+                        ThrowOnCancel = true
+                    })
+                    .Child(destinationPath)
+                    .PutAsync(stream, cancellation.Token);
+                    if (task != null)
+                    {
+                        var client = new RestClient();
+                        string downloadToken = "";
+                        var request = new RestRequest(task.TargetUrl, Method.Get);
+                        RestResponse response = client.Execute(request);
+                        if (response.StatusCode == HttpStatusCode.OK)
+                        {
+                            JObject jmessage = JObject.Parse(response.Content);
+                            downloadToken = jmessage.GetValue("downloadTokens").ToString();
+                        }
+                     _result.Result.Data= $"https://firebasestorage.googleapis.com/v0/b/{_configuration["Firebase:Bucket"]}/o/images%2F{file.FileName}?alt=media&token={downloadToken}";
+                    }
+                    else
+                    {
+                        _result.isSuccess = false;
+                        _result.Message.Add("Upload failed");
+                    }
+                }
+            }
+            return _result;
+
         }
     }
 }

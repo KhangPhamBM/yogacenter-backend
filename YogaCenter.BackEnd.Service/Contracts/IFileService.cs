@@ -20,7 +20,7 @@ namespace YogaCenter.BackEnd.Service.Contracts
         public IActionResult GenerateTemplateExcel<T>(T dataList);
 
 
-
+        public Task<AppActionResult> UploadImageToFirebase(IFormFile file);
 
 
 

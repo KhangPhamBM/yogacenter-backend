@@ -18,7 +18,11 @@ namespace YogaCenter.BackEnd.API.Controllers
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly IConfiguration _configuration;
         private IFileService _fileService;
-        public AccountController(IAccountService accountService, SignInManager<ApplicationUser> signInManager, IConfiguration configuration, IFileService fileService)
+
+        public AccountController(
+            IAccountService accountService,
+            SignInManager<ApplicationUser> signInManager,
+            IConfiguration configuration, IFileService fileService)
         {
             _accountService = accountService;
             _signInManager = signInManager;
@@ -30,7 +34,7 @@ namespace YogaCenter.BackEnd.API.Controllers
 
         public async Task<AppActionResult> CreateAccount(SignUpRequestDto request)
         {
-            return await _accountService.CreateAccount(request,false);
+            return await _accountService.CreateAccount(request, false);
 
         }
 
@@ -148,7 +152,7 @@ namespace YogaCenter.BackEnd.API.Controllers
             {
                 var email = info.Principal.FindFirstValue(ClaimTypes.Email);
                 string code = await _accountService.GenerateVerifyCode(email);
-                if(code == string.Empty)
+                if (code == string.Empty)
                 {
                     SignUpRequestDto requestDto = new SignUpRequestDto()
                     {
@@ -156,7 +160,7 @@ namespace YogaCenter.BackEnd.API.Controllers
                         FirstName = info.Principal.FindFirstValue(ClaimTypes.GivenName),
                         LastName = info.Principal.FindFirstValue(ClaimTypes.Surname),
                         Password = "Abc123@",
-                        Role = new List<string>() { "trainee"}
+                        Role = new List<string>() { "trainee" }
                     };
                     await _accountService.CreateAccount(requestDto, true);
                     code = await _accountService.GenerateVerifyCodeGoogle(email);
@@ -167,7 +171,7 @@ namespace YogaCenter.BackEnd.API.Controllers
         }
         [AllowAnonymous]
         [HttpPost("verify-login-google/{email}/{verifyCode}")]
-        public async Task<AppActionResult> VerifyLoginGoogle(string email , string verifyCode)
+        public async Task<AppActionResult> VerifyLoginGoogle(string email, string verifyCode)
         {
             return await _accountService.VerifyLoginGoogle(email, verifyCode);
         }
@@ -177,6 +181,6 @@ namespace YogaCenter.BackEnd.API.Controllers
             return _fileService.GenerateTemplateExcel(new SignUpRequestDto());
         }
 
-        
+
     }
 }
