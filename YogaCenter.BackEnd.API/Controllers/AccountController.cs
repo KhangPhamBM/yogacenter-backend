@@ -1,7 +1,10 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Firebase.Auth;
+using Firebase.Storage;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System.IO;
 using System.Security.Claims;
 using YogaCenter.BackEnd.Common.Dto;
 using YogaCenter.BackEnd.DAL.Models;
@@ -22,7 +25,7 @@ namespace YogaCenter.BackEnd.API.Controllers
         public AccountController(
             IAccountService accountService,
             SignInManager<ApplicationUser> signInManager,
-            IConfiguration configuration, IFileService fileService)
+            IConfiguration configuration, IFileService fileService,)
         {
             _accountService = accountService;
             _signInManager = signInManager;
@@ -30,6 +33,7 @@ namespace YogaCenter.BackEnd.API.Controllers
             _fileService = fileService;
         }
 
+       
         [HttpPost("create-account")]
 
         public async Task<AppActionResult> CreateAccount(SignUpRequestDto request)

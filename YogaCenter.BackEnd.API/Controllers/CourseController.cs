@@ -22,10 +22,10 @@ namespace YogaCenter.BackEnd.API.Controllers
             _fileService = fileService;
         }
 
-        [HttpPost("create-course")]
+        [HttpPost("create-course")]  
         [Authorize(Roles = Permission.MANAGEMENT)]
 
-        public async Task<AppActionResult> CreateCourse(CourseDto course)
+        public async Task<AppActionResult> CreateCourse([FromForm] CourseDto course)
         {
             return await _courseService.CreateCourse(course);
         }
@@ -33,7 +33,7 @@ namespace YogaCenter.BackEnd.API.Controllers
         [HttpPut("update-course")]
         [Authorize(Roles = Permission.MANAGEMENT)]
 
-        public async Task<AppActionResult> UpdateCourse(CourseDto course)
+        public async Task<AppActionResult> UpdateCourse([FromForm] CourseDto course)
         {
             return await _courseService.UpdateCourse(course);
         }

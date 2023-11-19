@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -9,7 +10,7 @@ namespace YogaCenter.BackEnd.Common.Dto
 {
     public class CourseDto
     {
-        public int CourseId { get; set; }
+        public int? CourseId { get; set; }
         public string? CourseName { get; set; }  
         public string? CourseDescription { get; set; }
         public string? CourseImageUrl { get; set; }
@@ -17,5 +18,7 @@ namespace YogaCenter.BackEnd.Common.Dto
         public double? Discount { get; set; }
 
         public bool? IsDeleted { get; set; }
+        [Required]
+        public IFormFile CourseImage { get; set;}
     }
 }
