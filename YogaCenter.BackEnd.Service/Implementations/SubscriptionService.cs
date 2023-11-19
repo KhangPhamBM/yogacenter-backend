@@ -137,7 +137,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
 
         }
 
-        public async Task<AppActionResult> GetPaymentUrl(SubscriptionRequest Subscription, HttpContext context)
+        public async Task<AppActionResult> GetPaymentUrl(string subcriptionId, int choice,HttpContext context)
         {
             try
             {
@@ -149,13 +149,14 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 var subcriptionStatusRepository = Resolve<ISubscriptionStatusRepository>();
 
                 bool isValid = true;
-                if (Subscription.PaymentChoice != SD.PaymentType.VNPAY && Subscription.PaymentChoice != SD.PaymentType.MOMO && Subscription.PaymentChoice != 3)
+                var subcription = await _subscriptionRepository.GetById(subcriptionId);
+                if (choice != SD.PaymentType.VNPAY && choice != SD.PaymentType.MOMO && choice != 3)
                 {
                     _result.Message.Add("The API only support for VNPAY (1) and Momo (2) or add subcription with no payment (3)");
                     isValid = false;
                 }
 
-                if (await classRepository.GetById(Subscription.Subscription.ClassId) == null)
+                if (await classRepository.GetById(subcription.ClassId) == null)
                 {
 
                     _result.Message.Add("The class not found");
@@ -164,39 +165,39 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 else
                 {
                     if (DateTime.Now < classRepository
-                    .GetById(Subscription.Subscription.ClassId).Result.EndDate
+                    .GetById(subcription.ClassId).Result.EndDate
                     &&
                     await classDetailRepository
-                    .GetByExpression(c => c.UserId == Subscription.Subscription.UserId && c.ClassId == Subscription.Subscription.ClassId) != null)
+                    .GetByExpression(c => c.UserId == subcription.UserId && c.ClassId == subcription.ClassId) != null)
                     {
                         _result.Message.Add("This action was blocked because the trainee is studying a class which hasn't ended ");
                         isValid = false;
                     }
                 }
-                if (await accountRepository.GetById(Subscription.Subscription.UserId) == null)
+                if (await accountRepository.GetById(subcription.UserId) == null)
                 {
 
                     _result.Message.Add("The user not found");
                     isValid = false;
                 }
-                if (await subcriptionStatusRepository.GetById(Subscription.Subscription.SubscriptionStatusId) == null)
+                if (await subcriptionStatusRepository.GetById(subcription.SubscriptionStatusId) == null)
                 {
 
                     _result.Message.Add("The subscription status not found");
                     isValid = false;
                 }
-                if (await _subscriptionRepository.GetById(Subscription.Subscription.SubscriptionId) == null)
+                if (subcription == null)
                 {
 
-                    _result.Message.Add($"The subscription with id {Subscription.Subscription.SubscriptionId} not found. Please create subscription");
+                    _result.Message.Add($"The subscription with id {subcriptionId} not found. Please create subscription");
                     isValid = false;
                 }
 
                 if (isValid)
                 {
-                    var subscription = await _subscriptionRepository.GetById(Subscription.Subscription.SubscriptionId);
+                    var subscription = await _subscriptionRepository.GetById(subcriptionId);
 
-                    switch (Subscription.PaymentChoice)
+                    switch (choice)
                     {
                         case 1:
                             try
@@ -386,5 +387,6 @@ namespace YogaCenter.BackEnd.Service.Implementations
             return _result;
         }
 
+       
     }
 }

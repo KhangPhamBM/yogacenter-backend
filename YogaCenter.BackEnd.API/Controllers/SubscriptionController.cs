@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
 using YogaCenter.BackEnd.Common.Dto;
 using YogaCenter.BackEnd.Service.Contracts;
 using YogaCenter.BackEnd.Service.Implementations;
@@ -30,9 +31,9 @@ namespace YogaCenter.BackEnd.API.Controllers
         }
 
         [HttpPost("get-payment-url")]
-        public async Task<AppActionResult> GetPaymentUrl(SubscriptionRequest request)
+        public async Task<AppActionResult> GetPaymentUrl([Required]string subscriptionId, int choice)
         {
-            return await _subscriptionService.GetPaymentUrl(request, HttpContext);
+            return await _subscriptionService.GetPaymentUrl(subscriptionId, choice,HttpContext);
         }
 
         [HttpPost]

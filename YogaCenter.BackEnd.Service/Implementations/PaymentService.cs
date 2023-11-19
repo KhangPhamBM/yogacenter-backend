@@ -48,7 +48,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 PaymentInformationRequest momo = new PaymentInformationRequest
                 {
                     AccountID = subscriptionDto.UserId,
-                    Amount = (double)(course.Price * (100 - course.Discount) / 100),
+                    Amount = (double)((course.Price == null ? 0 : course.Price) * (100 - (course.Discount == null ? 0 : course.Discount)) / 100),
                     CustomerName = accountRepository.GetById(subscriptionDto.UserId).Result.FirstName,
                     OrderID = subscriptionDto.SubscriptionId
                 };
@@ -110,7 +110,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 var request = new RestRequest(endpoint, Method.Post);
                 request.AddJsonBody(message.ToString());
                 RestResponse response = client.Execute(request);
-                if (response.StatusCode == HttpStatusCode.OK)
+                    if (response.StatusCode == HttpStatusCode.OK)
                 {
                     JObject jmessage = JObject.Parse(response.Content);
                     connection = jmessage.GetValue("payUrl").ToString();
@@ -127,14 +127,15 @@ namespace YogaCenter.BackEnd.Service.Implementations
             var classRepository = Resolve<IClassRepository>();
             var courseRepository = Resolve<ICourseRepository>();
             var accountRepository = Resolve<IAccountRepository>();
-            var courseId = classRepository.GetByExpression(c => c.ClassId == subscriptionDto.ClassId).Result.CourseId;
+            var courseDB = await classRepository.GetByExpression(c => c.ClassId == subscriptionDto.ClassId);
+            var courseId = courseDB.CourseId;
             if (courseId != null)
             {
                 var course = await courseRepository.GetById(courseId);
                 PaymentInformationRequest model = new PaymentInformationRequest
                 {
                     AccountID = subscriptionDto.UserId,
-                    Amount = (double)(course.Price *(100 - course.Discount)/100),
+                    Amount = (double)((course.Price == null ? 0 : course.Price) * (100 - (course.Discount == null ? 0 : course.Discount)) / 100),
                     CustomerName = accountRepository.GetById(subscriptionDto.UserId).Result.FirstName,
                     OrderID = subscriptionDto.SubscriptionId
                 };
