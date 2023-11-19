@@ -21,6 +21,8 @@ using YogaCenter.BackEnd.Service.Services;
 using OfficeOpenXml;
 using LicenseContext = OfficeOpenXml.LicenseContext;
 using Hangfire;
+using Firebase.Storage;
+using Microsoft.Extensions.Configuration;
 
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 
@@ -37,6 +39,7 @@ builder.Services.AddDbContext<YogaCenterContext>(option =>
 });
 IMapper mapper = MappingConfig.RegisterMap().CreateMapper();
 builder.Services.AddSingleton(mapper);
+builder.Services.AddSingleton<FirebaseStorage>(_ => new FirebaseStorage(builder.Configuration.GetValue<string>("Firebase:Bucket")));
 
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
