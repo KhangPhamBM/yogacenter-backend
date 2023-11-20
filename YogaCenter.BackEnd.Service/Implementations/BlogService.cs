@@ -5,52 +5,62 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using YogaCenter.BackEnd.Common.Dto;
+using YogaCenter.BackEnd.Common.Dto.Request;
+using YogaCenter.BackEnd.Common.Dto.Response;
 using YogaCenter.BackEnd.DAL.Contracts;
-using YogaCenter.BackEnd.DAL.Implementations;
 using YogaCenter.BackEnd.DAL.Models;
 using YogaCenter.BackEnd.DAL.Util;
 using YogaCenter.BackEnd.Service.Contracts;
 
 namespace YogaCenter.BackEnd.Service.Implementations
 {
-    public class BlogService : GenericBackendService,IBlogService
+    public class BlogService : GenericBackendService, IBlogService
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IBlogRepository _blogRepository;
         private readonly IMapper _mapper;
         private readonly AppActionResult _result;
-        public BlogService(IUnitOfWork unitOfWork, IBlogRepository blogRepository, IMapper mapper, IServiceProvider serviceProvider):base(serviceProvider) {
+        public BlogService(IUnitOfWork unitOfWork, IBlogRepository blogRepository, IMapper mapper, IServiceProvider serviceProvider) : base(serviceProvider)
+        {
             _unitOfWork = unitOfWork;
             _blogRepository = blogRepository;
             _mapper = mapper;
             _result = new();
         }
-        public async Task<AppActionResult> CreateBlog(BlogDto Blog)
+        public async Task<AppActionResult> CreateBlog(BlogRequestDto blog)
         {
             try
             {
                 bool isValid = true;
-                var applicationUserRepository = Resolve<IAccountRepository>();
+                var accountRepository = Resolve<IAccountRepository>();
+                var fileService = Resolve<IFileService>();
 
-                if (await applicationUserRepository.GetById(Blog.UserId) == null)
+                if (await accountRepository.GetById(blog.UserId) == null)
                 {
                     isValid = false;
-                    _result.Message.Add($"User with id {Blog.UserId} not found");
+                    _result.Message.Add($"User with id {blog.UserId} not found");
                 }
 
-                if (await _blogRepository.GetByExpression(b => b.Title.Equals(Blog.Title)) != null)
+                if (await _blogRepository.GetByExpression(b => b.Title.Equals(blog.Title)) != null)
                 {
                     isValid = false;
                     _result.Message.Add($"Duplicated Title");
                 }
 
-                if(isValid)
+                if (isValid)
                 {
-                    await _blogRepository.Insert(_mapper.Map<Blog>(Blog));
+                    var blogDB = _mapper.Map<Blog>(blog);
+                    await _blogRepository.Insert(blogDB);
                     _unitOfWork.SaveChange();
+                    var pathName = SD.FirebasePathName.BLOG_PREFIX + blogDB.Id;
+                    var upload = await fileService.UploadImageToFirebase(blog.BlogImgFile, pathName);
+                    if (upload.isSuccess)
+                    {
+                        blogDB.BlogImg = pathName;
+                    }
                     _result.Message.Add(SD.ResponseMessage.CREATE_SUCCESSFUL);
-                } else
+                }
+                else
                 {
                     _result.isSuccess = false;
                 }
@@ -61,6 +71,10 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 _result.isSuccess = false;
                 _result.Message.Add(ex.Message);
             }
+            finally
+            {
+                _unitOfWork.SaveChange();
+            }
             return _result;
         }
 
@@ -69,8 +83,9 @@ namespace YogaCenter.BackEnd.Service.Implementations
             try
             {
                 bool isValid = true;
-
-                if (await _blogRepository.GetById(id) == null)
+                var fileService = Resolve<IFileService>();
+                var blogDB = await _blogRepository.GetById(id);
+                if (blogDB == null)
                 {
                     isValid = false;
                     _result.Message.Add($"Duplicated Title");
@@ -78,9 +93,14 @@ namespace YogaCenter.BackEnd.Service.Implementations
 
                 if (isValid)
                 {
-                    await _blogRepository.DeleteById(id);
-                    _unitOfWork.SaveChange();
-                    _result.Message.Add(SD.ResponseMessage.DELETE_SUCCESSFUL);
+                    var deleteFirebase = await fileService.DeleteImageFromFirebase(blogDB.BlogImg);
+                    if (deleteFirebase.isSuccess)
+                    {
+                        await _blogRepository.DeleteById(id);
+                        _unitOfWork.SaveChange();
+                        _result.Message.Add(SD.ResponseMessage.DELETE_SUCCESSFUL);
+                    }
+
                 }
                 else
                 {
@@ -104,12 +124,13 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 if (pageIndex <= 0) pageIndex = 1;
                 if (pageSize <= 0) pageSize = SD.MAX_RECORD_PER_PAGE;
                 int totalPage = DataPresentationHelper.CalculateTotalPageSize(blogs.Count(), pageSize);
-                if(sortInfos != null)
+                if (sortInfos != null)
                 {
                     blogs = DataPresentationHelper.ApplySorting(blogs, sortInfos);
                 }
 
-                if(pageIndex > 0 && pageSize > 0) {
+                if (pageIndex > 0 && pageSize > 0)
+                {
                     blogs = DataPresentationHelper.ApplyPaging(blogs, pageIndex, pageSize);
                 }
 
@@ -129,8 +150,8 @@ namespace YogaCenter.BackEnd.Service.Implementations
             try
             {
                 bool isValid = true;
-
-                if (await _blogRepository.GetById(id) == null)
+                var blog = await _blogRepository.GetById(id);
+                if (blog == null)
                 {
                     _result.Message.Add($"The Blog with id {id} not found");
                     isValid = false;
@@ -138,7 +159,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 }
                 if (isValid)
                 {
-                    _result.Result.Data = await _blogRepository.GetById(id);
+                    _result.Result.Data = blog;
                 }
                 else
                 {
@@ -174,7 +195,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                     {
                         if (filterRequest.keyword != "" && filterRequest.keyword != null)
                         {
-                            source = await _blogRepository.GetListByExpression(b => b.Title.Contains(filterRequest.keyword), null);
+                            source = await _unitOfWork.GetRepository<Blog>().GetListByExpression(b => b.Title.Contains(filterRequest.keyword), null);
                         }
                         if (filterRequest.filterInfoList != null)
                         {
@@ -206,21 +227,26 @@ namespace YogaCenter.BackEnd.Service.Implementations
             return _result;
         }
 
-        public async Task<AppActionResult> UpdateBlog(BlogDto Blog)
+        public async Task<AppActionResult> UpdateBlog(BlogRequestDto blog)
         {
             try
             {
                 bool isValid = true;
-                if (await _blogRepository.GetById(Blog.Id) == null)
+                var fileService = Resolve<IFileService>();
+                var blogDB = await _blogRepository.GetById(blog.Id);
+                if (blogDB == null)
                 {
-                    _result.Message.Add($"The blog with id {Blog.Id} not found");
+                    _result.Message.Add($"The blog with id {blog.Id} not found");
                     isValid = false;
 
                 }
-           
+
                 if (isValid)
                 {
-                    await _blogRepository.Update(_mapper.Map<Blog>(Blog));
+                    await fileService.DeleteImageFromFirebase(blogDB.BlogImg);
+                    await fileService.UploadImageToFirebase(blog.BlogImgFile, SD.FirebasePathName.BLOG_PREFIX + blogDB.Id);
+                    _mapper.Map(blog,blogDB);
+                    await _blogRepository.Update(blogDB);
                     _unitOfWork.SaveChange();
                     _result.Message.Add(SD.ResponseMessage.UPDATE_SUCCESSFUL);
                 }

@@ -4,7 +4,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using YogaCenter.BackEnd.Common.Dto;
+using YogaCenter.BackEnd.Common.Dto.Common;
+using YogaCenter.BackEnd.Common.Dto.Request;
+using YogaCenter.BackEnd.Common.Dto.Response;
 using YogaCenter.BackEnd.DAL.Models;
 
 namespace YogaCenter.BackEnd.DAL.Mapping
@@ -42,10 +44,9 @@ namespace YogaCenter.BackEnd.DAL.Mapping
                 .ForMember(desc => desc.ClassId, act => act.MapFrom(src => src.ClassId))
                   .ReverseMap();
 
-                config.CreateMap<CourseDto, Course>()
+                config.CreateMap<CourseRequestDto, Course>()
                .ForMember(desc => desc.CourseId, act => act.MapFrom(src => src.CourseId))
                .ForMember(desc => desc.CourseName, act => act.MapFrom(src => src.CourseName))
-               .ForMember(desc => desc.CourseImageUrl, act => act.MapFrom(src => src.CourseImageUrl))
                .ForMember(desc => desc.IsDeleted, act => act.MapFrom(src => src.IsDeleted))
                .ForMember(desc => desc.CourseDescription, act => act.MapFrom(src => src.CourseDescription))
                .ForMember(desc => desc.Price, act => act.MapFrom(src => src.Price))
@@ -132,7 +133,7 @@ namespace YogaCenter.BackEnd.DAL.Mapping
 
           .ReverseMap();
 
-                config.CreateMap<FeedbackDto, Feedback>()
+                config.CreateMap<FeedbackRequestDto, Feedback>()
                .ForMember(desc => desc.Id, act => act.MapFrom(src => src.Id))
                .ForMember(desc => desc.Content, act => act.MapFrom(src => src.Content))
                .ForMember(desc => desc.Rating, act => act.MapFrom(src => src.Rating))
@@ -140,13 +141,19 @@ namespace YogaCenter.BackEnd.DAL.Mapping
                .ReverseMap();
 
 
-                config.CreateMap<BlogDto, Blog>()
+                config.CreateMap<BlogResponseDto, Blog>()
                .ForMember(desc => desc.Id, act => act.MapFrom(src => src.Id))
                .ForMember(desc => desc.UserId, act => act.MapFrom(src => src.UserId))
                .ForMember(desc => desc.Content, act => act.MapFrom(src => src.Content))
                .ForMember(desc => desc.Title, act => act.MapFrom(src => src.Title))
                .ForMember(desc => desc.BlogImg, act => act.MapFrom(src => src.BlogImg))
                .ReverseMap();
+                config.CreateMap<BlogRequestDto, Blog>()
+              .ForMember(desc => desc.Id, act => act.MapFrom(src => src.Id))
+              .ForMember(desc => desc.UserId, act => act.MapFrom(src => src.UserId))
+              .ForMember(desc => desc.Content, act => act.MapFrom(src => src.Content))
+              .ForMember(desc => desc.Title, act => act.MapFrom(src => src.Title));
+
             });
             return mappingConfig;
         }

@@ -4,7 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using YogaCenter.BackEnd.Common.Dto;
+using YogaCenter.BackEnd.Common.Dto.Common;
+using YogaCenter.BackEnd.Common.Dto.Request;
 using YogaCenter.BackEnd.DAL.Contracts;
 using YogaCenter.BackEnd.DAL.Models;
 using YogaCenter.BackEnd.DAL.Util;
@@ -12,22 +13,16 @@ using YogaCenter.BackEnd.Service.Contracts;
 
 namespace YogaCenter.BackEnd.Service.Implementations
 {
-    public class TimeFrameService : GenericBackendService,ITimeFrameService
+    public class TimeFrameService : ITimeFrameService
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly AppActionResult _result;
-        private ITimeFrameRepository _timeFrameRepository;
-        public TimeFrameService
-            (IUnitOfWork unitOfWork, 
-            IMapper mapper, ITimeFrameRepository timeFrameRepository, 
-            IServiceProvider serviceProvider)
-            :base(serviceProvider)
+        public TimeFrameService(IUnitOfWork unitOfWork, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _result = new AppActionResult();
-            _timeFrameRepository = timeFrameRepository;
         }
         public async Task<TimeSpan[]> ConvertStringTimeFrameToTime(string timeFrame)
         {
@@ -56,14 +51,14 @@ namespace YogaCenter.BackEnd.Service.Implementations
             {
 
                 bool isValid = true;
-                if (await _timeFrameRepository.GetByExpression(t => t.TimeFrameName == timeFrameDto.TimeFrameName) != null)
+                if (await _unitOfWork.GetRepository<TimeFrame>().GetByExpression(t => t.TimeFrameName == timeFrameDto.TimeFrameName) != null)
                 {
                     isValid = false;
                     _result.Message.Add($"The timeframe with name {timeFrameDto.TimeFrameName} is existed");
                 }
                 if (isValid)
                 {
-                    await _timeFrameRepository.Insert(_mapper.Map<TimeFrame>(timeFrameDto));
+                    await _unitOfWork.GetRepository<TimeFrame>().Insert(_mapper.Map<TimeFrame>(timeFrameDto));
                     _unitOfWork.SaveChange();
                     _result.Message.Add(SD.ResponseMessage.CREATE_SUCCESSFUL);
                 }
@@ -85,14 +80,14 @@ namespace YogaCenter.BackEnd.Service.Implementations
             try
             {
                 bool isValid = true;
-                if (await _timeFrameRepository.GetById(timeframeId) == null)
+                if (await _unitOfWork.GetRepository<TimeFrame>().GetById(timeframeId) == null)
                 {
                     isValid = false;
                     _result.Message.Add($"The timeframe with id {timeframeId} not found");
                 }
                 if (isValid)
                 {
-                    _result.Result.Data = await _timeFrameRepository.GetById(timeframeId);
+                    _result.Result.Data = await _unitOfWork.GetRepository<TimeFrame>().GetById(timeframeId);
                 }
                 else
                 {
@@ -113,14 +108,14 @@ namespace YogaCenter.BackEnd.Service.Implementations
             try
             {
                 bool isValid = true;
-                if (await _timeFrameRepository.GetById(timeFrameDto.TimeFrameId) == null)
+                if (await _unitOfWork.GetRepository<TimeFrame>().GetById(timeFrameDto.TimeFrameId) == null)
                 {
                     isValid = false;
                     _result.Message.Add($"The timeframe with id {timeFrameDto.TimeFrameId} not found");
                 }
                 if (isValid)
                 {
-                    await _timeFrameRepository.Update(_mapper.Map<TimeFrame>(timeFrameDto));
+                    await _unitOfWork.GetRepository<TimeFrame>().Update(_mapper.Map<TimeFrame>(timeFrameDto));
                     _unitOfWork.SaveChange();
                     _result.Message.Add(SD.ResponseMessage.UPDATE_SUCCESSFUL);
                 }
@@ -142,7 +137,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
         {
             try
             {
-                var source = await _timeFrameRepository.GetAll();
+                var source = await _unitOfWork.GetRepository<TimeFrame>().GetAll();
                 int pageSize = filterRequest.pageSize;
                 if (pageSize <= 0) pageSize = SD.MAX_RECORD_PER_PAGE;
                 int totalPage = DataPresentationHelper.CalculateTotalPageSize(source.Count(), pageSize);
@@ -157,7 +152,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                     {
                         if (filterRequest.keyword != "")
                         {
-                            source = await _timeFrameRepository.GetListByExpression(c => c.TimeFrameName.Contains(filterRequest.keyword), null);
+                            source = await _unitOfWork.GetRepository<TimeFrame>().GetListByExpression(c => c.TimeFrameName.Contains(filterRequest.keyword), null);
                         }
                         if (filterRequest.filterInfoList != null)
                         {

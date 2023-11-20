@@ -5,7 +5,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
-using YogaCenter.BackEnd.Common.Dto;
+using YogaCenter.BackEnd.Common.Dto.Request;
 
 namespace YogaCenter.BackEnd.DAL.Util
 {

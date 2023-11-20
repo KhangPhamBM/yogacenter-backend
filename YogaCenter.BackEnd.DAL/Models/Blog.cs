@@ -17,6 +17,6 @@ namespace YogaCenter.BackEnd.DAL.Models
         public ApplicationUser? User { get; set; }
         public string Title { get; set; }
         public string Content { get; set; }
-        public string BlogImg { get; set; }
+        public string BlogImg { get; set; }= string.Empty;
     }
 }

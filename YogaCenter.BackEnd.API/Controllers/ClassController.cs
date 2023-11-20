@@ -2,7 +2,8 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
-using YogaCenter.BackEnd.Common.Dto;
+using YogaCenter.BackEnd.Common.Dto.Request;
+using YogaCenter.BackEnd.Common.Dto.Response;
 using YogaCenter.BackEnd.DAL.Models;
 using YogaCenter.BackEnd.DAL.Util;
 using YogaCenter.BackEnd.Service.Contracts;

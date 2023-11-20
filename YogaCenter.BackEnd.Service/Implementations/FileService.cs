@@ -10,6 +10,7 @@ using NPOI.POIFS.Crypt.Dsig;
 using OfficeOpenXml;
 using Org.BouncyCastle.Asn1.Ocsp;
 using RestSharp;
+using SixLabors.ImageSharp;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -18,7 +19,8 @@ using System.Net;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
-using YogaCenter.BackEnd.Common.Dto;
+using YogaCenter.BackEnd.Common.Dto.Request;
+using YogaCenter.BackEnd.Common.Dto.Response;
 using YogaCenter.BackEnd.DAL.Models;
 using YogaCenter.BackEnd.Service.Contracts;
 
@@ -261,7 +263,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 };
             }
         }
-             public IActionResult GenerateTemplateExcel<T>(T dataList)
+        public IActionResult GenerateTemplateExcel<T>(T dataList)
         {
             using (ExcelPackage package = new ExcelPackage())
             {
@@ -280,7 +282,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 var nameExcel = name[name.Length - 1];
                 if (nameExcel.Contains("Dto"))
                 {
-                    nameExcel = nameExcel.Substring(0,nameExcel.Length - 3); 
+                    nameExcel = nameExcel.Substring(0, nameExcel.Length - 3);
                 }
                 return new FileContentResult(excelBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
                 {
@@ -289,16 +291,16 @@ namespace YogaCenter.BackEnd.Service.Implementations
             }
         }
 
-        public async Task<AppActionResult> UploadImageToFirebase(IFormFile file)
+        public async Task<AppActionResult> UploadImageToFirebase(IFormFile file, string pathFileName)
         {
             bool isValid = true;
             if (file == null || file.Length == 0)
             {
                 isValid = false;
                 _result.Message.Add("The file is empty");
-                
+
             }
-            if(isValid)
+            if (isValid)
             {
                 using (var memoryStream = new MemoryStream())
                 {
@@ -309,7 +311,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                     var account = await auth.SignInWithEmailAndPasswordAsync(_configuration["Firebase:AuthEmail"], _configuration["Firebase:AuthPassword"]);
                     var cancellation = new CancellationTokenSource();
 
-                    string destinationPath = $"images/{file.FileName}";
+                    string destinationPath = $"{pathFileName}";
 
 
                     var task = new FirebaseStorage(
@@ -323,16 +325,8 @@ namespace YogaCenter.BackEnd.Service.Implementations
                     .PutAsync(stream, cancellation.Token);
                     if (task != null)
                     {
-                        var client = new RestClient();
-                        string downloadToken = "";
-                        var request = new RestRequest(task.TargetUrl, Method.Get);
-                        RestResponse response = client.Execute(request);
-                        if (response.StatusCode == HttpStatusCode.OK)
-                        {
-                            JObject jmessage = JObject.Parse(response.Content);
-                            downloadToken = jmessage.GetValue("downloadTokens").ToString();
-                        }
-                     _result.Result.Data= $"https://firebasestorage.googleapis.com/v0/b/{_configuration["Firebase:Bucket"]}/o/images%2F{file.FileName}?alt=media&token={downloadToken}";
+
+                        _result.Result.Data = await GetUrlImageFromFirebase(pathFileName);
                     }
                     else
                     {
@@ -343,6 +337,60 @@ namespace YogaCenter.BackEnd.Service.Implementations
             }
             return _result;
 
+        }
+
+        public async Task<string> GetUrlImageFromFirebase(string pathFileName)
+        {
+            string[] a = pathFileName.Split("/");
+            pathFileName = $"{a[0]}%2F{a[1]}";
+            string api = $"https://firebasestorage.googleapis.com/v0/b/yogacenter-44949.appspot.com/o?name={pathFileName}";
+            if (string.IsNullOrEmpty(pathFileName))
+            {
+                return string.Empty;
+            }
+            else
+            {
+                var client = new RestClient();
+                var request = new RestRequest(api, Method.Get);
+                RestResponse response = client.Execute(request);
+                if (response.StatusCode == HttpStatusCode.OK)
+                {
+                    JObject jmessage = JObject.Parse(response.Content);
+                    string downloadToken = jmessage.GetValue("downloadTokens").ToString();
+                    return $"https://firebasestorage.googleapis.com/v0/b/{_configuration["Firebase:Bucket"]}/o/{pathFileName}?alt=media&token={downloadToken}";
+
+                }
+            }
+
+            return string.Empty;
+        }
+
+        public async Task<AppActionResult> DeleteImageFromFirebase(string pathFileName)
+        {
+            try
+            {
+                var auth = new FirebaseAuthProvider(new FirebaseConfig(_configuration["Firebase:ApiKey"]));
+
+                var account = await auth.SignInWithEmailAndPasswordAsync(_configuration["Firebase:AuthEmail"], _configuration["Firebase:AuthPassword"]);
+                var cancellation = new CancellationTokenSource();
+
+                var storage = new FirebaseStorage(
+             _configuration["Firebase:Bucket"],
+             new FirebaseStorageOptions
+             {
+                 AuthTokenAsyncFactory = () => Task.FromResult(account.FirebaseToken),
+                 ThrowOnCancel = true
+             });
+                await storage
+                    .Child(pathFileName)
+                    .DeleteAsync();
+                _result.Message.Add("Delete image successful");
+            }
+            catch (FirebaseStorageException ex)
+            {
+                 _result.Message.Add($"Error deleting image: {ex.Message}");
+            }
+            return _result;
         }
     }
 }

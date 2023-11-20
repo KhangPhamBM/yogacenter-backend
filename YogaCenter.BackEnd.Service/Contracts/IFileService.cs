@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using YogaCenter.BackEnd.Common.Dto;
+using YogaCenter.BackEnd.Common.Dto.Request;
 
 namespace YogaCenter.BackEnd.Service.Contracts
 {
@@ -20,8 +20,10 @@ namespace YogaCenter.BackEnd.Service.Contracts
         public IActionResult GenerateTemplateExcel<T>(T dataList);
 
 
-        public Task<AppActionResult> UploadImageToFirebase(IFormFile file);
+        public Task<AppActionResult> UploadImageToFirebase(IFormFile file, string pathFileName);
+        public  Task<string> GetUrlImageFromFirebase(string pathFileName);
 
+        public Task<AppActionResult> DeleteImageFromFirebase( string pathFileName);
 
 
     }

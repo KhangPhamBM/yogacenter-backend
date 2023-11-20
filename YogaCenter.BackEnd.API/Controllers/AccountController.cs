@@ -1,9 +1,12 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Firebase.Auth;
+using Firebase.Storage;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System.IO;
 using System.Security.Claims;
-using YogaCenter.BackEnd.Common.Dto;
+using YogaCenter.BackEnd.Common.Dto.Request;
 using YogaCenter.BackEnd.DAL.Models;
 using YogaCenter.BackEnd.DAL.Util;
 using YogaCenter.BackEnd.Service.Contracts;
@@ -30,6 +33,7 @@ namespace YogaCenter.BackEnd.API.Controllers
             _fileService = fileService;
         }
 
+       
         [HttpPost("create-account")]
 
         public async Task<AppActionResult> CreateAccount(SignUpRequestDto request)
@@ -160,7 +164,7 @@ namespace YogaCenter.BackEnd.API.Controllers
                         FirstName = info.Principal.FindFirstValue(ClaimTypes.GivenName),
                         LastName = info.Principal.FindFirstValue(ClaimTypes.Surname),
                         Password = "Abc123@",
-                        Role = new List<string>() { "trainee" }
+                        RoleName = new List<string>() { "trainee" }
                     };
                     await _accountService.CreateAccount(requestDto, true);
                     code = await _accountService.GenerateVerifyCodeGoogle(email);

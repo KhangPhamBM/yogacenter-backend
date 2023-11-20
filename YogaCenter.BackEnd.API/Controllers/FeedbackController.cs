@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using YogaCenter.BackEnd.Common.Dto;
+using YogaCenter.BackEnd.Common.Dto.Request;
 using YogaCenter.BackEnd.DAL.Util;
 using YogaCenter.BackEnd.Service.Contracts;
 using YogaCenter.BackEnd.Service.Implementations;
@@ -21,7 +21,7 @@ namespace YogaCenter.BackEnd.API.Controllers
         [HttpPost("create-feedback")]
         [Authorize]
 
-        public async Task<AppActionResult> CreateFeedback(FeedbackDto feedback)
+        public async Task<AppActionResult> CreateFeedback(FeedbackRequestDto feedback)
         {
             return await _feedbackService.CreateFeedback(feedback);
         }
@@ -29,7 +29,7 @@ namespace YogaCenter.BackEnd.API.Controllers
         [HttpPut("update-feedback")]
         [Authorize]
 
-        public async Task<AppActionResult> UpdateFeedback(FeedbackDto feedback)
+        public async Task<AppActionResult> UpdateFeedback(FeedbackRequestDto feedback)
         {
             return await _feedbackService.UpdateFeedback(feedback);
         }
