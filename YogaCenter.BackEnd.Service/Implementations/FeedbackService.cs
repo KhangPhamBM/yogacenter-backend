@@ -6,19 +6,20 @@ using System.Text;
 using System.Threading.Tasks;
 using YogaCenter.BackEnd.Common.Dto.Request;
 using YogaCenter.BackEnd.DAL.Contracts;
+using YogaCenter.BackEnd.DAL.Implementations;
 using YogaCenter.BackEnd.DAL.Models;
 using YogaCenter.BackEnd.DAL.Util;
 using YogaCenter.BackEnd.Service.Contracts;
 
 namespace YogaCenter.BackEnd.Service.Implementations
 {
-    public class FeedbackService : IFeedbackService
+    public class FeedbackService : GenericBackendService, IFeedbackService
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IFeedbackRepository _feedbackRepository;
         private readonly IMapper _mapper;
         private readonly AppActionResult _result;
-        public FeedbackService(IUnitOfWork unitOfWork, IFeedbackRepository feedbackRepository, IMapper mapper)
+        public FeedbackService(IUnitOfWork unitOfWork, IFeedbackRepository feedbackRepository, IMapper mapper, IServiceProvider serviceProvider) : base(serviceProvider)
         {
             _unitOfWork = unitOfWork;
             _feedbackRepository = feedbackRepository;
@@ -29,8 +30,9 @@ namespace YogaCenter.BackEnd.Service.Implementations
         {
             try
             {
+                var classDetailRepository = Resolve<IClassDetailRepository>();
                 bool isValid = true;
-                var classDetailDB = await _unitOfWork.GetRepository<ClassDetail>().GetByExpression(f => f.UserId == feedback.UserId && f.ClassId == feedback.ClassId);
+                var classDetailDB = await classDetailRepository.GetByExpression(f => f.UserId == feedback.UserId && f.ClassId == feedback.ClassId);
                 if (classDetailDB == null)
                 {
                     isValid = false;
@@ -63,8 +65,8 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 {
                     var feedbackDb = _mapper.Map<Feedback>(feedback);
                     feedbackDb.ClassDetailId = classDetailDB.ClassDetailId;
-                    await _unitOfWork.GetRepository<Feedback>().Insert(feedbackDb);
-                    _unitOfWork.SaveChange();
+                    await _feedbackRepository.Insert(feedbackDb);
+                    await _unitOfWork.SaveChangeAsync();
                     _result.Message.Add(SD.ResponseMessage.CREATE_SUCCESSFUL);
                 }
                 else
@@ -87,7 +89,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
             {
                 bool isValid = true;
 
-                if (await _unitOfWork.GetRepository<Feedback>().GetById(id) == null)
+                if (await _feedbackRepository.GetById(id) == null)
                 {
                     isValid = false;
                     _result.Message.Add($"Duplicated Title");
@@ -95,8 +97,8 @@ namespace YogaCenter.BackEnd.Service.Implementations
 
                 if (isValid)
                 {
-                    await _unitOfWork.GetRepository<Feedback>().DeleteById(id);
-                    _unitOfWork.SaveChange();
+                    await _feedbackRepository.DeleteById(id);
+                    await _unitOfWork.SaveChangeAsync();
                     _result.Message.Add(SD.ResponseMessage.DELETE_SUCCESSFUL);
                 }
                 else
@@ -117,7 +119,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
         {
             try
             {
-                var feedbacks = await _unitOfWork.GetRepository<Feedback>().GetAll();
+                var feedbacks = await _feedbackRepository.GetAll();
                 if (pageIndex <= 0) pageIndex = 1;
                 if (pageSize <= 0) pageSize = SD.MAX_RECORD_PER_PAGE;
                 int totalPage = DataPresentationHelper.CalculateTotalPageSize(feedbacks.Count(), pageSize);
@@ -147,8 +149,8 @@ namespace YogaCenter.BackEnd.Service.Implementations
             try
             {
                 bool isValid = true;
-
-                if (await _unitOfWork.GetRepository<Feedback>().GetById(id) == null)
+                var feedbackDb = await _feedbackRepository.GetById(id);
+                if (feedbackDb == null)
                 {
                     _result.Message.Add($"The feedback with id {id} not found");
                     isValid = false;
@@ -156,7 +158,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 }
                 if (isValid)
                 {
-                    _result.Result.Data = await _unitOfWork.GetRepository<Feedback>().GetById(id);
+                    _result.Result.Data = feedbackDb;
                 }
                 else
                 {
@@ -175,7 +177,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
         {
             try
             {
-                var source = await _unitOfWork.GetRepository<Feedback>().GetAll();
+                var source = await _feedbackRepository.GetAll();
                 int pageIndex = filterRequest.pageIndex;
                 if (pageIndex <= 0) pageIndex = 1;
                 int pageSize = filterRequest.pageSize;
@@ -192,7 +194,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                     {
                         if (filterRequest.keyword != "" && filterRequest.keyword != null)
                         {
-                            source = await _unitOfWork.GetRepository<Feedback>().GetListByExpression(b => b.Content.Contains(filterRequest.keyword), null);
+                            source = await _feedbackRepository.GetListByExpression(b => b.Content.Contains(filterRequest.keyword), null);
                         }
                         if (filterRequest.filterInfoList != null)
                         {
@@ -229,7 +231,8 @@ namespace YogaCenter.BackEnd.Service.Implementations
             try
             {
                 bool isValid = true;
-                var classDetailDB = await _unitOfWork.GetRepository<ClassDetail>().GetByExpression(f => f.UserId == feedback.UserId && f.ClassId == feedback.ClassId);
+                var classDetailRepository = Resolve<IClassDetailRepository>();
+                var classDetailDB = await classDetailRepository.GetByExpression(f => f.UserId == feedback.UserId && f.ClassId == feedback.ClassId);
                 if (classDetailDB == null)
                 {
                     isValid = false;
@@ -262,8 +265,8 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 {
                     var feedbackDb = _mapper.Map<Feedback>(feedback);
                     feedbackDb.ClassDetailId = classDetailDB.ClassDetailId;
-                    await _unitOfWork.GetRepository<Feedback>().Update(_mapper.Map<Feedback>(feedbackDb));
-                    _unitOfWork.SaveChange();
+                    await _feedbackRepository.Update(_mapper.Map<Feedback>(feedbackDb));
+                    await _unitOfWork.SaveChangeAsync();
                     _result.Message.Add(SD.ResponseMessage.UPDATE_SUCCESSFUL);
                 }
                 else

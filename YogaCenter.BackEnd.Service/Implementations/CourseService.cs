@@ -53,7 +53,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 {
                     var courseDB = _mapper.Map<Course>(course);
                     await _courseRepository.Insert(courseDB);
-                    _unitOfWork.SaveChange();
+                    await _unitOfWork.SaveChangeAsync();
 
                     var pathFileName = SD.FirebasePathName.COURSE_PREFIX + $"{courseDB.CourseId}.jpg";
                     courseDB.CourseImageUrl = pathFileName;
@@ -78,7 +78,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
             }
             finally
             {
-                _unitOfWork.SaveChange();
+                await _unitOfWork.SaveChangeAsync();
             }
             return _result;
         }
@@ -99,14 +99,11 @@ namespace YogaCenter.BackEnd.Service.Implementations
 
                 if (isValid)
                 {
-                    var imgUrl = courseDB.CourseImageUrl;
-                    await fileService.DeleteImageFromFirebase(imgUrl);
-                    await fileService.UploadImageToFirebase(course.CourseImage, imgUrl);
+                    await fileService.DeleteImageFromFirebase(courseDB.CourseImageUrl);
+                    await fileService.UploadImageToFirebase(course.CourseImage, courseDB.CourseImageUrl);
                     _mapper.Map(course, courseDB);
-                    courseDB.CourseImageUrl = imgUrl;
                     await _courseRepository.Update(courseDB);
-                    _unitOfWork.SaveChange();
-
+                    await _unitOfWork.SaveChangeAsync();
                     _result.Message.Add(SD.ResponseMessage.UPDATE_SUCCESSFUL);
                 }
                 else
@@ -119,7 +116,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 _result.isSuccess = false;
                 _result.Message.Add(ex.Message);
             }
-           
+
             return _result;
         }
 
@@ -205,7 +202,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                     {
                         course.Result.IsDeleted = true;
                         await _courseRepository.Update(course.Result);
-                        _unitOfWork.SaveChange();
+                        await _unitOfWork.SaveChangeAsync();
                     }
                     else
                     {

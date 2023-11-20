@@ -78,7 +78,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                     {
                         await _attendanceRepository.Insert(_mapper.Map<Attendance>(attendance));
                     }
-                    _unitOfWork.SaveChange();
+                    await _unitOfWork.SaveChangeAsync();
 
                     _result.Message.Add(SD.ResponseMessage.CREATE_SUCCESSFUL);
 
@@ -211,7 +211,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                     {
                         await _attendanceRepository.Update(_mapper.Map<Attendance>(attendance));
                     }
-                    _unitOfWork.SaveChange();
+                    await _unitOfWork.SaveChangeAsync();
                     _result.Message.Add(SD.ResponseMessage.UPDATE_SUCCESSFUL);
                 }
                 else

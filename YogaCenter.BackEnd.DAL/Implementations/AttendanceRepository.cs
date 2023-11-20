@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,45 +15,54 @@ namespace YogaCenter.BackEnd.DAL.Implementations
 {
     public class AttendanceRepository : Repository<Attendance>, IAttendanceRepository
     {
-        private readonly IUnitOfWork _unitOfWork;
-        public AttendanceRepository(YogaCenterContext context, IUnitOfWork unitOfWork) : base(context)
+        private IServiceProvider _serviceProvider;
+        public AttendanceRepository(YogaCenterContext context,  IServiceProvider serviceProvider) : base(context)
         {
-            _unitOfWork = unitOfWork;
+            _serviceProvider = serviceProvider;
         }
 
         public async Task<Dictionary<int, IEnumerable<Attendance>>> GetAttendancesByClassId(int classId)
         {
-            var scheduleList = _unitOfWork.GetRepository<Schedule>().GetListByExpression(s => s.ClassId == classId);
-            var attendances = new Dictionary<int, IEnumerable<Attendance>>();
-            if (scheduleList.Result.Any())
+            using (var scope = _serviceProvider.CreateScope())
             {
-                foreach (var schedule in scheduleList.Result)
+                var scheduleRepository = scope.ServiceProvider.GetRequiredService<IScheduleRepository>();
+                var scheduleList = await scheduleRepository.GetListByExpression(s => s.ClassId == classId);
+                var attendances = new Dictionary<int, IEnumerable<Attendance>>();
+                if (scheduleList.Any())
                 {
-                    var attendance = _unitOfWork.GetRepository<Attendance>().GetListByExpression(a => a.ScheduleId == schedule.ScheduleId);
-                    attendances.Add((int)schedule.ClassId, (IEnumerable<Attendance>)await attendance);
+                    foreach (var schedule in scheduleList)
+                    {
+                        var attendance = await this.GetListByExpression(a => a.ScheduleId == schedule.ScheduleId);
+                        attendances.Add((int)schedule.ClassId, (IEnumerable<Attendance>)attendance);
+                    }
                 }
+                return attendances;
             }
-            return attendances;
+
         }
 
         public async Task<IEnumerable<Attendance>> GetAttendancesByScheduleId(int scheduleId)
         {
-            return await _unitOfWork.GetRepository<Attendance>().GetListByExpression(a => a.ScheduleId == scheduleId);
+            return await this.GetListByExpression(a => a.ScheduleId == scheduleId);
         }
 
         public async Task<Dictionary<int, IEnumerable<Attendance>>> GetAttendancesByUserId(string userId)
         {
-           var classDetails = await _unitOfWork.GetRepository<ClassDetail>().GetListByExpression(cd => cd.UserId == userId);
-           if(classDetails.Any()) {
-                var attandenceList = new Dictionary<int, IEnumerable<Attendance>>();
-                foreach (var classDetail in classDetails)
+            using (var scope = _serviceProvider.CreateScope())
+            {
+                var classRepository = scope.ServiceProvider.GetRequiredService<IClassDetailRepository>();
+                var classDetails = await classRepository.GetListByExpression(cd => cd.UserId == userId);
+                if (classDetails.Any())
                 {
-                    var attendanceOfEachClass = _unitOfWork.GetRepository<Attendance>().GetListByExpression(a => a.ClassDetailId == a.ClassDetailId);
-                //    attandenceList.Add((int)classDetail.ClassId, attendanceOfEachClass);
+                    var attandenceList = new Dictionary<int, IEnumerable<Attendance>>();
+                    foreach (var classDetail in classDetails)
+                    {
+                        var attendanceOfEachClass = await this.GetListByExpression(a => a.ClassDetailId == a.ClassDetailId);
+                    }
+                    return attandenceList;
                 }
-                return attandenceList;
-           }
-            return new Dictionary<int, IEnumerable<Attendance>>();
-       }
+                return new Dictionary<int, IEnumerable<Attendance>>();
+            }
+        }
     }
 }

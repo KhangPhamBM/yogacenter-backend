@@ -7,7 +7,7 @@ using YogaCenter.BackEnd.DAL.Models;
 
 namespace YogaCenter.BackEnd.DAL.Contracts
 {
-    public interface IClassRepository: IRepository<Class>
+    public interface IClassRepository : IRepository<Class>
     {
     }
 }

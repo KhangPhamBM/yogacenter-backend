@@ -129,7 +129,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
             }
             finally
             {
-                _unitOfWork.SaveChange();
+                await _unitOfWork.SaveChangeAsync();
 
             }
 
@@ -153,7 +153,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 user.RefreshToken = jwtService.GenerateRefreshToken();
             }
 
-            _unitOfWork.SaveChange();
+            await _unitOfWork.SaveChangeAsync();
             _tokenDto.Token = token;
             _tokenDto.RefreshToken = user.RefreshToken;
             _result.Result.Data = _tokenDto;
@@ -246,7 +246,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
             }
             finally
             {
-                _unitOfWork.SaveChange();
+                await _unitOfWork.SaveChangeAsync();
 
             }
             return _result;
@@ -265,7 +265,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 if (isValid)
                 {
                     await _accountRepository.Update(applicationUser);
-                    _unitOfWork.SaveChange();
+                    await _unitOfWork.SaveChangeAsync();
                     _result.Message.Add(SD.ResponseMessage.UPDATE_SUCCESSFUL);
                 }
             }
@@ -601,7 +601,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
             }
             finally
             {
-                _unitOfWork.SaveChange();
+                await _unitOfWork.SaveChangeAsync();
             }
             return _result;
         }
@@ -628,7 +628,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 {
                     user.IsVerified = true;
                     user.VerifyCode = null;
-                    _unitOfWork.SaveChange();
+                    await _unitOfWork.SaveChangeAsync();
                     _result.Message.Add("Active successfully");
                 }
             }
@@ -677,7 +677,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
             {
                 string code = Guid.NewGuid().ToString("N").Substring(0, 6);
                 user.VerifyCode = code;
-                _unitOfWork.SaveChange();
+                await _unitOfWork.SaveChangeAsync();
                 return code;
 
             }
@@ -691,7 +691,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
             {
                 string code = Guid.NewGuid().ToString("N").Substring(0, 6);
                 user.VerifyCode = code;
-                _unitOfWork.SaveChange();
+                await _unitOfWork.SaveChangeAsync();
                 return code;
 
             }
