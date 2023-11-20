@@ -125,7 +125,9 @@ namespace YogaCenter.BackEnd.Service.Implementations
             try
             {
                 bool isValid = true;
-                if (await _courseRepository.GetById(id) == null)
+                var courseDb = await _courseRepository.GetById(id);
+                var fileService = Resolve<IFileService>();
+                if (courseDb == null)
                 {
                     _result.Message.Add($"The course with id {id} not found");
                     isValid = false;
@@ -133,7 +135,8 @@ namespace YogaCenter.BackEnd.Service.Implementations
 
                 if (isValid)
                 {
-                    _result.Result.Data = await _courseRepository.GetById(id);
+                    courseDb.CourseImageUrl = await fileService.GetUrlImageFromFirebase(courseDb.CourseImageUrl);
+                    _result.Result.Data = courseDb;
                 }
                 else
                 {
@@ -154,6 +157,15 @@ namespace YogaCenter.BackEnd.Service.Implementations
             try
             {
                 var courseList = await _courseRepository.GetAll();
+                var fileService = Resolve<IFileService>();
+
+                var courses = Utility.ConvertIOrderQueryAbleToList(courseList);
+                foreach(var item in courses)
+                {
+                    item.CourseImageUrl = await fileService.GetUrlImageFromFirebase(item.CourseImageUrl);
+                }
+                courseList = Utility.ConvertListToIOrderedQueryable(courses);
+               
                 if (courseList.Any())
                 {
                     if (pageIndex <= 0) pageIndex = 1;

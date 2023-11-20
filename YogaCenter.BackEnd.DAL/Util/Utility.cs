@@ -72,6 +72,22 @@ namespace YogaCenter.BackEnd.DAL.Util
             }
         }
 
+        public static List<T> ConvertIOrderQueryAbleToList<T>(IOrderedQueryable<T> list)
+        {
+            List<T> parseList = new List<T>();
+            foreach (var item in list)
+            {
+                parseList.Add(item);
+            }
+            return parseList;
+        }
+
+        public static IOrderedQueryable<T> ConvertListToIOrderedQueryable<T>(List<T> list)
+        {
+            IOrderedQueryable<T> orderedQueryable = (IOrderedQueryable<T>)list.AsQueryable();
+            return orderedQueryable;
+        }
+
         public string ReadAppSettingsJson()
         {
             var appSettingsPath = Path.Combine(Directory.GetCurrentDirectory(), "appsettings.json");
