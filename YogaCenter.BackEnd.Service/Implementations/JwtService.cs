@@ -17,7 +17,7 @@ using YogaCenter.BackEnd.Service.Contracts;
 
 namespace YogaCenter.BackEnd.Service.Implementations
 {
-    public class JwtService : GenericBackendService,IJwtService
+    public class JwtService : GenericBackendService, IJwtService
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly UserManager<ApplicationUser> _userManager;
@@ -27,9 +27,9 @@ namespace YogaCenter.BackEnd.Service.Implementations
         public JwtService(
             IUnitOfWork unitOfWork,
             UserManager<ApplicationUser> userManager,
-            IConfiguration configuration, 
-            IServiceProvider serviceProvider) 
-            :base(serviceProvider)
+            IConfiguration configuration,
+            IServiceProvider serviceProvider)
+            : base(serviceProvider)
         {
             _unitOfWork = unitOfWork;
             _userManager = userManager;
@@ -106,7 +106,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 {
                     user.RefreshToken = GenerateRefreshToken();
                     user.RefreshTokenExpiryTime = DateTime.Now.AddDays(1);
-                    _unitOfWork.SaveChange();
+                    await _unitOfWork.SaveChangeAsync();
                     refreshTokenNew = user.RefreshToken;
                 }
                 else

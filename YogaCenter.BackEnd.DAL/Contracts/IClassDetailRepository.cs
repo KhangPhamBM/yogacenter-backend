@@ -8,10 +8,12 @@ using YogaCenter.BackEnd.DAL.Models;
 
 namespace YogaCenter.BackEnd.DAL.Contracts
 {
-    public interface IClassDetailRepository : IRepository<ClassDetail>
+    public interface IClassDetailRepository: IRepository<ClassDetail>
     {
-        Expression<Func<ClassDetail, bool>> GetClassDetailByUserId(string UserId);
-        Expression<Func<ClassDetail, bool>> GetByClassIdAndUserId(ClassDetail classDetail);
+        public Expression<Func<ClassDetail, bool>> GetByClassIdAndUserId(ClassDetail classDetail);
 
+
+        public Expression<Func<ClassDetail, bool>> GetClassDetailByUserId(string UserId);
+        
     }
 }

@@ -15,7 +15,7 @@ using YogaCenter.BackEnd.Service.Contracts;
 
 namespace YogaCenter.BackEnd.Service.Implementations
 {
-    public class SubscriptionService : GenericBackendService,ISubscriptionService
+    public class SubscriptionService : GenericBackendService, ISubscriptionService
     {
         private IUnitOfWork _unitOfWork;
         private IMapper _mapper;
@@ -25,7 +25,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
             IUnitOfWork unitOfWork,
             IMapper mapper, ISubscriptionRepository subscriptionRepository,
             IServiceProvider serviceProvider
-            ):base(serviceProvider)
+            ) : base(serviceProvider)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
@@ -88,11 +88,11 @@ namespace YogaCenter.BackEnd.Service.Implementations
                     var classDb = await classRepository.GetById(Subscription.Subscription.ClassId);
                     var course = await courseRepository.GetById(classDb.CourseId);
                     double total = 0;
-                    total = (double)(course.Price * (100 - course.Discount) / 100);
+                    total = (double)((course.Price == null ? 0 : course.Price) * (100 - (course.Discount == null ? 0 : course.Discount)) / 100);
                     Subscription.Subscription.Total = total;
 
                     var subscription = await _subscriptionRepository.Insert(_mapper.Map<Subscription>(Subscription.Subscription));
-                    _unitOfWork.SaveChange();
+                    await _unitOfWork.SaveChangeAsync();
 
                     switch (Subscription.PaymentChoice)
                     {
@@ -138,7 +138,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
 
         }
 
-        public async Task<AppActionResult> GetPaymentUrl(string subcriptionId, int choice,HttpContext context)
+        public async Task<AppActionResult> GetPaymentUrl(string subcriptionId, int choice, HttpContext context)
         {
             try
             {
@@ -259,7 +259,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 if (isValid)
                 {
                     await _subscriptionRepository.Update(_mapper.Map<Subscription>(Subscription));
-                    _unitOfWork.SaveChange();
+                    await _unitOfWork.SaveChangeAsync();
                     _result.Message.Add(SD.ResponseMessage.UPDATE_SUCCESSFUL);
                 }
                 else
@@ -324,7 +324,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                     Subscription subscription = await _subscriptionRepository.GetById(subcriptionId);
                     subscription.SubscriptionStatusId = status;
                     await _subscriptionRepository.Update(subscription);
-                    _unitOfWork.SaveChange();
+                    _unitOfWork.SaveChangeAsync();
                     _result.Message.Add(SD.ResponseMessage.UPDATE_SUCCESSFUL);
                 }
                 else

@@ -97,7 +97,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 if (isValid)
                 {
                     var classDetail = await _classDetailRepository.Insert(_mapper.Map<ClassDetail>(detail));
-                    _unitOfWork.SaveChange();
+                    await _unitOfWork.SaveChangeAsync();
                     foreach (var schedule in scheduleList)
                     {
                         await attendanceRepository
@@ -109,7 +109,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                             });
                     }
 
-                    _unitOfWork.SaveChange();
+                    await _unitOfWork.SaveChangeAsync();
                     _result.Message.Add(SD.ResponseMessage.CREATE_SUCCESSFUL);
                     _result.Result.Data = await _classDetailRepository
                         .GetByExpression(_classDetailRepository.GetClassDetailByUserId(detail.UserId));
@@ -152,7 +152,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
             }
             foreach (var user in users)
             {
-                if (await  userRoleRepository
+                if (await userRoleRepository
                     .GetByExpression(r => r.RoleId == traineeRole.Id && r.UserId == user.Id, null) != null)
                 {
                     total++;
@@ -246,7 +246,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
             try
             {
                 bool isValid = true;
-                var classRepository = Resolve<IClassRepository>();
+                var classRepository = Resolve<IClassDetailRepository>();
                 if (await classRepository.GetById(classId) == null)
                 {
                     isValid = false;

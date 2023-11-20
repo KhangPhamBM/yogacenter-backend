@@ -23,11 +23,11 @@ namespace YogaCenter.BackEnd.Service.Implementations
         private readonly AppActionResult _result;
         private IRoomRepository _roomRepository;
         public RoomService(
-            IUnitOfWork unitOfWork, 
-            IMapper mapper, 
-            IRoomRepository roomRepository, 
+            IUnitOfWork unitOfWork,
+            IMapper mapper,
+            IRoomRepository roomRepository,
             IServiceProvider serviceProvider)
-            :base(serviceProvider)
+            : base(serviceProvider)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
@@ -49,7 +49,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 if (isValid)
                 {
                     await _roomRepository.Insert(_mapper.Map<Room>(room));
-                    _unitOfWork.SaveChange();
+                    await _unitOfWork.SaveChangeAsync();
                     _result.Message.Add(SD.ResponseMessage.CREATE_SUCCESSFUL);
 
                 }
@@ -112,7 +112,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 if (isValid)
                 {
                     await _roomRepository.Update(_mapper.Map<Room>(room));
-                    _unitOfWork.SaveChange();
+                    await _unitOfWork.SaveChangeAsync();
                     _result.Message.Add(SD.ResponseMessage.UPDATE_SUCCESSFUL);
 
                 }

@@ -51,7 +51,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 {
                     var blogDB = _mapper.Map<Blog>(blog);
                     await _blogRepository.Insert(blogDB);
-                    _unitOfWork.SaveChange();
+                    await _unitOfWork.SaveChangeAsync();
                     var pathName = SD.FirebasePathName.BLOG_PREFIX + blogDB.Id;
                     var upload = await fileService.UploadImageToFirebase(blog.BlogImgFile, pathName);
                     if (upload.isSuccess)
@@ -73,7 +73,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
             }
             finally
             {
-                _unitOfWork.SaveChange();
+                await _unitOfWork.SaveChangeAsync();
             }
             return _result;
         }
@@ -97,7 +97,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                     if (deleteFirebase.isSuccess)
                     {
                         await _blogRepository.DeleteById(id);
-                        _unitOfWork.SaveChange();
+                        await _unitOfWork.SaveChangeAsync();
                         _result.Message.Add(SD.ResponseMessage.DELETE_SUCCESSFUL);
                     }
 
@@ -195,7 +195,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                     {
                         if (filterRequest.keyword != "" && filterRequest.keyword != null)
                         {
-                            source = await _unitOfWork.GetRepository<Blog>().GetListByExpression(b => b.Title.Contains(filterRequest.keyword), null);
+                            source = await _blogRepository.GetListByExpression(b => b.Title.Contains(filterRequest.keyword), null);
                         }
                         if (filterRequest.filterInfoList != null)
                         {
@@ -245,9 +245,9 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 {
                     await fileService.DeleteImageFromFirebase(blogDB.BlogImg);
                     await fileService.UploadImageToFirebase(blog.BlogImgFile, SD.FirebasePathName.BLOG_PREFIX + blogDB.Id);
-                    _mapper.Map(blog,blogDB);
+                    _mapper.Map(blog, blogDB);
                     await _blogRepository.Update(blogDB);
-                    _unitOfWork.SaveChange();
+                    await _unitOfWork.SaveChangeAsync();
                     _result.Message.Add(SD.ResponseMessage.UPDATE_SUCCESSFUL);
                 }
                 else

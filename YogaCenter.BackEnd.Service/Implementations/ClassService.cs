@@ -8,22 +8,23 @@ using System.Text;
 using System.Threading.Tasks;
 using YogaCenter.BackEnd.Common.Dto.Request;
 using YogaCenter.BackEnd.DAL.Contracts;
+using YogaCenter.BackEnd.DAL.Implementations;
 using YogaCenter.BackEnd.DAL.Models;
 using YogaCenter.BackEnd.DAL.Util;
 using YogaCenter.BackEnd.Service.Contracts;
 
 namespace YogaCenter.BackEnd.Service.Implementations
 {
-    public class ClassService : IClassService
+    public class ClassService : GenericBackendService, IClassService
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly IClassDetailRepository _classDetailRepository;
+        private readonly IClassRepository _classRepository;
         private readonly IMapper _mapper;
         private readonly AppActionResult _result;
-        public ClassService(IUnitOfWork unitOfWork, IClassDetailRepository classDetailRepository, IMapper mapper)
+        public ClassService(IUnitOfWork unitOfWork, IClassRepository classRepository, IMapper mapper, IServiceProvider serviceProvider) : base(serviceProvider)
         {
             _unitOfWork = unitOfWork;
-            _classDetailRepository = classDetailRepository;
+            _classRepository = classRepository;
             _mapper = mapper;
             _result = new();
         }
@@ -34,13 +35,14 @@ namespace YogaCenter.BackEnd.Service.Implementations
             try
             {
                 bool isValid = true;
-                if (await _unitOfWork.GetRepository<Course>().GetById(classDto.CourseId) == null)
+                var courseRepository = Resolve<ICourseRepository>();
+                if (await courseRepository.GetById(classDto.CourseId) == null)
                 {
                     _result.Message.Add($"The course with id {classDto.CourseId} not found");
                     isValid = false;
 
                 }
-                if (await _unitOfWork.GetRepository<Class>().GetByExpression(c => c.ClassName == classDto.ClassName) != null)
+                if (await _classRepository.GetByExpression(c => c.ClassName == classDto.ClassName) != null)
                 {
                     _result.Message.Add($"The class with name {classDto.CourseId} is exist");
                     isValid = false;
@@ -49,8 +51,8 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 if (isValid)
                 {
 
-                    await _unitOfWork.GetRepository<Class>().Insert(_mapper.Map<Class>(classDto));
-                    _unitOfWork.SaveChange();
+                    await _classRepository.Insert(_mapper.Map<Class>(classDto));
+                    await _unitOfWork.SaveChangeAsync();
                     _result.Message.Add(SD.ResponseMessage.CREATE_SUCCESSFUL);
                 }
                 else
@@ -72,8 +74,8 @@ namespace YogaCenter.BackEnd.Service.Implementations
             try
             {
                 bool isValid = true;
-
-                if (await _unitOfWork.GetRepository<Class>().GetById(classId) == null)
+                var classDB = await _classRepository.GetById(classId);
+                if (classDB == null)
                 {
                     _result.Message.Add($"The class with id {classId} not found");
                     isValid = false;
@@ -81,7 +83,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 }
                 if (isValid)
                 {
-                    _result.Result.Data = await _unitOfWork.GetRepository<Class>().GetById(classId);
+                    _result.Result.Data = classDB;
                 }
                 else
                 {
@@ -101,13 +103,14 @@ namespace YogaCenter.BackEnd.Service.Implementations
             try
             {
                 bool isValid = true;
-                if (await _unitOfWork.GetRepository<Course>().GetById(classDto.CourseId) == null)
+                var courseRepository = Resolve<ICourseRepository>();
+                if (await courseRepository.GetById(classDto.CourseId) == null)
                 {
                     _result.Message.Add($"The course with id {classDto.CourseId} not found");
                     isValid = false;
 
                 }
-                if (await _unitOfWork.GetRepository<Class>().GetById(classDto.ClassId) == null)
+                if (await _classRepository.GetById(classDto.ClassId) == null)
                 {
                     _result.Message.Add($"The class with id {classDto.ClassId} not found");
                     isValid = false;
@@ -115,8 +118,8 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 }
                 if (isValid)
                 {
-                    await _unitOfWork.GetRepository<Class>().Update(_mapper.Map<Class>(classDto));
-                    _unitOfWork.SaveChange();
+                    await _classRepository.Update(_mapper.Map<Class>(classDto));
+                await    _unitOfWork.SaveChangeAsync();
                     _result.Message.Add(SD.ResponseMessage.UPDATE_SUCCESSFUL);
                 }
                 else
@@ -136,7 +139,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
         {
             try
             {
-                var classes = await _unitOfWork.GetRepository<Class>().GetAll();
+                var classes = await _classRepository.GetAll();
                 if (pageIndex <= 0) pageIndex = 1;
                 if (pageSize <= 0) pageSize = SD.MAX_RECORD_PER_PAGE;
                 int totalPage = DataPresentationHelper.CalculateTotalPageSize(classes.Count(), pageSize);
@@ -163,7 +166,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
         {
             try
             {
-                var classes = await _unitOfWork.GetRepository<Class>().GetListByExpression(c => c.IsDeleted == false, null);
+                var classes = await _classRepository.GetListByExpression(c => c.IsDeleted == false, null);
                 if (pageIndex <= 0) pageIndex = 1;
                 if (pageSize <= 0) pageSize = SD.MAX_RECORD_PER_PAGE;
                 int totalPage = DataPresentationHelper.CalculateTotalPageSize(classes.Count(), pageSize);

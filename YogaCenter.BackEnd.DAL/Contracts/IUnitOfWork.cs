@@ -8,9 +8,8 @@ namespace YogaCenter.BackEnd.DAL.Contracts
 {
     public interface IUnitOfWork 
     {
-        IRepository<TEntity> GetRepository<TEntity>() where TEntity : class;
 
-       void SaveChange();
+       Task SaveChangeAsync();
 
     }
 }

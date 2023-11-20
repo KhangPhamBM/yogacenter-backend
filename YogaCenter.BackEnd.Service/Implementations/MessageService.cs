@@ -12,7 +12,7 @@ using YogaCenter.BackEnd.Service.Contracts;
 
 namespace YogaCenter.BackEnd.Service.Implementations
 {
-    public class MessageService : GenericBackendService,IMessageService
+    public class MessageService : GenericBackendService, IMessageService
     {
         private readonly IUnitOfWork _unitOfWork;
         private IMapper _mapper;
@@ -21,10 +21,10 @@ namespace YogaCenter.BackEnd.Service.Implementations
 
         public MessageService(
             IUnitOfWork unitOfWork,
-            IMapper mapper, 
+            IMapper mapper,
             IMessageRepository messageRepository,
             IServiceProvider serviceProvider)
-            :base(serviceProvider) 
+            : base(serviceProvider)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
@@ -48,7 +48,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 {
                     message.isDeleted = true;
                     await _messageRepository.Update(message);
-                    _unitOfWork.SaveChange();
+                    await _unitOfWork.SaveChangeAsync();
                 }
 
             }
@@ -65,7 +65,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
             try
             {
                 bool isValid = true;
-                var classRepository = Resolve<IClassRepository>();
+                var classRepository = Resolve<IClassDetailRepository>();
                 if (await classRepository.GetById(classId) == null)
                 {
                     isValid = false;
@@ -124,7 +124,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                         ClassDetailId = (int)(classDetail?.ClassDetailId),
                     };
                     await _messageRepository.Insert(message);
-                    _unitOfWork.SaveChange();
+                    await _unitOfWork.SaveChangeAsync();
                     message.MessageContent = EncryptionHelper.Decrypt(message.MessageContent);
                     _result.Result.Data = message;
                     _result.Message.Add(SD.ResponseMessage.CREATE_SUCCESSFUL);
