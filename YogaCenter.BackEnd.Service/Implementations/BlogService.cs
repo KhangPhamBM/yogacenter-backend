@@ -120,7 +120,15 @@ namespace YogaCenter.BackEnd.Service.Implementations
         {
             try
             {
+                var fileService = Resolve<IFileService>();
                 var blogs = await _blogRepository.GetAll();
+
+               var blogList = Utility.ConvertIOrderQueryAbleToList(blogs);
+                foreach( var blog in blogList)
+                {
+                    blog.BlogImg = await fileService.GetUrlImageFromFirebase(blog.BlogImg);
+                }
+                blogs = Utility.ConvertListToIOrderedQueryable(blogList);
                 if (pageIndex <= 0) pageIndex = 1;
                 if (pageSize <= 0) pageSize = SD.MAX_RECORD_PER_PAGE;
                 int totalPage = DataPresentationHelper.CalculateTotalPageSize(blogs.Count(), pageSize);
@@ -149,6 +157,8 @@ namespace YogaCenter.BackEnd.Service.Implementations
         {
             try
             {
+                var fileService = Resolve<IFileService>();
+
                 bool isValid = true;
                 var blog = await _blogRepository.GetById(id);
                 if (blog == null)
@@ -159,6 +169,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 }
                 if (isValid)
                 {
+                    blog.BlogImg = await fileService.GetUrlImageFromFirebase(blog.BlogImg);
                     _result.Result.Data = blog;
                 }
                 else
