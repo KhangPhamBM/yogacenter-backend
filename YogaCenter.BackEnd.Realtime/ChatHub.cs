@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.SignalR;
-using YogaCenter.BackEnd.Common.Dto;
+using YogaCenter.BackEnd.Common.Dto.Request;
 using YogaCenter.BackEnd.DAL.Contracts;
 using YogaCenter.BackEnd.Service.Contracts;
 

@@ -5,7 +5,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using YogaCenter.BackEnd.Common.Dto;
+using YogaCenter.BackEnd.Common.Dto.Common;
+using YogaCenter.BackEnd.Common.Dto.Request;
 using YogaCenter.BackEnd.DAL.Contracts;
 using YogaCenter.BackEnd.DAL.Implementations;
 using YogaCenter.BackEnd.DAL.Models;
@@ -387,6 +388,9 @@ namespace YogaCenter.BackEnd.Service.Implementations
             return _result;
         }
 
-       
+        public Task<AppActionResult> GetPaymentUrl(SubscriptionRequest Subscription, HttpContext context)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

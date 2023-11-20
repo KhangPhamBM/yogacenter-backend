@@ -191,8 +191,10 @@ namespace YogaCenter.BackEnd.DAL.Util
         public class FirebasePathName
         {
             public static string COURSE_PREFIX = "course/";
+            public static string BLOG_PREFIX = "blog/";
+
         }
-        
+
     }
 
 }

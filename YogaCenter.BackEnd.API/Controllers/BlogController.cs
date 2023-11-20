@@ -1,7 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using YogaCenter.BackEnd.Common.Dto;
+using YogaCenter.BackEnd.Common.Dto.Request;
+using YogaCenter.BackEnd.Common.Dto.Response;
 using YogaCenter.BackEnd.DAL.Util;
 using YogaCenter.BackEnd.Service.Contracts;
 using YogaCenter.BackEnd.Service.Implementations;
@@ -23,7 +24,7 @@ namespace YogaCenter.BackEnd.API.Controllers
         [HttpPost("create-blog")]
         [Authorize(Roles = Permission.MANAGEMENT)]
 
-        public async Task<AppActionResult> CreateBlog(BlogDto Blog)
+        public async Task<AppActionResult> CreateBlog([FromForm]BlogRequestDto Blog)
         {
             return await _blogService.CreateBlog(Blog);
         }
@@ -31,7 +32,7 @@ namespace YogaCenter.BackEnd.API.Controllers
         [HttpPut("update-blog")]
         [Authorize(Roles = Permission.MANAGEMENT)]
 
-        public async Task<AppActionResult> UpdateBlog(BlogDto Blog)
+        public async Task<AppActionResult> UpdateBlog([FromForm] BlogRequestDto Blog)
         {
             return await _blogService.UpdateBlog(Blog);
         }
@@ -65,7 +66,7 @@ namespace YogaCenter.BackEnd.API.Controllers
         [HttpPost("export-template")]
         public IActionResult ExportTemplate()
         {
-            return _fileService.GenerateTemplateExcel(new BlogDto());
+            return _fileService.GenerateTemplateExcel(new BlogResponseDto());
         }
     }
 }

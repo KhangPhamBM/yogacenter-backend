@@ -6,7 +6,7 @@ using OfficeOpenXml;
 using NPOI.POIFS.Crypt.Dsig;
 using YogaCenter.BackEnd.Service.Contracts;
 using YogaCenter.BackEnd.DAL.Util;
-using YogaCenter.BackEnd.Common.Dto;
+using YogaCenter.BackEnd.Common.Dto.Response;
 
 namespace YogaCenter.BackEnd.API.Controllers
 {

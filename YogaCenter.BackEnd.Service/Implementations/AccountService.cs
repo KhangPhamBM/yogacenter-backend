@@ -7,7 +7,6 @@ using System.Text;
 using System.Text.Json.Serialization;
 using System.Text.Json;
 using System.Threading.Tasks;
-using YogaCenter.BackEnd.Common.Dto;
 using YogaCenter.BackEnd.DAL.Contracts;
 using YogaCenter.BackEnd.DAL.Models;
 using YogaCenter.BackEnd.Service.Contracts;
@@ -22,6 +21,8 @@ using System.Security.Claims;
 using YogaCenter.BackEnd.DAL.Util;
 using YogaCenter.BackEnd.DAL.Common;
 using YogaCenter.BackEnd.DAL.Implementations;
+using YogaCenter.BackEnd.Common.Dto.Request;
+using YogaCenter.BackEnd.Common.Dto.Response;
 
 namespace YogaCenter.BackEnd.Service.Implementations
 {
@@ -171,7 +172,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                     isValid = false;
 
                 }
-                foreach (var role in signUpRequest.Role)
+                foreach (var role in signUpRequest.RoleName)
                 {
                     if (await identityRoleRepository.GetById(role) == null)
                     {
@@ -218,7 +219,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
 
                     }
 
-                    foreach (var role in signUpRequest.Role)
+                    foreach (var role in signUpRequest.RoleName)
                     {
                         var roleDB = await identityRoleRepository.GetByExpression(r => r.Name.ToLower() == role.ToLower());
                         var resultCreateRole = await _userManager.AddToRoleAsync(user, roleDB.NormalizedName);

@@ -5,7 +5,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using YogaCenter.BackEnd.Common.Dto;
+using YogaCenter.BackEnd.Common.Dto.Request;
+using YogaCenter.BackEnd.Common.Dto.Response;
 using YogaCenter.BackEnd.DAL.Contracts;
 using YogaCenter.BackEnd.DAL.Models;
 using YogaCenter.BackEnd.DAL.Util;
@@ -56,7 +57,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 report.ReportMonths.Add(
                     new ReportDto.ReportMonth()
                     {
-                        Course = _mapper.Map<CourseDto>(course),
+                        Course = _mapper.Map<CourseRequestDto>(course),
                         Classes = _mapper.Map<IEnumerable<ClassDto>>(await classRepository.GetListByExpression(c => c.CourseId == course.CourseId, null)),
                         Total = total
                     }) ;

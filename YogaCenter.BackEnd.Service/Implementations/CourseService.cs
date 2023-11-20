@@ -10,7 +10,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
-using YogaCenter.BackEnd.Common.Dto;
+using YogaCenter.BackEnd.Common.Dto.Request;
 using YogaCenter.BackEnd.DAL.Contracts;
 using YogaCenter.BackEnd.DAL.Models;
 using YogaCenter.BackEnd.DAL.Util;
@@ -38,7 +38,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
             _result = new AppActionResult();
         }
 
-        public async Task<AppActionResult> CreateCourse(CourseDto course)
+        public async Task<AppActionResult> CreateCourse(CourseRequestDto course)
         {
             try
             {
@@ -83,7 +83,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
             return _result;
         }
 
-        public async Task<AppActionResult> UpdateCourse(CourseDto course)
+        public async Task<AppActionResult> UpdateCourse(CourseRequestDto course)
         {
             try
             {

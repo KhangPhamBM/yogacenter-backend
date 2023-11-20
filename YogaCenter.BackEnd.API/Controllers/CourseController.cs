@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using YogaCenter.BackEnd.Common.Dto;
+using YogaCenter.BackEnd.Common.Dto.Request;
 using YogaCenter.BackEnd.DAL.Models;
 using YogaCenter.BackEnd.DAL.Util;
 using YogaCenter.BackEnd.Service.Contracts;
@@ -25,7 +25,7 @@ namespace YogaCenter.BackEnd.API.Controllers
         [HttpPost("create-course")]  
         [Authorize(Roles = Permission.MANAGEMENT)]
 
-        public async Task<AppActionResult> CreateCourse([FromForm] CourseDto course)
+        public async Task<AppActionResult> CreateCourse([FromForm] CourseRequestDto course)
         {
             return await _courseService.CreateCourse(course);
         }
@@ -33,7 +33,7 @@ namespace YogaCenter.BackEnd.API.Controllers
         [HttpPut("update-course")]
         [Authorize(Roles = Permission.MANAGEMENT)]
 
-        public async Task<AppActionResult> UpdateCourse([FromForm] CourseDto course)
+        public async Task<AppActionResult> UpdateCourse([FromForm] CourseRequestDto course)
         {
             return await _courseService.UpdateCourse(course);
         }
@@ -68,7 +68,7 @@ namespace YogaCenter.BackEnd.API.Controllers
         [HttpPost("export-template")]
         public IActionResult ExportTemplate()
         {
-            return _fileService.GenerateTemplateExcel(new CourseDto());
+            return _fileService.GenerateTemplateExcel(new CourseRequestDto());
         }
     }
 }

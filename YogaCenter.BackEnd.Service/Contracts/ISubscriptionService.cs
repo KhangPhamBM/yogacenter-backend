@@ -4,7 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using YogaCenter.BackEnd.Common.Dto;
+using YogaCenter.BackEnd.Common.Dto.Common;
+using YogaCenter.BackEnd.Common.Dto.Request;
 using YogaCenter.BackEnd.DAL.Models;
 
 namespace YogaCenter.BackEnd.Service.Contracts
@@ -12,7 +13,7 @@ namespace YogaCenter.BackEnd.Service.Contracts
     public interface ISubscriptionService : ISearching<Subscription>
     {
         Task<AppActionResult> CreateSubscription(SubscriptionRequest Subscription, HttpContext context);
-        Task<AppActionResult> GetPaymentUrl(string subcriptionId, int choice,HttpContext context);
+        public Task<AppActionResult> GetPaymentUrl(string subcriptionId, int choice, HttpContext context);
 
         Task<AppActionResult> UpdateSubscription(SubscriptionDto Subscription);
 
