@@ -213,6 +213,11 @@ app.UseHangfireDashboard();
 app.MapHub<ChatHub>("/chat");
 
 app.MapControllers();
-
+using (var scope = app.Services.CreateScope())
+{
+    var serviceProvider = scope.ServiceProvider;
+    var workerService = serviceProvider.GetRequiredService<WorkerService>();
+    workerService.Start();
+}
 app.Run();
 

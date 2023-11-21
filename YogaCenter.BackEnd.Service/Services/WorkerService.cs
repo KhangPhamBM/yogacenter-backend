@@ -14,61 +14,46 @@ using YogaCenter.BackEnd.DAL.Data;
 using YogaCenter.BackEnd.DAL.Models;
 using YogaCenter.BackEnd.DAL.Util;
 using YogaCenter.BackEnd.Service.Contracts;
+using YogaCenter.BackEnd.Service.Implementations;
 
 namespace YogaCenter.BackEnd.Service.Services
 {
-    public class WorkerService
+    public class WorkerService : GenericBackendService
     {
         private static ILogger<WorkerService> _logger;
-        private IServiceProvider _serviceProvider;
 
-        public WorkerService(ILogger<WorkerService> logger, IServiceProvider serviceProvider)
+        public WorkerService(ILogger<WorkerService> logger, IServiceProvider serviceProvider) : base(serviceProvider)
         {
             _logger = logger;
-            _serviceProvider = serviceProvider;
         }
 
 
-        /*
-       Trong đó:
-       0: Phút (chạy vào phút thứ 0 của mỗi giờ).
-       12: Giờ (chạy vào giờ 12 trưa).
-       *: Mỗi ngày trong tháng.
-       *: Mọi tháng.
-       *: Mọi ngày trong tuần.
-       */
-
-        [Obsolete]
-        public void Main()
+        public void Start()
         {
-
             TimeZoneInfo vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
-            RecurringJob.AddOrUpdate(() => PaymentReminder(), Cron.Daily, vietnamTimeZone);
+
+
+            RecurringJob.AddOrUpdate(() => PaymentReminder(), Cron.DayInterval(1), vietnamTimeZone);
 
         }
 
         public async Task PaymentReminder()
         {
-            using (var scope = _serviceProvider.CreateScope())
+            var _unitOfWork = Resolve<IUnitOfWork>();
+            var _emailService = Resolve<IEmailService>();
+            var subcriptionRepository = Resolve<ISubscriptionRepository>();
+            TimeZoneInfo vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+            DateTime _vietnamTime = TimeZoneInfo.ConvertTime(DateTime.Now, vietnamTimeZone);
+            _logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
+            var list = await subcriptionRepository.GetListByExpression(s => s.SubscriptionStatusId == SD.Subscription.PENDING, s => s.User, s => s.Class);
+            foreach (var item in list)
             {
-                var _unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
-                var _emailService = scope.ServiceProvider.GetRequiredService<IEmailService>();
-                var subcriptionRepository = scope.ServiceProvider.GetRequiredService<ISubscriptionRepository>();
-                TimeZoneInfo vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
-                DateTime _vietnamTime = TimeZoneInfo.ConvertTime(DateTime.Now, vietnamTimeZone);
-
-                _logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
-
-                var list = await subcriptionRepository.GetListByExpression(s => s.SubscriptionStatusId == SD.Subscription.PENDING, s => s.User, s => s.Class);
-
-                foreach (var item in list)
+                if (_vietnamTime > item.SubscriptionDate)
                 {
-                    if (_vietnamTime > item.SubscriptionDate)
-                    {
-                        _emailService.SendEmail(item.User.Email, "NHAC NHO THANH TOAN", $"BAN CHUA THANH TOAN KIAAAA. THANH TOAN KHOA HOC THUOC LOP {item.Class.ClassName} GIA LA {item.Total}");
-                    }
+                    _emailService.SendEmail(item.User.Email, "NHAC NHO THANH TOAN", $"BAN CHUA THANH TOAN KIAAAA. THANH TOAN KHOA HOC THUOC LOP {item.Class.ClassName} GIA LA {item.Total}");
                 }
             }
+
         }
     }
 }
