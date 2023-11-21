@@ -38,12 +38,11 @@ namespace YogaCenter.BackEnd.Service.Services
        *: Mọi ngày trong tuần.
        */
 
-        [Obsolete]
-        public void Main()
+        public void Start()
         {
 
             TimeZoneInfo vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
-            RecurringJob.AddOrUpdate(() => PaymentReminder(), Cron.Daily, vietnamTimeZone);
+            RecurringJob.AddOrUpdate(() => PaymentReminder(), Utility.ConvertToCronExpression(7,30, null), vietnamTimeZone);
 
         }
 

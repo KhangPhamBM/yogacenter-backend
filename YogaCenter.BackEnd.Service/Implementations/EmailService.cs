@@ -10,16 +10,24 @@ using System.Text;
 using System.Threading.Tasks;
 using YogaCenter.BackEnd.Service.Contracts;
 using MailKit.Net.Smtp;
+using Microsoft.Extensions.Configuration;
 
 namespace YogaCenter.BackEnd.Service.Implementations
 {
     public class EmailService : IEmailService
     {
+        private readonly IConfiguration _configuration;
+
+        public EmailService(IConfiguration configuration)
+        {
+            _configuration = configuration;
+        }
+
         public  void SendEmail(string recipient, string subject, string body)
         {
             var message = new MimeMessage();
-            message.From.Add(new MailboxAddress("Yoga Center", "yogacenter.contact@gmail.com"));
-            message.To.Add(new MailboxAddress("Trainee", recipient));
+            message.From.Add(new MailboxAddress("QK Back End Project", _configuration["Email:User"]));
+            message.To.Add(new MailboxAddress("Customer", recipient));
             message.Subject = subject;
 
             var bodyBuilder = new BodyBuilder();
@@ -29,7 +37,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
             using (MailKit.Net.Smtp.SmtpClient client = new MailKit.Net.Smtp.SmtpClient())
             {
                 client.Connect("smtp.gmail.com", 587, SecureSocketOptions.StartTls);
-                client.Authenticate("yogacenter.contact@gmail.com", "ltndmfckyoefvhgh");
+                client.Authenticate(_configuration["Email:User"], _configuration["Email:ApplicationPassword"]);
                 client.Send(message);
                 client.Disconnect(true);
             }

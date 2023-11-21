@@ -110,7 +110,30 @@ namespace YogaCenter.BackEnd.DAL.Util
             }
         }
 
-    
+        public static string ConvertToCronExpression(int hours, int minutes, int? day = null)
+        {
+            // Validate input
+            if (hours < 0 || hours > 23 || minutes < 0 || minutes > 59 || (day.HasValue && (day.Value < 1 || day.Value > 31)))
+            {
+                throw new ArgumentException("Invalid hours, minutes, or day");
+            }
+
+            // Hangfire cron expression format: "minute hour day * *"
+            string cronExpression;
+
+            if (day.HasValue)
+            {
+                cronExpression = $"{minutes} {hours} {day} * *";
+            }
+            else
+            {
+                // If day is not specified, use "?" to indicate no specific day
+                cronExpression = $"{minutes} {hours} * * *";
+            }
+
+            return cronExpression;
+        }
+
 
     }
 }
