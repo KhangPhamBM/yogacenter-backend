@@ -133,7 +133,5 @@ namespace YogaCenter.BackEnd.DAL.Util
 
             return cronExpression;
         }
-
-
     }
 }
