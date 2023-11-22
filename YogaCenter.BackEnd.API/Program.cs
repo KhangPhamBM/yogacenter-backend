@@ -23,6 +23,8 @@ using LicenseContext = OfficeOpenXml.LicenseContext;
 using Hangfire;
 using Firebase.Storage;
 using Microsoft.Extensions.Configuration;
+using Microsoft.CodeAnalysis;
+using System.Reflection;
 
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 
@@ -161,8 +163,8 @@ builder.Services.AddSwaggerGen(option =>
         {
             Name = "Example License",
             Url = new Uri("https://example.com/license")
-        }
-    });
+        },
+});
    
 });
 builder.Services
@@ -193,7 +195,7 @@ builder.Services.AddAuthentication(options =>
 {
     googleOptions.ClientId = builder.Configuration["Google:ClientId"];
     googleOptions.ClientSecret = builder.Configuration["Google:ClientSecret"];
-}); ;
+}); 
 
 var app = builder.Build();
 app.UseCors(MyAllowSpecificOrigins);

@@ -64,7 +64,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                     var token = new JwtSecurityToken(
                         issuer: _configuration["JWT:Issuer"],
                         audience: _configuration["JWT:Audience"],
-                        expires: DateTime.Now.AddDays(1),
+                        expires: DAL.Util.Utility.GetInstance().GetCurrentDateInTimeZone().AddDays(1),
                         claims: claims,
                         signingCredentials: new SigningCredentials(authenKey, SecurityAlgorithms.HmacSha512Signature)
                         );
@@ -96,16 +96,16 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 (
                     issuer: _configuration["JWT:Issuer"],
                     audience: _configuration["JWT:Audience"],
-                    expires: DateTime.Now.AddDays(1),
+                    expires: DAL.Util.Utility.GetInstance().GetCurrentDateInTimeZone().AddDays(1),
                     claims: claims,
                     signingCredentials: new SigningCredentials(authenKey, SecurityAlgorithms.HmacSha512Signature)
                 );
 
                 accessTokenNew = new JwtSecurityTokenHandler().WriteToken(token);
-                if (user.RefreshTokenExpiryTime <= DateTime.Now)
+                if (user.RefreshTokenExpiryTime <= DAL.Util.Utility.GetInstance().GetCurrentDateInTimeZone())
                 {
                     user.RefreshToken = GenerateRefreshToken();
-                    user.RefreshTokenExpiryTime = DateTime.Now.AddDays(1);
+                    user.RefreshTokenExpiryTime = DAL.Util.Utility.GetInstance().GetCurrentDateInTimeZone().AddDays(1);
                     await _unitOfWork.SaveChangeAsync();
                     refreshTokenNew = user.RefreshToken;
                 }

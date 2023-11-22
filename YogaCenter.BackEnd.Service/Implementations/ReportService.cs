@@ -36,7 +36,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
             var subcriptionRepository = Resolve<ISubscriptionRepository>();
 
             ReportDto report = new ReportDto();
-             report.Date = DateTime.Now;
+             report.Date = DAL.Util.Utility.GetInstance().GetCurrentDateInTimeZone();
           
 
             var courseList = await courseRepository.GetAll();
