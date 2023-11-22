@@ -45,7 +45,7 @@ namespace YogaCenter.BackEnd.Service.Services
             _logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
             DateTime _vietnamTime = Utility.GetInstance().GetCurrentDateTimeInTimeZone();
             var list = await subcriptionRepository
-                .GetListByExpression(s => s.SubscriptionDate < _vietnamTime &&
+                .GetListByExpression(s => s.SubscriptionDate.Date < _vietnamTime.Date &&
                 s.SubscriptionStatusId == SD.Subscription.PENDING, s => s.User, s => s.Class);
             foreach (var item in list)
             {
