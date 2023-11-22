@@ -12,7 +12,7 @@ namespace YogaCenter.BackEnd.DAL.Models
     {
         [Key]
         public string SubscriptionId { get; set; }
-        public DateTime? SubscriptionDate { get; set; }
+        public DateTime SubscriptionDate { get; set; }
         public double? Total { get; set; }
         public string? UserId { get; set; }
         [ForeignKey("UserId"), Column(Order = 3)]
