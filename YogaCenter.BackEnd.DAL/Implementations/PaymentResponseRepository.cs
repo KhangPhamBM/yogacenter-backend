@@ -21,7 +21,7 @@ namespace YogaCenter.BackEnd.DAL.Implementations
 
         public async Task<IEnumerable<PaymentRespone>> GetPaymentResponsesByMonth(int year, int month)
         {
-            return GetPaymentResponsesByYear(year).Result.Where(p => p.Subscription.SubscriptionDate.Value.Month == month).ToList();
+            return GetPaymentResponsesByYear(year).Result.Where(p => p.Subscription?.SubscriptionDate.Month == month).ToList();
         }
 
         public async Task<IEnumerable<PaymentRespone>> GetPaymentResponsesByUserId(string UserId)
@@ -45,7 +45,7 @@ namespace YogaCenter.BackEnd.DAL.Implementations
 
         public async Task<IEnumerable<PaymentRespone>> GetPaymentResponsesByYear(int year)
         {
-            return _context.PaymentRespones.Where(p => p.Subscription.SubscriptionDate.Value.Year == year).ToList();
+            return _context.PaymentRespones.Where(p => p.Subscription.SubscriptionDate.Year == year).ToList();
         }
     }
 }

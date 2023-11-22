@@ -48,7 +48,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
            List<double> totalList = new List<double>();
             foreach ( var course in courseList )
             {
-                var subcription = await subcriptionRepository.GetListByExpression(c => c.Class.CourseId == course.CourseId && c.SubscriptionDate.Value.Month == month && c.SubscriptionDate.Value.Year == year && c.SubscriptionStatusId == SD.Subscription.SUCCESSFUL, null);
+                var subcription = await subcriptionRepository.GetListByExpression(c => c.Class.CourseId == course.CourseId && c.SubscriptionDate.Month == month && c.SubscriptionDate.Year == year && c.SubscriptionStatusId == SD.Subscription.SUCCESSFUL, null);
                 double total = 0;
                 foreach (var i in subcription)
                 {
