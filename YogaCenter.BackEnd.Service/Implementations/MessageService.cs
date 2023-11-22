@@ -120,7 +120,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                     {
                         isDeleted = false,
                         MessageContent = EncryptionHelper.Encrypt(request.Message),
-                        SendTime = DateTime.Now,
+                        SendTime = DAL.Util.Utility.GetInstance().GetCurrentDateInTimeZone(),
                         ClassDetailId = (int)(classDetail?.ClassDetailId),
                     };
                     await _messageRepository.Insert(message);

@@ -145,11 +145,11 @@ namespace YogaCenter.BackEnd.Service.Implementations
             if (user.RefreshToken == null)
             {
                 user.RefreshToken = jwtService.GenerateRefreshToken();
-                user.RefreshTokenExpiryTime = DateTime.Now.AddDays(1);
+                user.RefreshTokenExpiryTime = DAL.Util.Utility.GetInstance().GetCurrentDateInTimeZone().AddDays(1);
             }
-            if (user.RefreshTokenExpiryTime <= DateTime.Now)
+            if (user.RefreshTokenExpiryTime <= DAL.Util.Utility.GetInstance().GetCurrentDateInTimeZone())
             {
-                user.RefreshTokenExpiryTime = DateTime.Now.AddDays(1);
+                user.RefreshTokenExpiryTime = DAL.Util.Utility.GetInstance().GetCurrentDateInTimeZone().AddDays(1);
                 user.RefreshToken = jwtService.GenerateRefreshToken();
             }
 

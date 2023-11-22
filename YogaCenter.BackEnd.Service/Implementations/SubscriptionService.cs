@@ -61,7 +61,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 }
                 else
                 {
-                    if (DateTime.Now < classRepository
+                    if (DAL.Util.Utility.GetInstance().GetCurrentDateInTimeZone() < classRepository
                     .GetById(Subscription.Subscription.ClassId).Result.EndDate
                     &&
                     await classDetailRepository
@@ -159,13 +159,12 @@ namespace YogaCenter.BackEnd.Service.Implementations
 
                 if (await classRepository.GetById(subcription.ClassId) == null)
                 {
-
                     _result.Message.Add("The class not found");
                     isValid = false;
                 }
                 else
                 {
-                    if (DateTime.Now < classRepository
+                    if (DAL.Util.Utility.GetInstance().GetCurrentDateInTimeZone() < classRepository
                     .GetById(subcription.ClassId).Result.EndDate
                     &&
                     await classDetailRepository

@@ -13,7 +13,7 @@ namespace YogaCenter.BackEnd.DAL.Util
 
         private static Utility Instance;
         private Utility() { }
-        public static Utility getInstance()
+        public static Utility GetInstance()
         {
             if (Instance == null)
             {
