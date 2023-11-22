@@ -9,17 +9,8 @@ namespace YogaCenter.BackEnd.DAL.Util
 {
     public class TemplateMappingHelper
     {
-        private static TemplateMappingHelper Instance;
-        private TemplateMappingHelper() { }
-        public static TemplateMappingHelper GetInstance()
-        {
-            if (Instance == null)
-            {
-                Instance = new TemplateMappingHelper();
-            }
-            return Instance;
-        }
-        public string GetTemplateRemindSchedule(List<Schedule> schedules)
+
+        public  string GetTemplateRemindSchedule(List<Schedule> schedules)
         {
             string body = @"
 <!DOCTYPE html>
@@ -93,7 +84,7 @@ namespace YogaCenter.BackEnd.DAL.Util
             return body;
         }
 
-        public string GetTemplateRemindPayment(Subscription subscription, string urlPayment)
+        public  string GetTemplateRemindPayment(Subscription subscription, string urlPayment)
         {
             string body = @"
 <!DOCTYPE html>

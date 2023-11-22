@@ -43,7 +43,9 @@ namespace YogaCenter.BackEnd.Service.Services
             var paymentService = Resolve<IPaymentService>();
             var subcriptionRepository = Resolve<ISubscriptionRepository>();
             _logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
-            DateTime _vietnamTime = Utility.GetInstance().GetCurrentDateTimeInTimeZone();
+            var utility = Resolve<YogaCenter.BackEnd.DAL.Util.Utility>();
+            var templateMappingHelper = Resolve<YogaCenter.BackEnd.DAL.Util.TemplateMappingHelper>();
+            DateTime _vietnamTime = utility.GetCurrentDateTimeInTimeZone();
             var list = await subcriptionRepository
                 .GetListByExpression(s => s.SubscriptionDate.Date < _vietnamTime.Date &&
                 s.SubscriptionStatusId == SD.Subscription.PENDING, s => s.User, s => s.Class);
@@ -54,16 +56,19 @@ namespace YogaCenter.BackEnd.Service.Services
                 (
                 item.User.Email,
                 "NHAC NHO THANH TOAN",
-                TemplateMappingHelper.GetInstance().GetTemplateRemindPayment(item, urlPayment)
+                templateMappingHelper.GetTemplateRemindPayment(item, urlPayment)
                 );
             }
         }
         public async Task ScheduleReminder()
         {
-            DateTime _vietnamTime = Utility.GetInstance().GetCurrentDateTimeInTimeZone();
+            var utility = Resolve<YogaCenter.BackEnd.DAL.Util.Utility>();
+            DateTime _vietnamTime = utility.GetCurrentDateTimeInTimeZone();
             var scheduleRepository = Resolve<IScheduleRepository>();
             var classDetailRepository = Resolve<IClassDetailRepository>();
             var emailService = Resolve<IEmailService>();
+            var templateMappingHelper = Resolve<YogaCenter.BackEnd.DAL.Util.TemplateMappingHelper>();
+
             var listScheduleToday = await scheduleRepository.
                                           GetListByExpression(s => s.Date.Date == _vietnamTime.Date, s => s.Class);
             HashSet<Class> classes = new HashSet<Class>();
@@ -79,7 +84,7 @@ namespace YogaCenter.BackEnd.Service.Services
                                                 GetListByExpression(s => s.Date.Date == _vietnamTime.Date && s.ClassId == item.ClassId);
                 foreach (var item2 in classDetail)
                 {
-                    emailService.SendEmail(item2.User.Email, "Schedule Remind", TemplateMappingHelper.GetInstance().GetTemplateRemindSchedule(Utility.ConvertIOrderQueryAbleToList(listScheduleForClass)));
+                    emailService.SendEmail(item2.User.Email, "Schedule Remind", templateMappingHelper.GetTemplateRemindSchedule(Utility.ConvertIOrderQueryAbleToList(listScheduleForClass)));
                 }
             }
 

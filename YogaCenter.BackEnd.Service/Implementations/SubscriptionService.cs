@@ -43,6 +43,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 var accountRepository = Resolve<IAccountRepository>();
                 var courseRepository = Resolve<ICourseRepository>();
                 var subcriptionStatusRepository = Resolve<ISubscriptionStatusRepository>();
+                var utility = Resolve<YogaCenter.BackEnd.DAL.Util.Utility>();
 
 
 
@@ -61,7 +62,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 }
                 else
                 {
-                    if (DAL.Util.Utility.GetInstance().GetCurrentDateInTimeZone() < classRepository
+                    if (utility.GetCurrentDateInTimeZone() < classRepository
                     .GetById(Subscription.Subscription.ClassId).Result.EndDate
                     &&
                     await classDetailRepository
@@ -148,6 +149,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 var accountRepository = Resolve<IAccountRepository>();
                 var courseRepository = Resolve<ICourseRepository>();
                 var subcriptionStatusRepository = Resolve<ISubscriptionStatusRepository>();
+                var utility = Resolve<YogaCenter.BackEnd.DAL.Util.Utility>();
 
                 bool isValid = true;
                 var subcription = await _subscriptionRepository.GetById(subcriptionId);
@@ -164,7 +166,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 }
                 else
                 {
-                    if (DAL.Util.Utility.GetInstance().GetCurrentDateInTimeZone() < classRepository
+                    if (utility.GetCurrentDateInTimeZone() < classRepository
                     .GetById(subcription.ClassId).Result.EndDate
                     &&
                     await classDetailRepository

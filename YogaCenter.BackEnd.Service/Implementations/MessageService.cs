@@ -108,6 +108,8 @@ namespace YogaCenter.BackEnd.Service.Implementations
             {
                 bool isValid = true;
                 var classDetailRepository = Resolve<IClassDetailRepository>();
+                var utility = Resolve<YogaCenter.BackEnd.DAL.Util.Utility>();
+
                 var classDetail = await classDetailRepository.GetByExpression(c => c.UserId == request.UserId && c.ClassId == request.ClassId);
                 if (classDetail == null)
                 {
@@ -120,7 +122,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                     {
                         isDeleted = false,
                         MessageContent = EncryptionHelper.Encrypt(request.Message),
-                        SendTime = DAL.Util.Utility.GetInstance().GetCurrentDateInTimeZone(),
+                        SendTime = utility.GetCurrentDateInTimeZone(),
                         ClassDetailId = (int)(classDetail?.ClassDetailId),
                     };
                     await _messageRepository.Insert(message);

@@ -10,16 +10,10 @@ namespace YogaCenter.BackEnd.DAL.Util
 {
     public class SD
     {
-        private static SD instance;
+
         public static int MAX_RECORD_PER_PAGE = Int16.MaxValue;
-        public static SD getInstance()
-        {
-            if (instance == null)
-            {
-                instance = new SD();
-            }
-            return instance;
-        }
+
+
         public class Role
         {
             public static int ADMIN_ROLEID = 1;

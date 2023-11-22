@@ -23,6 +23,7 @@ using YogaCenter.BackEnd.DAL.Common;
 using YogaCenter.BackEnd.DAL.Implementations;
 using YogaCenter.BackEnd.Common.Dto.Request;
 using YogaCenter.BackEnd.Common.Dto.Response;
+using Utility = YogaCenter.BackEnd.DAL.Util.Utility;
 
 namespace YogaCenter.BackEnd.Service.Implementations
 {
@@ -139,17 +140,19 @@ namespace YogaCenter.BackEnd.Service.Implementations
 
         private async Task LoginDefault(string email, ApplicationUser? user)
         {
+           
             var jwtService = Resolve<IJwtService>();
+            var utility = Resolve<Utility>();
             string token = await jwtService.GenerateAccessToken(new LoginRequestDto { Email = email });
 
             if (user.RefreshToken == null)
             {
                 user.RefreshToken = jwtService.GenerateRefreshToken();
-                user.RefreshTokenExpiryTime = DAL.Util.Utility.GetInstance().GetCurrentDateInTimeZone().AddDays(1);
+                user.RefreshTokenExpiryTime = utility.GetCurrentDateInTimeZone().AddDays(1);
             }
-            if (user.RefreshTokenExpiryTime <= DAL.Util.Utility.GetInstance().GetCurrentDateInTimeZone())
+            if (user.RefreshTokenExpiryTime <= utility.GetCurrentDateInTimeZone())
             {
-                user.RefreshTokenExpiryTime = DAL.Util.Utility.GetInstance().GetCurrentDateInTimeZone().AddDays(1);
+                user.RefreshTokenExpiryTime = utility.GetCurrentDateInTimeZone().AddDays(1);
                 user.RefreshToken = jwtService.GenerateRefreshToken();
             }
 

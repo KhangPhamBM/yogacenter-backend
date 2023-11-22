@@ -120,6 +120,8 @@ namespace YogaCenter.BackEnd.Service.Implementations
             try
             {
                 var feedbacks = await _feedbackRepository.GetAll();
+                var SD = Resolve<YogaCenter.BackEnd.DAL.Util.SD>();
+
                 if (pageIndex <= 0) pageIndex = 1;
                 if (pageSize <= 0) pageSize = SD.MAX_RECORD_PER_PAGE;
                 int totalPage = DataPresentationHelper.CalculateTotalPageSize(feedbacks.Count(), pageSize);
