@@ -8,20 +8,10 @@ using System.Threading.Tasks;
 
 namespace YogaCenter.BackEnd.DAL.Util
 {
-    public class Utility
+    public  class Utility
     {
 
-        private static Utility Instance;
-        private Utility() { }
-        public static Utility GetInstance()
-        {
-            if (Instance == null)
-            {
-                Instance = new Utility();
-            }
-            return Instance;
-        }
-        public DateTime GetCurrentDateTimeInTimeZone()
+        public  DateTime GetCurrentDateTimeInTimeZone()
         {
             TimeZoneInfo vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
 
@@ -34,7 +24,7 @@ namespace YogaCenter.BackEnd.DAL.Util
             return vietnamTime;
         }
 
-        public DateTime GetCurrentDateInTimeZone()
+        public  DateTime GetCurrentDateInTimeZone()
         {
             TimeZoneInfo vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
 
@@ -49,6 +39,7 @@ namespace YogaCenter.BackEnd.DAL.Util
 
         private static HashSet<int> generatedNumbers = new HashSet<int>();
 
+        
         public static int GenerateUniqueNumber()
         {
             while (true)
@@ -88,12 +79,12 @@ namespace YogaCenter.BackEnd.DAL.Util
             return orderedQueryable;
         }
 
-        public string ReadAppSettingsJson()
+        public static string ReadAppSettingsJson()
         {
             var appSettingsPath = Path.Combine(Directory.GetCurrentDirectory(), "appsettings.json");
             return File.ReadAllText(appSettingsPath);
         }
-        public void UpdateAppSettingValue(string section, string key, string value)
+        public static void UpdateAppSettingValue(string section, string key, string value)
         {
             var appSettingsPath = Path.Combine(Directory.GetCurrentDirectory(), "appsettings.json");
             var json = File.ReadAllText(appSettingsPath);

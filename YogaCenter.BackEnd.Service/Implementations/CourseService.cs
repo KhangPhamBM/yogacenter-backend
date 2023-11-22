@@ -158,6 +158,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
             {
                 var courseList = await _courseRepository.GetAll();
                 var fileService = Resolve<IFileService>();
+                var SD = Resolve<YogaCenter.BackEnd.DAL.Util.SD>();
 
                 var courses = Utility.ConvertIOrderQueryAbleToList(courseList);
                 foreach(var item in courses)

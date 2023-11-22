@@ -46,6 +46,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
         public async Task<string> GenerateAccessToken(LoginRequestDto loginRequest)
         {
             var accountRepository = Resolve<IAccountRepository>();
+            var utility = Resolve<YogaCenter.BackEnd.DAL.Util.Utility>();
             var user = await accountRepository.GetByExpression(u => u.Email.ToLower() == loginRequest.Email.ToLower());
 
             if (user != null)
@@ -64,7 +65,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
                     var token = new JwtSecurityToken(
                         issuer: _configuration["JWT:Issuer"],
                         audience: _configuration["JWT:Audience"],
-                        expires: DAL.Util.Utility.GetInstance().GetCurrentDateInTimeZone().AddDays(1),
+                        expires: utility.GetCurrentDateInTimeZone().AddDays(1),
                         claims: claims,
                         signingCredentials: new SigningCredentials(authenKey, SecurityAlgorithms.HmacSha512Signature)
                         );
@@ -78,6 +79,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
             string accessTokenNew = "";
             string refreshTokenNew = "";
             var accountRepository = Resolve<IAccountRepository>();
+            var utility = Resolve<YogaCenter.BackEnd.DAL.Util.Utility>();
 
             var user = await accountRepository.GetByExpression(u => u.Id.ToLower() == accountId);
 
@@ -96,16 +98,16 @@ namespace YogaCenter.BackEnd.Service.Implementations
                 (
                     issuer: _configuration["JWT:Issuer"],
                     audience: _configuration["JWT:Audience"],
-                    expires: DAL.Util.Utility.GetInstance().GetCurrentDateInTimeZone().AddDays(1),
+                    expires: utility.GetCurrentDateInTimeZone().AddDays(1),
                     claims: claims,
                     signingCredentials: new SigningCredentials(authenKey, SecurityAlgorithms.HmacSha512Signature)
                 );
 
                 accessTokenNew = new JwtSecurityTokenHandler().WriteToken(token);
-                if (user.RefreshTokenExpiryTime <= DAL.Util.Utility.GetInstance().GetCurrentDateInTimeZone())
+                if (user.RefreshTokenExpiryTime <= utility.GetCurrentDateInTimeZone())
                 {
                     user.RefreshToken = GenerateRefreshToken();
-                    user.RefreshTokenExpiryTime = DAL.Util.Utility.GetInstance().GetCurrentDateInTimeZone().AddDays(1);
+                    user.RefreshTokenExpiryTime = utility.GetCurrentDateInTimeZone().AddDays(1);
                     await _unitOfWork.SaveChangeAsync();
                     refreshTokenNew = user.RefreshToken;
                 }

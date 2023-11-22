@@ -25,6 +25,7 @@ using Firebase.Storage;
 using Microsoft.Extensions.Configuration;
 using Microsoft.CodeAnalysis;
 using System.Reflection;
+using YogaCenter.BackEnd.DAL.Util;
 
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 
@@ -39,84 +40,62 @@ builder.Services.AddDbContext<YogaCenterContext>(option =>
 {
     option.UseSqlServer(builder.Configuration.GetValue<string>("ConnectionStrings:DB"));
 });
+#region registerService
 IMapper mapper = MappingConfig.RegisterMap().CreateMapper();
 builder.Services.AddSingleton(mapper);
 builder.Services.AddSingleton<FirebaseStorage>(_ => new FirebaseStorage(builder.Configuration.GetValue<string>("Firebase:Bucket")));
-
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
-
-
 builder.Services.AddSingleton(typeof(IConverter), new SynchronizedConverter(new PdfTools()));
 ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-
-
 builder.Services.AddScoped<IAccountRepository, AccountRepository>();
 builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<IIdentityRoleRepository, IdentityRoleRepository>();
 builder.Services.AddScoped<IUserRoleRepository, UserRoleRepository>();
-
-
 builder.Services.AddScoped<IAttendanceRepository, AttendanceRepository>();
 builder.Services.AddScoped<IAttendanceService, AttendanceService>();
-
 builder.Services.AddScoped<IClassDetailRepository, ClassDetailRepository>();
 builder.Services.AddScoped<IClassDetailService, ClassDetailService>();
-
 builder.Services.AddScoped<IClassRepository, ClassRepository>();
 builder.Services.AddScoped<IClassService, ClassService>();
-
 builder.Services.AddScoped<ICourseRepository, CourseRepository>();
 builder.Services.AddScoped<ICourseService, CourseService>();
-
 builder.Services.AddScoped<IPaymentResponseRepository, PaymentResponseRepository>();
 builder.Services.AddScoped<IPaymentResponeService, PaymentResponeService>();
-
 builder.Services.AddScoped<IRoomRepository, RoomRepository>();
 builder.Services.AddScoped<IRoomService, RoomService>();
-
 builder.Services.AddScoped<IScheduleRepository, ScheduleRepository>();
 builder.Services.AddScoped<IScheduleService, ScheduleService>();
-
 builder.Services.AddScoped<ISubscriptionRepository, SubscriptionRepository>();
 builder.Services.AddScoped<ISubscriptionStatusRepository, SubscriptionStatusRepository>();
-
 builder.Services.AddScoped<ISubscriptionService, SubscriptionService>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
-
 builder.Services.AddScoped<ITicketRepository, TicketRepository>();
 builder.Services.AddScoped<ITicketService, TicketService>();
-
 builder.Services.AddScoped<ITicketStatusRepository, TicketStatusRepository>();
 builder.Services.AddScoped<ITicketStatusService, TicketService>();
-
 builder.Services.AddScoped<ITicketTypeRepository, TicketTypeRepository>();
 builder.Services.AddScoped<ITicketTypeService, TicketService>();
-
 builder.Services.AddScoped<ITimeFrameRepository, TimeFrameRepository>();
 builder.Services.AddScoped<ITimeFrameService, TimeFrameService>();
-
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IRoleService, RoleService>();
-
 builder.Services.AddScoped<IMessageService, MessageService>();
 builder.Services.AddScoped<IMessageRepository, MessageRepository>();
-
 builder.Services.AddScoped<IFileService, FileService>();
 builder.Services.AddScoped<IReportService, ReportService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
-
 builder.Services.AddScoped<IFeedbackRepository, FeedbackRepository>();
 builder.Services.AddScoped<IFeedbackService, FeedbackService>();
-
 builder.Services.AddScoped<IBlogRepository, BlogRepository>();
 builder.Services.AddScoped<IBlogService, BlogService>();
-
 builder.Services.AddScoped<WorkerService>();
+builder.Services.AddSingleton<YogaCenter.BackEnd.DAL.Util.Utility>();
+builder.Services.AddSingleton<YogaCenter.BackEnd.DAL.Util.SD>();
+builder.Services.AddSingleton<YogaCenter.BackEnd.DAL.Util.TemplateMappingHelper>();
 builder.Services.AddHangfire(x => x.UseSqlServerStorage(builder.Configuration.GetValue<string>("ConnectionStrings:DB")));
 builder.Services.AddHangfireServer();
-
-
+#endregion
 
 builder.Services.AddControllers();
 builder.Services.AddSignalR();

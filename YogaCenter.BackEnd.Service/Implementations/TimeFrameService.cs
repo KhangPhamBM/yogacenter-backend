@@ -141,6 +141,7 @@ namespace YogaCenter.BackEnd.Service.Implementations
             try
             {
                 var source = await _timeFrameRepository.GetAll();
+                var SD = Resolve<YogaCenter.BackEnd.DAL.Util.SD>();
                 int pageSize = filterRequest.pageSize;
                 if (pageSize <= 0) pageSize = SD.MAX_RECORD_PER_PAGE;
                 int totalPage = DataPresentationHelper.CalculateTotalPageSize(source.Count(), pageSize);
