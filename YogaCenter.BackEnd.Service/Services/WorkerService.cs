@@ -55,7 +55,7 @@ namespace YogaCenter.BackEnd.Service.Services
                 _emailService.SendEmail
                 (
                 item.User.Email,
-                "NHAC NHO THANH TOAN",
+                "PAYMENT REMIND",
                 templateMappingHelper.GetTemplateRemindPayment(item, urlPayment)
                 );
             }
